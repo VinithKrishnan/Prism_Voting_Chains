@@ -1,29 +1,120 @@
 use super::hash::{Hashable, H256};
+use std::collections::VecDeque;
 
 /// A Merkle tree.
 #[derive(Debug, Default)]
 pub struct MerkleTree {
+    hashes: Vec<H256>,
+    length: usize,
 }
 
 impl MerkleTree {
     pub fn new<T>(data: &[T]) -> Self where T: Hashable, {
-        unimplemented!()
+        let mut q:VecDeque<H256> = VecDeque::new();
+        let mut tree:Vec<H256> = Vec::new();
+        let mut datalen = data.len();
+
+        for elem in data.into_iter() {
+            q.push_back(elem.hash());
+        }
+        if datalen%2!=0 {
+            q.push_back(data[datalen-1].hash());
+            datalen = datalen + 1;
+        }
+        let mut count = 0;
+        let mut levelen = datalen;
+        while !q.is_empty() {
+            let mut elem1 = q.pop_front().unwrap();
+            tree.push(elem1);
+            count = count + 1;
+            let temp2 = q.pop_front();
+            if temp2 == None {
+                break;
+            }
+            let elem2 = temp2.unwrap();
+            tree.push(elem2);
+            count = count + 1;
+            let leftchild = <[u8;32]>::from(elem1);
+            let rightchild = <[u8;32]>::from(elem2);
+            let parentval = [&leftchild[..],&rightchild[..]].concat();
+            let parent:H256 = ring::digest::digest(&ring::digest::SHA256, &parentval[..]).into();
+            q.push_back(parent);
+            if count == levelen && count!=2 {
+                let i = levelen/2;
+                if i%2 != 0{
+                    q.push_back(parent);
+                    levelen = i+1;
+                    count = 0;
+                } else {
+                    levelen = i;
+                    count = 0;
+                }
+            }
+
+
+        }
+
+    MerkleTree{hashes:tree,length:datalen}
     }
 
     pub fn root(&self) -> H256 {
-        unimplemented!()
+        self.hashes[self.hashes.len()-1]
     }
 
     /// Returns the Merkle Proof of data at index i
     pub fn proof(&self, index: usize) -> Vec<H256> {
-        unimplemented!()
+        let mut proof:Vec<H256> = Vec::new();
+        let mut i = index;
+        let mut levelen = self.length;
+        let mut divisor = 2;
+        let mut sumexplored = 0;
+        while levelen!=1 {
+            if i%2 == 0 {
+                proof.push(self.hashes[i+1]);
+            }
+            else {
+                proof.push(self.hashes[i-1])
+            }
+            sumexplored = sumexplored + levelen;
+            i = sumexplored + index/divisor;
+            levelen = levelen/2;
+            if levelen%2 == 1 && levelen!=1 {
+                levelen = levelen + 1;
+            }
+            divisor = divisor*2;
+        }
+    proof
     }
 }
 
 /// Verify that the datum hash with a vector of proofs will produce the Merkle root. Also need the
 /// index of datum and `leaf_size`, the total number of leaves.
 pub fn verify(root: &H256, datum: &H256, proof: &[H256], index: usize, leaf_size: usize) -> bool {
-    unimplemented!()
+       let mut h = *datum;
+       let mut res = false;
+       let mut i = index;
+       let mut iter = 0;
+       let mut leftchild = <[u8;32]>::from(h);
+       let mut rightchild = <[u8;32]>::from(proof[0]);
+       while iter<proof.len() {
+           if i%2 ==0 {
+               leftchild = <[u8;32]>::from(h);
+               rightchild = <[u8;32]>::from(proof[iter]);
+           } else {
+               rightchild = <[u8;32]>::from(h);
+               leftchild = <[u8;32]>::from(proof[iter]);
+           }
+           let parentval = [&leftchild[..],&rightchild[..]].concat();
+           h = ring::digest::digest(&ring::digest::SHA256, &parentval[..]).into();
+           iter = iter + 1;
+           i = i/2;
+       }
+       if h == *root {
+           res = true;
+       }
+
+       res
+
 }
 
 #[cfg(test)]
