@@ -4,11 +4,23 @@ extern crate serde;
 use serde::{Serialize,Deserialize};
 use ring::signature::{self,Ed25519KeyPair, Signature, KeyPair, VerificationAlgorithm, EdDSAParameters};
 use rand::Rng;
+use crate::crypto::hash::{H256, Hashable};
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default,Clone)]
 pub struct Transaction {
     input : Vec<u8>,
     output : Vec<u8>,
+}
+
+//pub fn pr(){
+//    println!("hello");
+//}
+
+impl Hashable for Transaction {
+    fn hash(&self) -> H256 {
+        let encodedtrans: Vec<u8> = bincode::serialize(&self).unwrap();
+        ring::digest::digest(&ring::digest::SHA256, &encodedtrans[..]).into()
+    }
 }
 
 /// Create digital signature of a transaction
@@ -30,7 +42,7 @@ pub fn verify(t: &Transaction, public_key: &<Ed25519KeyPair as KeyPair>::PublicK
 }
 
 #[cfg(any(test, test_utilities))]
-mod tests {
+pub mod tests {
     use super::*;
     use crate::crypto::key_pair;
 
