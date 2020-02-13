@@ -1,5 +1,6 @@
 use crate::block::*;
 use crate::crypto::hash::{H256,Hashable};
+use crate::crypto::hash::tests::generate_random_hash;
 use std::collections::HashMap;
 use crate::block::test::generate_random_block;
 
@@ -7,6 +8,7 @@ pub struct Blockchain {
     chain:HashMap<H256,Block>,
     tiphash:H256,
     heights:HashMap<H256,u8>,
+    buffer:HashMap<H256,Block>,
 }
 
 impl Blockchain {
@@ -18,22 +20,52 @@ impl Blockchain {
         let mut genhash:H256 = genesis.hash();
         let mut chainmap:HashMap<H256,Block> = HashMap::new();
         let mut heightsmap:HashMap<H256,u8> = HashMap::new();
+        let mut buffermap:HashMap<H256,Block> = HashMap::new();
         chainmap.insert(genhash,genesis);
         heightsmap.insert(genhash,0);
         let t:H256 = genhash;
-        let mut newchain:Blockchain = Blockchain{chain:chainmap,tiphash:t,heights:heightsmap};
+        let mut newchain:Blockchain = Blockchain{chain:chainmap,tiphash:t,heights:heightsmap,buffer:buffermap};
         newchain
     }
 
     /// Insert a block into blockchain
     pub fn insert(&mut self, block: &Block) {
+
+
         let h:H256 = block.hash();
-        self.chain.insert(h,block.clone());
-        let len = self.heights[&block.header.parenthash]+1;
-        self.heights.insert(h,len);
-        if(len>self.heights[&self.tiphash]){
-            self.tiphash = h;
+        let mut flag:bool = false;
+
+
+        match self.heights.get(&block.header.parenthash){
+            Some(&number) => { //insertion into mainchain
+                self.chain.insert(h,block.clone());
+                let len = self.heights[&block.header.parenthash]+1;
+                self.heights.insert(h,len);
+                if(len>self.heights[&self.tiphash]){
+                    self.tiphash = h;
+                }
+
+                let mut bhash_copy:H256 = generate_random_hash();
+                //if stale blocks parent has arrived, insert it into main chain
+                for (bhash,blck) in self.buffer.iter(){
+                    if blck.header.parenthash == h {
+                        flag = true;
+                        bhash_copy = *bhash;
+                        self.chain.insert(h,block.clone());
+                        let len = self.heights[&block.header.parenthash]+1;
+                        self.heights.insert(h,len);
+                        if(len>self.heights[&self.tiphash]){
+                            self.tiphash = h;
+                        }
+                    }
+                }
+                if flag {
+                self.buffer.remove(&bhash_copy);
+                }
+            }, // insert stale block into buffer
+            _ => { self.buffer.insert(h,block.clone()); },
         }
+
     }
 
     /// Get the last block's hash of the longest chain
