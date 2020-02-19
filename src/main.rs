@@ -1,4 +1,4 @@
-#[cfg(test)]
+//#[cfg(test)]
 #[macro_use]
 extern crate hex_literal;
 
@@ -19,6 +19,7 @@ use std::net;
 use std::process;
 use std::thread;
 use std::time;
+use std::sync::{Arc, Mutex};
 
 fn main() {
     // parse command line arguments
@@ -81,8 +82,10 @@ fn main() {
     worker_ctx.start();
 
     // start the miner
+    let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new()));
     let (miner_ctx, miner) = miner::new(
         &server,
+        &blockchain,
     );
     miner_ctx.start();
 

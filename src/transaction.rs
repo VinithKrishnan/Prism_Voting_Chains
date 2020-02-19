@@ -41,11 +41,22 @@ pub fn verify(t: &Transaction, public_key: &<Ed25519KeyPair as KeyPair>::PublicK
     peer_public_key.verify(&encoded[..],signature.as_ref()).is_ok()
 }
 
+pub fn generate_random_transaction() -> Transaction {
+    /*Default::default();*/
+    let mut rng = rand::thread_rng();
+    let mut random_bytes: Vec<u8> = (0..32).map(|_| rng.gen()).collect();
+    let input_bytes = random_bytes;
+    random_bytes = (0..32).map(|_| rng.gen()).collect();
+    let output_bytes = random_bytes;
+    Transaction{input : input_bytes,output : output_bytes}
+}
+
 #[cfg(any(test, test_utilities))]
 pub mod tests {
     use super::*;
     use crate::crypto::key_pair;
 
+/*
     pub fn generate_random_transaction() -> Transaction {
         /*Default::default();*/
         let mut rng = rand::thread_rng();
@@ -54,7 +65,7 @@ pub mod tests {
         random_bytes = (0..32).map(|_| rng.gen()).collect();
         let output_bytes = random_bytes;
         Transaction{input : input_bytes,output : output_bytes}
-    }
+    }*/
 
     #[test]
     fn sign_verify() {

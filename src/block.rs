@@ -1,11 +1,10 @@
-#[cfg(test)]
-#[macro_use]
+//#[cfg(test)]
+//#[macro_use]
 
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 use crate::crypto::hash::{H256, Hashable};
-use crate::transaction::Transaction;
-use crate::transaction::tests::generate_random_transaction;
+use crate::transaction::{self, Transaction};
 
 #[derive(Serialize, Deserialize, Debug,Clone)]
 pub struct Header {
@@ -39,25 +38,18 @@ impl Hashable for Header {
     }
 }
 
-
-#[cfg(any(test, test_utilities))]
-pub mod test {
-    use super::*;
-    use crate::crypto::hash::H256;
-
-    pub fn generate_random_block(parent: &H256) -> Block {
-        let mut rng = rand::thread_rng();
-        let r1:u32 = rng.gen();
-        let r2:u128 = rng.gen();
-        let mut buffer: [u8; 32] = [0; 32];
-        let b:H256 = buffer.into();
-        let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:r2,merkle_root:b};
-        let t = generate_random_transaction();
-        //transaction::pr();
-        let mut vect:Vec<Transaction> = vec![];
-        vect.push(t);
-        let c:Content = Content{data:vect};
-        let b:Block = Block{header:h,content:c};
-        b
-    }
+pub fn generate_random_block(parent: &H256) -> Block {
+    let mut rng = rand::thread_rng();
+    let r1:u32 = rng.gen();
+    let r2:u128 = rng.gen();
+    //let mut buffer: [u8; 32] = [0; 32];
+    let b:H256 = hex!("00087718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
+    let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:r2,merkle_root:b};
+    let t = transaction::generate_random_transaction();
+    //transaction::pr();
+    let mut vect:Vec<Transaction> = vec![];
+    vect.push(t);
+    let c:Content = Content{data:vect};
+    let b:Block = Block{header:h,content:c};
+    b
 }

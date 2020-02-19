@@ -1,12 +1,11 @@
-use crate::block::*;
+use crate::block::{self, *};
 use crate::crypto::hash::{H256,Hashable};
-use crate::crypto::hash::tests::generate_random_hash;
+use crate::crypto::hash;
 use std::collections::HashMap;
-use crate::block::test::generate_random_block;
 
 pub struct Blockchain {
-    chain:HashMap<H256,Block>,
-    tiphash:H256,
+    pub chain:HashMap<H256,Block>,
+    pub tiphash:H256,
     heights:HashMap<H256,u8>,
     buffer:HashMap<H256,Block>,
 }
@@ -16,7 +15,7 @@ impl Blockchain {
     pub fn new() -> Self {
         let mut buffer: [u8; 32] = [0; 32];
         let b:H256 = buffer.into();
-        let mut genesis:Block = generate_random_block(&b);
+        let mut genesis:Block = block::generate_random_block(&b);
         let mut genhash:H256 = genesis.hash();
         let mut chainmap:HashMap<H256,Block> = HashMap::new();
         let mut heightsmap:HashMap<H256,u8> = HashMap::new();
@@ -45,7 +44,7 @@ impl Blockchain {
                     self.tiphash = h;
                 }
 
-                let mut bhash_copy:H256 = generate_random_hash();
+                let mut bhash_copy:H256 = hash::generate_random_hash();
                 //if stale blocks parent has arrived, insert it into main chain
                 for (bhash,blck) in self.buffer.iter(){
                     if blck.header.parenthash == h {
@@ -93,14 +92,14 @@ impl Blockchain {
 #[cfg(any(test, test_utilities))]
 mod tests {
     use super::*;
-    use crate::block::test::generate_random_block;
+    use crate::block;
     use crate::crypto::hash::Hashable;
 
     #[test]
     fn insert_one() {
         let mut blockchain = Blockchain::new();
         let genesis_hash = blockchain.tip();
-        let block = generate_random_block(&genesis_hash);
+        let block = block::generate_random_block(&genesis_hash);
         blockchain.insert(&block);
         assert_eq!(blockchain.tip(), block.hash());
 
