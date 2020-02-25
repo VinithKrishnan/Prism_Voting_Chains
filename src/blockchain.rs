@@ -6,8 +6,8 @@ use std::collections::HashMap;
 pub struct Blockchain {
     pub chain:HashMap<H256,Block>,
     pub tiphash:H256,
-    heights:HashMap<H256,u8>,
-    buffer:HashMap<H256,Block>,
+    pub heights:HashMap<H256,u8>,
+    pub buffer:HashMap<H256,Block>,
 }
 
 impl Blockchain {
@@ -15,7 +15,7 @@ impl Blockchain {
     pub fn new() -> Self {
         let mut buffer: [u8; 32] = [0; 32];
         let b:H256 = buffer.into();
-        let mut genesis:Block = block::generate_random_block(&b);
+        let mut genesis:Block = block::generate_genesis_block(&b);
         let mut genhash:H256 = genesis.hash();
         let mut chainmap:HashMap<H256,Block> = HashMap::new();
         let mut heightsmap:HashMap<H256,u8> = HashMap::new();
@@ -50,8 +50,8 @@ impl Blockchain {
                     if blck.header.parenthash == h {
                         flag = true;
                         bhash_copy = *bhash;
-                        self.chain.insert(h,block.clone());
-                        let len = self.heights[&block.header.parenthash]+1;
+                        self.chain.insert(h,blck.clone());
+                        let len = self.heights[&blck.header.parenthash]+1;
                         self.heights.insert(h,len);
                         if(len>self.heights[&self.tiphash]){
                             self.tiphash = h;

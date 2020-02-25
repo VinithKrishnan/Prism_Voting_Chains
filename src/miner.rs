@@ -3,7 +3,7 @@ use crate::blockchain::Blockchain;
 use crate::block::*;
 use crate::transaction::{self, Transaction};
 use crate::crypto::hash::{H256, Hashable};
-
+use crate::network::message::Message;
 use log::info;
 use rand::Rng;
 use crossbeam::channel::{unbounded, Receiver, Sender, TryRecvError};
@@ -28,13 +28,15 @@ pub struct Context {
     control_chan: Receiver<ControlSignal>,
     operating_state: OperatingState,
     server: ServerHandle,
-    blockchain: Arc<Mutex<Blockchain>>
+    blockchain: Arc<Mutex<Blockchain>>,
+    num_mined:u8,
 }
 
 #[derive(Clone)]
 pub struct Handle {
     /// Channel for sending signal to the miner thread
     control_chan: Sender<ControlSignal>,
+
 }
 
 pub fn new(
@@ -47,7 +49,8 @@ pub fn new(
         control_chan: signal_chan_receiver,
         operating_state: OperatingState::Paused,
         server: server.clone(),
-        blockchain: Arc::clone(blockchain)
+        blockchain: Arc::clone(blockchain),
+        num_mined:0,
     };
 
     let handle = Handle {
@@ -67,7 +70,6 @@ impl Handle {
             .send(ControlSignal::Start(lambda))
             .unwrap();
     }
-
 }
 
 impl Context {
@@ -120,23 +122,23 @@ impl Context {
             }
 
             // actual mining
-            
+
             // create Block
             //TODO: Put this in a function
-            
+
             //Creating Header fields
             let mut locked_blockchain = self.blockchain.lock().unwrap();
             let phash = locked_blockchain.tiphash;
 
             let mut rng = rand::thread_rng();
             let nonce = rng.gen();
-            
+
             let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis();
             let difficulty = locked_blockchain.chain.get(&locked_blockchain.tiphash)
                              .unwrap()
                              .header
                              .difficulty ;
-            
+
             //Creating Content
             //It will also be used for Merkel Root for the Header
             let t = transaction::generate_random_transaction();
@@ -144,7 +146,7 @@ impl Context {
             vect.push(t);
             let content: Content = Content{data:vect};
 
-            let merkle_root = H256::from([0; 32]); 
+            let merkle_root = H256::from([0; 32]);
 
             //Putting all together
             let header = Header{
@@ -155,12 +157,17 @@ impl Context {
                 merkle_root: merkle_root
             };
             let new_block = Block{header: header, content: content};
-            
             //Check whether block solved the puzzle
             //If passed, add it to blockchain
             if new_block.hash() <= difficulty {
-              print!("block is generated\n");
+              print!("block with hash:{} generated\n",new_block.hash());
+              print!("Number of blocks mined until now:{}\n",self.num_mined+1);
               locked_blockchain.insert(&new_block);
+              print!("Total number of blocks in blockchain:{}\n",locked_blockchain.chain.len());
+              self.num_mined = self.num_mined + 1;
+              let mut new_block_hash : Vec<H256> = vec![];
+              new_block_hash.push(new_block.hash());
+              self.server.broadcast(Message::NewBlockHashes(new_block_hash));
             }
 
             if let OperatingState::Run(i) = self.operating_state {

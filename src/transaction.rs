@@ -51,6 +51,15 @@ pub fn generate_random_transaction() -> Transaction {
     Transaction{input : input_bytes,output : output_bytes}
 }
 
+pub fn generate_genesis_transaction() -> Transaction {
+    /*Default::default();*/
+
+    let zero_bytes1: Vec<u8> = vec![0,32];
+    let zero_bytes2: Vec<u8> = vec![0;32];
+    Transaction{input : zero_bytes1,output : zero_bytes2}
+}
+
+
 #[cfg(any(test, test_utilities))]
 pub mod tests {
     use super::*;

@@ -61,9 +61,19 @@ fn main() {
     // create channels between server and worker
     let (msg_tx, msg_rx) = channel::unbounded();
 
+
+
     // start the p2p server
     let (server_ctx, server) = server::new(p2p_addr, msg_tx).unwrap();
     server_ctx.start().unwrap();
+
+    // start the miner
+    let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new()));
+    let (miner_ctx, miner) = miner::new(
+        &server,
+        &blockchain,
+    );
+    miner_ctx.start();
 
     // start the worker
     let p2p_workers = matches
@@ -78,16 +88,11 @@ fn main() {
         p2p_workers,
         msg_rx,
         &server,
+        &blockchain,
     );
     worker_ctx.start();
 
-    // start the miner
-    let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new()));
-    let (miner_ctx, miner) = miner::new(
-        &server,
-        &blockchain,
-    );
-    miner_ctx.start();
+
 
     // connect to known peers
     if let Some(known_peers) = matches.values_of("known_peer") {

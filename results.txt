@@ -1,0 +1,20 @@
+difficulty 00087718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920
+
+BLocks = 227
+time = 7.181
+
+rate = 31.61 blocks/sec
+
+difficulty = 00007718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920
+
+blocks = 37
+time = 16.399
+
+rate = 2.25
+
+difficulty = 00000718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920
+
+blocks = 2
+time = 21.859
+
+rate = .091

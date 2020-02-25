@@ -43,9 +43,23 @@ pub fn generate_random_block(parent: &H256) -> Block {
     let r1:u32 = rng.gen();
     let r2:u128 = rng.gen();
     //let mut buffer: [u8; 32] = [0; 32];
-    let b:H256 = hex!("00087718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
+    let b:H256 = hex!("00001718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
     let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:r2,merkle_root:b};
     let t = transaction::generate_random_transaction();
+    //transaction::pr();
+    let mut vect:Vec<Transaction> = vec![];
+    vect.push(t);
+    let c:Content = Content{data:vect};
+    let b:Block = Block{header:h,content:c};
+    b
+}
+
+pub fn generate_genesis_block(parent: &H256) -> Block {
+    let b:H256 = hex!("00001718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
+    let r1:u32 = 0;
+    let r2:u128 = 0;
+    let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:r2,merkle_root:b};
+    let t = transaction::generate_genesis_transaction();
     //transaction::pr();
     let mut vect:Vec<Transaction> = vec![];
     vect.push(t);
