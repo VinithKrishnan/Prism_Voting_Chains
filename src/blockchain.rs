@@ -1,13 +1,19 @@
 use crate::block::{self, *};
 use crate::crypto::hash::{H256,Hashable};
 use crate::crypto::hash;
+use log::{debug,info};
 use std::collections::HashMap;
+use std::collections::VecDeque;
+extern crate chrono;
+use std::time::{Duration};
+use chrono::prelude::*;
 
 pub struct Blockchain {
     pub chain:HashMap<H256,Block>,
     pub tiphash:H256,
     pub heights:HashMap<H256,u8>,
     pub buffer:HashMap<H256,Block>,
+    pub totaldelay:i64,
 }
 
 impl Blockchain {
@@ -23,7 +29,7 @@ impl Blockchain {
         chainmap.insert(genhash,genesis);
         heightsmap.insert(genhash,0);
         let t:H256 = genhash;
-        let mut newchain:Blockchain = Blockchain{chain:chainmap,tiphash:t,heights:heightsmap,buffer:buffermap};
+        let mut newchain:Blockchain = Blockchain{chain:chainmap,tiphash:t,heights:heightsmap,buffer:buffermap,totaldelay:0};
         newchain
     }
 
@@ -35,8 +41,16 @@ impl Blockchain {
         let mut flag:bool = false;
 
 
-        match self.heights.get(&block.header.parenthash){
-            Some(&number) => { //insertion into mainchain
+        match self.chain.get(&block.header.parenthash){
+            Some(pblock) => { //insertion into mainchain
+
+                if h < pblock.header.difficulty && !self.chain.contains_key(&h) {
+                let b_delay = Local::now().timestamp_millis() - block.header.timestamp;
+                self.totaldelay = self.totaldelay + b_delay;
+                info!("Adding block with hash {} to chain",h);
+                println!("Block delay is: {:?}",(Local::now().timestamp_millis() - block.header.timestamp));
+                println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));
+                println!("Total number of blocks in blockchain:{}\n",self.chain.len());
                 self.chain.insert(h,block.clone());
                 let len = self.heights[&block.header.parenthash]+1;
                 self.heights.insert(h,len);
@@ -46,23 +60,46 @@ impl Blockchain {
 
                 let mut bhash_copy:H256 = hash::generate_random_hash();
                 //if stale blocks parent has arrived, insert it into main chain
-                for (bhash,blck) in self.buffer.iter(){
-                    if blck.header.parenthash == h {
-                        flag = true;
-                        bhash_copy = *bhash;
-                        self.chain.insert(h,blck.clone());
-                        let len = self.heights[&blck.header.parenthash]+1;
-                        self.heights.insert(h,len);
-                        if(len>self.heights[&self.tiphash]){
-                            self.tiphash = h;
-                        }
+                let mut bhash_vec = Vec::new();
+                let mut phash_q: VecDeque<H256>= VecDeque::new();
+                phash_q.push_back(h);
+                while(!phash_q.is_empty()){
+                    match phash_q.pop_front() {
+                        Some(h) => for (bhash,blck) in self.buffer.iter(){
+                                if blck.header.parenthash == h {
+                                    flag = true;
+                                    bhash_copy = *bhash;
+                                    bhash_vec.push(bhash_copy);
+                                    self.chain.insert(bhash_copy,blck.clone());
+                                    let b_delay = Local::now().timestamp_millis() - block.header.timestamp;
+                                    self.totaldelay = self.totaldelay + b_delay;
+                                    info!("Adding block with hash {} to chain",blck.hash());
+                                    println!("Block delay is: {:?}",(Local::now().timestamp_millis() - blck.header.timestamp));
+                                    println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));
+                                    println!("Total number of blocks in blockchain:{}\n",self.chain.len());
+                                    let len = self.heights[&blck.header.parenthash]+1;
+                                    self.heights.insert(bhash_copy,len);
+                                    if(len>self.heights[&self.tiphash]){
+                                        self.tiphash = bhash_copy;
+                                    }
+                                }
+                            },
+                        None => (),
                     }
                 }
-                if flag {
-                self.buffer.remove(&bhash_copy);
+
+
+                for bh in bhash_vec{
+                    self.buffer.remove(&bh);
                 }
+             }
             }, // insert stale block into buffer
-            _ => { self.buffer.insert(h,block.clone()); },
+            _ => {
+                  print!("Adding block with hash {} to buffer\n",h); 
+                  if !self.buffer.contains_key(&h){
+                  self.buffer.insert(h,block.clone()); 
+                  }
+                 },
         }
 
     }

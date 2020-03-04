@@ -5,13 +5,16 @@ use rand::Rng;
 use serde::{Serialize, Deserialize};
 use crate::crypto::hash::{H256, Hashable};
 use crate::transaction::{self, Transaction};
+extern crate chrono;
+use std::time::{Duration};
+use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug,Clone)]
 pub struct Header {
     pub parenthash: H256,
     pub nonce: u32,
     pub difficulty: H256,
-    pub timestamp: u128,
+    pub timestamp: i64,
     pub merkle_root:H256,
 }
 #[derive(Serialize, Deserialize, Debug,Clone)]
@@ -41,10 +44,12 @@ impl Hashable for Header {
 pub fn generate_random_block(parent: &H256) -> Block {
     let mut rng = rand::thread_rng();
     let r1:u32 = rng.gen();
-    let r2:u128 = rng.gen();
+    //let r2:u128 = rng.gen();
+    let local: DateTime<Local> = Local::now();
+
     //let mut buffer: [u8; 32] = [0; 32];
-    let b:H256 = hex!("00001718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
-    let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:r2,merkle_root:b};
+    let b:H256 = hex!("00011718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
+    let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:local.timestamp_millis(),merkle_root:b};
     let t = transaction::generate_random_transaction();
     //transaction::pr();
     let mut vect:Vec<Transaction> = vec![];
@@ -55,9 +60,10 @@ pub fn generate_random_block(parent: &H256) -> Block {
 }
 
 pub fn generate_genesis_block(parent: &H256) -> Block {
-    let b:H256 = hex!("00001718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
+    let b:H256 = hex!("00011718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
     let r1:u32 = 0;
-    let r2:u128 = 0;
+    let r2:i64 = 0;
+    //let local: DateTime<Local> = Local::now();
     let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:r2,merkle_root:b};
     let t = transaction::generate_genesis_transaction();
     //transaction::pr();

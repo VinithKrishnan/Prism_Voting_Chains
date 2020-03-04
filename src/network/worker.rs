@@ -112,9 +112,17 @@ impl Context {
                 }
                 Message::Blocks(vec_blocks) => {
                     for blck in vec_blocks {
+                        // added difficulty check in insert method
                         locked_blockchain.insert(&blck);
-                        debug!("Adding block with hash {} to chain",blck.hash());
-                        print!("Total number of blocks in blockchain:{}\n",locked_blockchain.chain.len());
+                        
+                        //Sending getblocks message if block is orphan
+                        let mut get_block_hash : Vec<H256> = vec![];
+                        get_block_hash.push(blck.header.parenthash);
+                        if !locked_blockchain.chain.contains_key(&blck.header.parenthash){
+                            self.server.broadcast(Message::GetBlocks(get_block_hash));
+                        }
+
+                        //broadcasting NewBlockHashes
                         let mut new_block_hash : Vec<H256> = vec![];
                         new_block_hash.push(blck.hash());
                         self.server.broadcast(Message::NewBlockHashes(new_block_hash));

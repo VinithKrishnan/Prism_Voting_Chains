@@ -4,11 +4,14 @@ use crate::block::*;
 use crate::transaction::{self, Transaction};
 use crate::crypto::hash::{H256, Hashable};
 use crate::network::message::Message;
-use log::info;
+use log::{debug,info};
 use rand::Rng;
 use crossbeam::channel::{unbounded, Receiver, Sender, TryRecvError};
+extern crate chrono;
+use std::time::{self,Duration};
+use chrono::prelude::*;
 
-use std::time::{self, SystemTime, UNIX_EPOCH};
+//use std::time::{self, SystemTime, UNIX_EPOCH};
 use std::thread;
 use std::sync::{Arc, Mutex};
 
@@ -133,7 +136,7 @@ impl Context {
             let mut rng = rand::thread_rng();
             let nonce = rng.gen();
 
-            let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis();
+            let timestamp = Local::now().timestamp_millis();
             let difficulty = locked_blockchain.chain.get(&locked_blockchain.tiphash)
                              .unwrap()
                              .header
@@ -160,10 +163,12 @@ impl Context {
             //Check whether block solved the puzzle
             //If passed, add it to blockchain
             if new_block.hash() <= difficulty {
-              print!("block with hash:{} generated\n",new_block.hash());
-              print!("Number of blocks mined until now:{}\n",self.num_mined+1);
+              println!("block with hash:{} generated\n",new_block.hash());
+              println!("Number of blocks mined until now:{}\n",self.num_mined+1);
               locked_blockchain.insert(&new_block);
-              print!("Total number of blocks in blockchain:{}\n",locked_blockchain.chain.len());
+              let encodedhead: Vec<u8> = bincode::serialize(&new_block).unwrap();
+              debug!("Size of block generated is {} bytes\n",encodedhead.len());
+              //print!("Total number of blocks in blockchain:{}\n",locked_blockchain.chain.len());
               self.num_mined = self.num_mined + 1;
               let mut new_block_hash : Vec<H256> = vec![];
               new_block_hash.push(new_block.hash());
