@@ -128,6 +128,9 @@ impl Context {
                         self.server.broadcast(Message::NewBlockHashes(new_block_hash));
                     }
                 }
+                _ => {
+                  debug!("Wildcard match");
+                }
             }
         }
     }
