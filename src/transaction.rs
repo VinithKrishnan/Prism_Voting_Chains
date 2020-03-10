@@ -2,7 +2,7 @@ extern crate bincode;
 extern crate serde;
 
 use serde::{Serialize,Deserialize};
-use ring::signature::{self,Ed25519KeyPair, Signature, KeyPair, VerificationAlgorithm, EdDSAParameters};
+use ring::signature::{self,Ed25519KeyPair, Signature, KeyPair};
 use rand::Rng;
 use crate::crypto::hash::{H256, Hashable};
 

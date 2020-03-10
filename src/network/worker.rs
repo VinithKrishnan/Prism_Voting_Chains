@@ -61,16 +61,15 @@ impl Context {
                     let mut required_blocks:Vec<H256> = vec![];
                     debug!("Received New Block Hashes");
 
-                    let mut flag:bool = false;
                     for recv_hash in vec_hashes {
-                        flag = false;
-                        for (bhash,blck) in locked_blockchain.chain.iter(){
+                        let mut flag: bool = false;
+                        for (bhash,_) in locked_blockchain.chain.iter(){
                             if *bhash == recv_hash{
                                 debug!("Block that hashes to {} already present", bhash);
                                 flag = true;
                             }
                         }
-                        for (bhash,blck) in locked_blockchain.buffer.iter(){
+                        for (bhash,_) in locked_blockchain.buffer.iter(){
                             if *bhash == recv_hash {
                                 debug!("Block that hashes to {} already present", bhash);
                                 flag = true;

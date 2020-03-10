@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
-use crate::crypto::hash::{H256, Hashable};
-use crate::block::{self, *};
+use crate::crypto::hash::H256;
+use crate::block::Block;
 use crate::transaction::Transaction;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

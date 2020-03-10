@@ -1,11 +1,10 @@
 use crate::block::{self, *};
 use crate::crypto::hash::{H256,Hashable};
-use crate::crypto::hash;
-use log::{debug,info};
+use log::info;
 use std::collections::HashMap;
 use std::collections::VecDeque;
+
 extern crate chrono;
-use std::time::{Duration};
 use chrono::prelude::*;
 
 pub struct Blockchain {
@@ -19,17 +18,17 @@ pub struct Blockchain {
 impl Blockchain {
     /// Create a new blockchain, only containing the genesis block
     pub fn new() -> Self {
-        let mut buffer: [u8; 32] = [0; 32];
+        let buffer: [u8; 32] = [0; 32];
         let b:H256 = buffer.into();
-        let mut genesis:Block = block::generate_genesis_block(&b);
-        let mut genhash:H256 = genesis.hash();
+        let genesis:Block = block::generate_genesis_block(&b);
+        let genhash:H256 = genesis.hash();
         let mut chainmap:HashMap<H256,Block> = HashMap::new();
         let mut heightsmap:HashMap<H256,u8> = HashMap::new();
-        let mut buffermap:HashMap<H256,Block> = HashMap::new();
+        let buffermap:HashMap<H256,Block> = HashMap::new();
         chainmap.insert(genhash,genesis);
         heightsmap.insert(genhash,0);
         let t:H256 = genhash;
-        let mut newchain:Blockchain = Blockchain{chain:chainmap,tiphash:t,heights:heightsmap,buffer:buffermap,totaldelay:0};
+        let newchain:Blockchain = Blockchain{chain:chainmap,tiphash:t,heights:heightsmap,buffer:buffermap,totaldelay:0};
         newchain
     }
 
@@ -38,7 +37,7 @@ impl Blockchain {
 
 
         let h:H256 = block.hash();
-        let mut flag:bool = false;
+        //let mut flag:bool = false;
 
 
         match self.chain.get(&block.header.parenthash){
@@ -54,21 +53,21 @@ impl Blockchain {
                 self.chain.insert(h,block.clone());
                 let len = self.heights[&block.header.parenthash]+1;
                 self.heights.insert(h,len);
-                if(len>self.heights[&self.tiphash]){
+                if len>self.heights[&self.tiphash] {
                     self.tiphash = h;
                 }
 
-                let mut bhash_copy:H256 = hash::generate_random_hash();
+                //let mut bhash_copy:H256 = hash::generate_random_hash();
                 //if stale blocks parent has arrived, insert it into main chain
                 let mut bhash_vec = Vec::new();
                 let mut phash_q: VecDeque<H256>= VecDeque::new();
                 phash_q.push_back(h);
-                while(!phash_q.is_empty()){
+                while !phash_q.is_empty() {
                     match phash_q.pop_front() {
                         Some(h) => for (bhash,blck) in self.buffer.iter(){
                                 if blck.header.parenthash == h {
-                                    flag = true;
-                                    bhash_copy = *bhash;
+                                    //flag = true;
+                                    let bhash_copy:H256 = *bhash;
                                     bhash_vec.push(bhash_copy);
                                     self.chain.insert(bhash_copy,blck.clone());
                                     let b_delay = Local::now().timestamp_millis() - block.header.timestamp;
@@ -79,7 +78,7 @@ impl Blockchain {
                                     println!("Total number of blocks in blockchain:{}\n",self.chain.len());
                                     let len = self.heights[&blck.header.parenthash]+1;
                                     self.heights.insert(bhash_copy,len);
-                                    if(len>self.heights[&self.tiphash]){
+                                    if len>self.heights[&self.tiphash] {
                                         self.tiphash = bhash_copy;
                                     }
                                 }
@@ -139,6 +138,5 @@ mod tests {
         let block = block::generate_random_block(&genesis_hash);
         blockchain.insert(&block);
         assert_eq!(blockchain.tip(), block.hash());
-
     }
 }

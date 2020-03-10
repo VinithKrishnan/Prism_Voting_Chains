@@ -24,7 +24,7 @@ impl MerkleTree {
         let mut count = 0;
         let mut levelen = datalen;
         while !q.is_empty() {
-            let mut elem1 = q.pop_front().unwrap();
+            let elem1 = q.pop_front().unwrap();
             tree.push(elem1);
             count = count + 1;
             let temp2 = q.pop_front();
@@ -89,21 +89,23 @@ impl MerkleTree {
 
 /// Verify that the datum hash with a vector of proofs will produce the Merkle root. Also need the
 /// index of datum and `leaf_size`, the total number of leaves.
-pub fn verify(root: &H256, datum: &H256, proof: &[H256], index: usize, leaf_size: usize) -> bool {
+pub fn verify(root: &H256, datum: &H256, proof: &[H256], index: usize, _leaf_size: usize) -> bool {
        let mut h = *datum;
        let mut res = false;
        let mut i = index;
        let mut iter = 0;
-       let mut leftchild = <[u8;32]>::from(h);
-       let mut rightchild = <[u8;32]>::from(proof[0]);
        while iter<proof.len() {
+           let mut leftchild = <[u8;32]>::from(h);
+           let mut rightchild = <[u8;32]>::from(h);
+           
            if i%2 ==0 {
-               leftchild = <[u8;32]>::from(h);
+               //leftchild = <[u8;32]>::from(h);
                rightchild = <[u8;32]>::from(proof[iter]);
            } else {
-               rightchild = <[u8;32]>::from(h);
+               //rightchild = <[u8;32]>::from(h);
                leftchild = <[u8;32]>::from(proof[iter]);
            }
+
            let parentval = [&leftchild[..],&rightchild[..]].concat();
            h = ring::digest::digest(&ring::digest::SHA256, &parentval[..]).into();
            iter = iter + 1;
