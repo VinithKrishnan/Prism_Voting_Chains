@@ -3,18 +3,34 @@ extern crate serde;
 
 use serde::{Serialize,Deserialize};
 use ring::signature::{self,Ed25519KeyPair, Signature, KeyPair};
-use rand::Rng;
-use crate::crypto::hash::{H256, Hashable};
+
+use crate::crypto::hash::{self, H256, Hashable};
+use crate::crypto::address::{self, H160};
+
+#[derive(Serialize, Deserialize, Debug, Default,Clone)]
+pub struct UtxoInput{
+  pub tx_hash: H256,
+  pub idx: u8,  
+}
+
+#[derive(Serialize, Deserialize, Debug, Default,Clone)]
+pub struct UtxoOutput{
+  pub receipient_addr: H160,
+  pub value: u32,
+}
 
 #[derive(Serialize, Deserialize, Debug, Default,Clone)]
 pub struct Transaction {
-    input : Vec<u8>,
-    output : Vec<u8>,
+  pub tx_input: Vec<UtxoInput>,
+  pub tx_output: Vec<UtxoOutput>,
 }
 
-//pub fn pr(){
-//    println!("hello");
-//}
+#[derive(Serialize, Deserialize, Debug, Default,Clone)]
+pub struct SignedTransaction {
+  pub tx: Transaction,
+  pub signature: Vec<u8>, 
+  pub public_key: Vec<u8>,
+}
 
 impl Hashable for Transaction {
     fn hash(&self) -> H256 {
@@ -41,22 +57,19 @@ pub fn verify(t: &Transaction, public_key: &<Ed25519KeyPair as KeyPair>::PublicK
     peer_public_key.verify(&encoded[..],signature.as_ref()).is_ok()
 }
 
+
 pub fn generate_random_transaction() -> Transaction {
-    /*Default::default();*/
-    let mut rng = rand::thread_rng();
-    let mut random_bytes: Vec<u8> = (0..32).map(|_| rng.gen()).collect();
-    let input_bytes = random_bytes;
-    random_bytes = (0..32).map(|_| rng.gen()).collect();
-    let output_bytes = random_bytes;
-    Transaction{input : input_bytes,output : output_bytes}
+    let input = vec![UtxoInput{tx_hash: hash::generate_random_hash(), idx: 0}];
+    let output = vec![UtxoOutput{receipient_addr: address::generate_random_address(), value: 0}];
+    
+    Transaction{tx_input: input, tx_output: output}
 }
 
 pub fn generate_genesis_transaction() -> Transaction {
-    /*Default::default();*/
-
-    let zero_bytes1: Vec<u8> = vec![0,32];
-    let zero_bytes2: Vec<u8> = vec![0;32];
-    Transaction{input : zero_bytes1,output : zero_bytes2}
+    let input = vec![UtxoInput{tx_hash: H256::from([0;32]), idx: 0}];
+    let output = vec![UtxoOutput{receipient_addr: H160::from([0;20]), value: 0}];
+    
+    Transaction{tx_input: input, tx_output: output}
 }
 
 
@@ -75,6 +88,7 @@ pub mod tests {
         let output_bytes = random_bytes;
         Transaction{input : input_bytes,output : output_bytes}
     }*/
+
 
     #[test]
     fn sign_verify() {
