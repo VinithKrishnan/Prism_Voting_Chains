@@ -1,4 +1,6 @@
 use serde::{Serialize,Deserialize};
+use ring::signature::{Ed25519KeyPair, KeyPair};
+use ring::digest;
 use rand::Rng;
 
 //Last 20 bytes of Public Key - used in tx
@@ -48,6 +50,23 @@ impl std::convert::From<H160> for [u8; 20] {
         input.0
     }
 }
+
+pub fn address_from_public_key_ref(public_key: &<Ed25519KeyPair as KeyPair>::PublicKey) -> H160 {
+    let public_key_hash = digest::digest(&digest::SHA256, public_key.as_ref());
+    
+    let mut raw_address: [u8; 20] = [0; 20];
+    raw_address.copy_from_slice(&(public_key_hash.as_ref()[12..32]));
+    H160(raw_address)
+}
+
+pub fn address_from_public_key(public_key: <Ed25519KeyPair as KeyPair>::PublicKey) -> H160 {
+    let public_key_hash = digest::digest(&digest::SHA256, public_key.as_ref());
+
+    let mut raw_address: [u8; 20] = [0; 20];
+    raw_address.copy_from_slice(&(public_key_hash.as_ref()[12..32]));
+    H160(raw_address)
+}
+
 
 pub fn generate_random_address() -> H160 {
     let mut rng = rand::thread_rng();

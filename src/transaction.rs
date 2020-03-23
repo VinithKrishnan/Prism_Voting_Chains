@@ -39,6 +39,13 @@ impl Hashable for Transaction {
     }
 }
 
+impl Hashable for SignedTransaction {
+    fn hash(&self) -> H256 {
+        let encoded_signed_trans: Vec<u8> = bincode::serialize(&self).unwrap();
+        ring::digest::digest(&ring::digest::SHA256, &encoded_signed_trans[..]).into()
+    }
+}
+
 /// Create digital signature of a transaction
 pub fn sign(t: &Transaction, key: &Ed25519KeyPair) -> Signature {
     //let mut mess = [&t.input[..],&t.output[..]].concat();
@@ -57,7 +64,6 @@ pub fn verify(t: &Transaction, public_key: &<Ed25519KeyPair as KeyPair>::PublicK
     peer_public_key.verify(&encoded[..],signature.as_ref()).is_ok()
 }
 
-
 pub fn generate_random_transaction() -> Transaction {
     let input = vec![UtxoInput{tx_hash: hash::generate_random_hash(), idx: 0}];
     let output = vec![UtxoOutput{receipient_addr: address::generate_random_address(), value: 0}];
@@ -72,23 +78,10 @@ pub fn generate_genesis_transaction() -> Transaction {
     Transaction{tx_input: input, tx_output: output}
 }
 
-
 #[cfg(any(test, test_utilities))]
 pub mod tests {
     use super::*;
     use crate::crypto::key_pair;
-
-/*
-    pub fn generate_random_transaction() -> Transaction {
-        /*Default::default();*/
-        let mut rng = rand::thread_rng();
-        let mut random_bytes: Vec<u8> = (0..32).map(|_| rng.gen()).collect();
-        let input_bytes = random_bytes;
-        random_bytes = (0..32).map(|_| rng.gen()).collect();
-        let output_bytes = random_bytes;
-        Transaction{input : input_bytes,output : output_bytes}
-    }*/
-
 
     #[test]
     fn sign_verify() {

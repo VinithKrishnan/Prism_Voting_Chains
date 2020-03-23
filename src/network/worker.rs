@@ -1,13 +1,16 @@
 use super::message::Message;
 use super::peer;
 use crate::network::server::Handle as ServerHandle;
-use crossbeam::channel;
-use log::{debug, warn};
 use crate::blockchain::Blockchain;
 use crate::block::*;
+use crate::mempool::TransactionMempool;
+use crate::crypto::hash::{H256, Hashable};
+
+use crossbeam::channel;
+use log::{debug, warn};
+
 use std::sync::{Arc, Mutex};
 use std::thread;
-use crate::crypto::hash::{H256, Hashable};
 
 #[derive(Clone)]
 pub struct Context {
@@ -15,19 +18,22 @@ pub struct Context {
     num_worker: usize,
     server: ServerHandle,
     blockchain: Arc<Mutex<Blockchain>>,
+    tx_mempool: Arc<Mutex<TransactionMempool>>,
 }
 
 pub fn new(
     num_worker: usize,
     msg_src: channel::Receiver<(Vec<u8>, peer::Handle)>,
     server: &ServerHandle,
-    blockchain: &Arc<Mutex<Blockchain>>
+    blockchain: &Arc<Mutex<Blockchain>>,
+    tx_mempool: &Arc<Mutex<TransactionMempool>>
 ) -> Context {
     Context {
         msg_chan: msg_src,
         num_worker,
         server: server.clone(),
         blockchain: Arc::clone(blockchain),
+        tx_mempool: Arc::clone(tx_mempool)
     }
 }
 
