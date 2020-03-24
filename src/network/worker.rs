@@ -110,22 +110,24 @@ impl Context {
 
                 }
                 Message::Blocks(vec_blocks) => {
+                    let mut get_block_hash : Vec<H256> = vec![];
+                    let mut new_block_hash : Vec<H256> = vec![];
                     for blck in vec_blocks {
                         // added difficulty check in insert method
                         locked_blockchain.insert(&blck);
                         
                         //Sending getblocks message if block is orphan
-                        let mut get_block_hash : Vec<H256> = vec![];
-                        get_block_hash.push(blck.header.parenthash);
+                        
                         if !locked_blockchain.chain.contains_key(&blck.header.parenthash){
-                            self.server.broadcast(Message::GetBlocks(get_block_hash));
+                         get_block_hash.push(blck.header.parenthash);
                         }
 
-                        //broadcasting NewBlockHashes
-                        let mut new_block_hash : Vec<H256> = vec![];
+                        
                         new_block_hash.push(blck.hash());
-                        self.server.broadcast(Message::NewBlockHashes(new_block_hash));
+                        
                     }
+                    self.server.broadcast(Message::GetBlocks(get_block_hash));
+                    self.server.broadcast(Message::NewBlockHashes(new_block_hash));
                 }
                 _ => {
                   debug!("Wildcard match");
