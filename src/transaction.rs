@@ -7,6 +7,7 @@ use ring::signature::{self,Ed25519KeyPair, Signature, KeyPair};
 use crate::crypto::key_pair;
 use crate::crypto::hash::{self, H256, Hashable};
 use crate::crypto::address::{self, H160};
+use crate::crypto::key_pair;
 
 #[derive(Serialize, Deserialize, Debug, Default,Clone)]
 pub struct UtxoInput{
@@ -40,12 +41,14 @@ impl Hashable for Transaction {
     }
 }
 
+
 impl Hashable for SignedTransaction {
     fn hash(&self) -> H256 {
         let encoded_signed_trans: Vec<u8> = bincode::serialize(&self).unwrap();
         ring::digest::digest(&ring::digest::SHA256, &encoded_signed_trans[..]).into()
     }
 }
+
 
 /// Create digital signature of a transaction
 pub fn sign(t: &Transaction, key: &Ed25519KeyPair) -> Signature {
@@ -91,22 +94,9 @@ pub fn generate_random_signed_transaction() -> SignedTransaction {
     let t = generate_random_transaction();
     let key = key_pair::random();
     let sig = sign(&t, &key);
-    let signed_tx = SignedTransaction{tx:t,
-                                      signature:sig.as_ref().to_vec(),
-                                      public_key:key.public_key().as_ref().to_vec()};
+    let signed_tx = SignedTransaction{tx:t,signature:sig.as_ref().to_vec(),public_key:key.public_key().as_ref().to_vec()};
     signed_tx
 }
-
-/*
-pub fn generate_genesis_signed_transaction() -> SignedTransaction {
-    let t = generate_genesis_transaction();
-    let key = key_pair::random();
-    let sig = sign(&t, &key);
-    let signed_tx = SignedTransaction{tx:t,
-                                      signature:sig.as_ref().to_vec(),
-                                      public_key:key.public_key().as_ref().to_vec()};
-    signed_tx
-}*/
 
 
 

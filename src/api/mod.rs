@@ -1,5 +1,6 @@
 use serde::Serialize;
 use crate::miner::Handle as MinerHandle;
+use crate::tx_generator::Handle as TxGenHandle;
 use crate::network::server::Handle as NetworkServerHandle;
 use crate::network::message::Message;
 
@@ -15,6 +16,7 @@ pub struct Server {
     handle: HTTPServer,
     miner: MinerHandle,
     network: NetworkServerHandle,
+    txgen: TxGenHandle,
 }
 
 #[derive(Serialize)]
@@ -41,16 +43,19 @@ impl Server {
         addr: std::net::SocketAddr,
         miner: &MinerHandle,
         network: &NetworkServerHandle,
+        txgen: &TxGenHandle,
     ) {
         let handle = HTTPServer::http(&addr).unwrap();
         let server = Self {
             handle,
             miner: miner.clone(),
             network: network.clone(),
+            txgen: txgen.clone()
         };
         thread::spawn(move || {
             for req in server.handle.incoming_requests() {
                 let miner = server.miner.clone();
+                let txgen = server.txgen.clone(); 
                 let network = server.network.clone();
                 thread::spawn(move || {
                     // a valid url requires a base
@@ -84,7 +89,8 @@ impl Server {
                                     return;
                                 }
                             };
-                            miner.start(lambda);
+                            miner.start(0);
+                            txgen.start(lambda);
                             respond_result!(req, true, "ok");
                         }
                         "/network/ping" => {

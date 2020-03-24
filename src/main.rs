@@ -11,6 +11,7 @@ pub mod network;
 pub mod transaction;
 pub mod mempool;
 pub mod transaction_checks;
+pub mod tx_generator;
 
 use clap::clap_app;
 use crossbeam::channel;
@@ -69,12 +70,21 @@ fn main() {
     let (server_ctx, server) = server::new(p2p_addr, msg_tx).unwrap();
     server_ctx.start().unwrap();
 
+    // start the transaction generator
+    let mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
+    let (txgen_ctx,txgen) = tx_generator::new(
+        &server,
+        &mempool,
+    );
+    txgen_ctx.start(); 
+
     // start the miner
     let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new()));
     let tx_mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
     let (miner_ctx, miner) = miner::new(
         &server,
         &blockchain,
+        &mempool,
     );
     miner_ctx.start();
 
@@ -137,6 +147,7 @@ fn main() {
         api_addr,
         &miner,
         &server,
+        &txgen,
     );
 
     loop {

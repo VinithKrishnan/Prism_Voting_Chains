@@ -119,7 +119,12 @@ impl Context {
 
                 }
                 Message::Blocks(vec_blocks) => {
+<<<<<<< HEAD
                     debug!("Received Blocks message");
+=======
+                    let mut get_block_hash : Vec<H256> = vec![];
+                    let mut new_block_hash : Vec<H256> = vec![];
+>>>>>>> gen_miner
                     for blck in vec_blocks {
                       let mut blck_is_valid: bool = true;
                       for tx in &blck.content.data{
@@ -135,15 +140,14 @@ impl Context {
                         locked_blockchain.insert(&blck);
                         
                         //Sending getblocks message if block is orphan
-                        let mut get_block_hash : Vec<H256> = vec![];
-                        get_block_hash.push(blck.header.parenthash);
+                        
                         if !locked_blockchain.chain.contains_key(&blck.header.parenthash){
-                            self.server.broadcast(Message::GetBlocks(get_block_hash));
+                         get_block_hash.push(blck.header.parenthash);
                         }
 
-                        //broadcasting NewBlockHashes
-                        let mut new_block_hash : Vec<H256> = vec![];
+                        
                         new_block_hash.push(blck.hash());
+<<<<<<< HEAD
                         self.server.broadcast(Message::NewBlockHashes(new_block_hash));
 
                         //Updating mempool
@@ -180,7 +184,12 @@ impl Context {
                     if required_txs.len()!= 0 {
                         debug!("Sending GetTransactions Message");
                         peer.write(Message::GetTransactions(required_txs));
+=======
+                        
+>>>>>>> gen_miner
                     }
+                    self.server.broadcast(Message::GetBlocks(get_block_hash));
+                    self.server.broadcast(Message::NewBlockHashes(new_block_hash));
                 }
                 Message::GetTransactions(vec_tx_hashes) => {
                     let mut txs_to_send:Vec<SignedTransaction> = vec![];
