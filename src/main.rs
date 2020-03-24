@@ -10,6 +10,7 @@ pub mod miner;
 pub mod network;
 pub mod transaction;
 pub mod mempool;
+pub mod transaction_checks;
 
 use clap::clap_app;
 use crossbeam::channel;

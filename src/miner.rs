@@ -1,7 +1,7 @@
 use crate::network::server::Handle as ServerHandle;
 use crate::blockchain::Blockchain;
 use crate::block::*;
-use crate::transaction::{self, Transaction};
+use crate::transaction::{self, SignedTransaction};
 use crate::crypto::hash::{H256, Hashable};
 use crate::network::message::Message;
 use log::{debug,info};
@@ -144,8 +144,8 @@ impl Context {
 
             //Creating Content
             //It will also be used for Merkel Root for the Header
-            let t = transaction::generate_random_transaction();
-            let mut vect: Vec<Transaction> = vec![];
+            let t = transaction::generate_random_signed_transaction();
+            let mut vect: Vec<SignedTransaction> = vec![];
             vect.push(t);
             let content: Content = Content{data:vect};
 
