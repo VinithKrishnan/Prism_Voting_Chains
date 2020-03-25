@@ -126,23 +126,29 @@ impl Context {
             }
         // actual transaction generation
         let mut locked_mempool = self.mempool.lock().unwrap();
-        for x in 0..15 {
+        let mut tx_buffer : Vec<H256> = vec![];
+        for x in 0..10 {
             let t = transaction::generate_random_transaction();
             let key = key_pair::random();
             let sig = sign(&t, &key);
             let signed_tx = SignedTransaction{tx:t,signature:sig.as_ref().to_vec(),public_key:key.public_key().as_ref().to_vec()};
-            println!("generated signed transaction with hash {} in tx_generator",signed_tx.hash());
+            //println!("generated signed transaction with hash {} in tx_generator",signed_tx.hash());
             //locked_mempool.insert(t.hash(),t);
             if locked_mempool.tx_to_process.contains_key(&signed_tx.hash()){
                 continue;
             } else {
+                tx_buffer.push(signed_tx.hash());
+                println!("Adding transaction with hash {} to mempool in tx_generator",signed_tx.hash());
                 locked_mempool.tx_to_process.insert(signed_tx.hash(),true);
                 locked_mempool.tx_map.insert(signed_tx.hash(),signed_tx.clone());
                 locked_mempool.tx_hash_queue.push_back(signed_tx.hash());
             }
             
         }
+        self.server.broadcast(Message::NewTransactionHashes(tx_buffer));
         std::mem::drop(locked_mempool);
+        
+
 
 
 
@@ -153,6 +159,7 @@ impl Context {
                 thread::sleep(interval);
             }
         }
+        
 
         }
     }

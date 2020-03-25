@@ -9,7 +9,7 @@ use crate::mempool::TransactionMempool;
 use crate::crypto::hash::{H256, Hashable};
 
 use crossbeam::channel;
-use log::{debug, warn};
+use log::{debug,info, warn};
 
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -119,12 +119,9 @@ impl Context {
 
                 }
                 Message::Blocks(vec_blocks) => {
-<<<<<<< HEAD
                     debug!("Received Blocks message");
-=======
                     let mut get_block_hash : Vec<H256> = vec![];
                     let mut new_block_hash : Vec<H256> = vec![];
->>>>>>> gen_miner
                     for blck in vec_blocks {
                       let mut blck_is_valid: bool = true;
                       for tx in &blck.content.data{
@@ -147,8 +144,7 @@ impl Context {
 
                         
                         new_block_hash.push(blck.hash());
-<<<<<<< HEAD
-                        self.server.broadcast(Message::NewBlockHashes(new_block_hash));
+                        self.server.broadcast(Message::NewBlockHashes(new_block_hash.clone()));
 
                         //Updating mempool
                         for signed_tx in &blck.content.data {
@@ -184,12 +180,8 @@ impl Context {
                     if required_txs.len()!= 0 {
                         debug!("Sending GetTransactions Message");
                         peer.write(Message::GetTransactions(required_txs));
-=======
                         
->>>>>>> gen_miner
                     }
-                    self.server.broadcast(Message::GetBlocks(get_block_hash));
-                    self.server.broadcast(Message::NewBlockHashes(new_block_hash));
                 }
                 Message::GetTransactions(vec_tx_hashes) => {
                     let mut txs_to_send:Vec<SignedTransaction> = vec![];
@@ -198,7 +190,8 @@ impl Context {
                     for tx_hash in vec_tx_hashes {
                         match locked_mempool.tx_map.get(&tx_hash){
                             Some(signed_tx) => txs_to_send.push(signed_tx.clone()), 
-                            None => debug!("tx which hashes to {} not present in mempool", tx_hash)
+                            None => {debug!("tx which hashes to {} not present in mempool", tx_hash);
+                            debug!("Size of mempool is: {}",locked_mempool.tx_map.len());}
                         }
                     }
                     
@@ -209,6 +202,7 @@ impl Context {
                 }
                 Message::Transactions(vec_signed_txs) => {
                     debug!("Received Transactions");
+                    let mut new_tx_hashes: Vec<H256> = vec![];
                     for signed_tx in vec_signed_txs {
                       if transaction_checks::is_tx_valid(&signed_tx){
                           let signed_tx_hash = signed_tx.hash();
@@ -216,6 +210,8 @@ impl Context {
                               Some(_tx_present) => debug!("tx_hash {} already present. Not adding to mempool", 
                                                          signed_tx_hash),
                               None => {
+                                  info!("tx_hash {} is being added to mempool", signed_tx_hash);
+                                  new_tx_hashes.push(signed_tx_hash);
                                   locked_mempool.tx_to_process.insert(signed_tx_hash, true);
                                   locked_mempool.tx_map.insert(signed_tx_hash, signed_tx);
                                   locked_mempool.tx_hash_queue.push_back(signed_tx_hash);
@@ -223,6 +219,7 @@ impl Context {
                           }
                       }
                     }
+                    self.server.broadcast(Message::NewTransactionHashes(new_tx_hashes.clone()));
                 }
             }
         }

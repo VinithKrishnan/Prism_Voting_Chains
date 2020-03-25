@@ -7,7 +7,7 @@ use ring::signature::{self,Ed25519KeyPair, Signature, KeyPair};
 use crate::crypto::key_pair;
 use crate::crypto::hash::{self, H256, Hashable};
 use crate::crypto::address::{self, H160};
-use crate::crypto::key_pair;
+
 
 #[derive(Serialize, Deserialize, Debug, Default,Clone)]
 pub struct UtxoInput{

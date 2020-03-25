@@ -80,7 +80,6 @@ fn main() {
 
     // start the miner
     let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new()));
-    let tx_mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
     let (miner_ctx, miner) = miner::new(
         &server,
         &blockchain,
@@ -102,7 +101,7 @@ fn main() {
         msg_rx,
         &server,
         &blockchain,
-        &tx_mempool
+        &mempool,
     );
     worker_ctx.start();
 
