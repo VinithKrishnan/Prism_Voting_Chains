@@ -6,6 +6,7 @@ use std::collections::VecDeque;
 use crate::mempool::TransactionMempool;
 use crate::ledger_state::{BlockState,update_block_state};
 use crate::utils::{*};
+use crate::crypto::address::H160;
 
 extern crate chrono;
 use chrono::prelude::*;
@@ -75,6 +76,20 @@ impl Blockchain {
                 if len>self.heights[&self.tiphash] {
                     self.tiphash = h;
                     println!("Current tipheight is {}",len);
+
+                    let mut temp_state_map = blockstate.block_state_map.get(&block.hash()).unwrap();
+                    let mut utxo_hmap:HashMap<H160,u32> = HashMap::new();
+
+                    for (utxo_input,utxo_output) in temp_state_map.state_map.iter() {
+                        if !utxo_hmap.contains_key(&utxo_output.receipient_addr){
+                            utxo_hmap.insert(utxo_output.receipient_addr,utxo_output.value);
+                        }else{
+                            *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap() += *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap()+utxo_output.value;
+                        }
+                    }
+                    for (key,value) in utxo_hmap.iter() {
+                        println!("balance in addr {:?} is {:?}",key,value);
+                    }
                 }
 
                 //let mut bhash_copy:H256 = hash::generate_random_hash();

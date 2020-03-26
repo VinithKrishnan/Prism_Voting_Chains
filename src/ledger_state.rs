@@ -65,16 +65,16 @@ pub fn ico() -> State {
 
   let key_pair1 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 187, 131, 74, 161, 134, 11, 240, 6, 188, 109, 18, 108, 124, 219, 167, 164, 215, 125, 168, 79, 204, 194, 232, 91, 58, 186, 181, 230, 212, 78, 163, 28, 161, 35, 3, 33, 0, 233, 72, 146, 218, 220, 235, 17, 123, 202, 112, 119, 63, 134, 105, 134, 71, 34, 185, 71, 193, 59, 66, 43, 137, 50, 194, 120, 234, 97, 132, 235, 159].as_ref().into()).unwrap();
   let key_pair2 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 154, 186, 73, 239, 105, 129, 142, 211, 156, 79, 213, 209, 229, 87, 22, 92, 113, 203, 244, 222, 244, 33, 199, 254, 130, 102, 178, 65, 198, 67, 20, 132, 161, 35, 3, 33, 0, 161, 153, 171, 27, 96, 146, 25, 237, 5, 189, 186, 116, 0, 24, 2, 8, 28, 143, 5, 119, 20, 47, 142, 186, 55, 234, 189, 167, 154, 15, 210, 97].as_ref().into()).unwrap();
-  let key_pair3 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 147, 195, 231, 118, 135, 29, 32, 40, 23, 117, 107, 218, 6, 220, 198, 50, 81, 113, 167, 122, 175, 161, 118, 93, 191, 137, 50, 125, 203, 69, 70, 42, 161, 35, 3, 33, 0, 125, 80, 160, 138, 247, 46, 227, 162, 118, 51, 64, 42, 174, 60, 87, 134, 77, 60, 225, 11, 189, 222, 22, 185, 65, 10, 67, 78, 250, 41, 188, 60].as_ref().into()).unwrap();
+  //let key_pair3 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 147, 195, 231, 118, 135, 29, 32, 40, 23, 117, 107, 218, 6, 220, 198, 50, 81, 113, 167, 122, 175, 161, 118, 93, 191, 137, 50, 125, 203, 69, 70, 42, 161, 35, 3, 33, 0, 125, 80, 160, 138, 247, 46, 227, 162, 118, 51, 64, 42, 174, 60, 87, 134, 77, 60, 225, 11, 189, 222, 22, 185, 65, 10, 67, 78, 250, 41, 188, 60].as_ref().into()).unwrap();
 
   let mut address_vec: Vec<H160> = vec![];
   let address1 = address::address_from_public_key_vec_ref(&key_pair1.public_key().as_ref().to_vec());
   let address2 = address::address_from_public_key_vec_ref(&key_pair2.public_key().as_ref().to_vec());
-  let address3 = address::address_from_public_key_vec_ref(&key_pair3.public_key().as_ref().to_vec());
+  //let address3 = address::address_from_public_key_vec_ref(&key_pair3.public_key().as_ref().to_vec());
   
   address_vec.push(address1);
   address_vec.push(address2);
-  address_vec.push(address3);
+  //address_vec.push(address3);
 
 
   let mut sam = hex!("6b787718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920");
@@ -83,14 +83,18 @@ pub fn ico() -> State {
   let val: u32 = 100;
   
   let mut initial_state: State = State{state_map: HashMap::new()};
-  for j in 1..20 {
-  sam[j/10]=(j%10) as u8;
-  let mut initial_tx_hash: H256 = sam.into() ;
+  
+  //sam[j/10]=(j%10) as u8;
+  //let mut initial_tx_hash: H256 = sam.into() ;
   for (i,address) in  address_vec.iter().enumerate() {
-    let input = UtxoInput{tx_hash: initial_tx_hash, idx: i as u8};
+    for j in 1..11{
+    sam[j/10]=(j%10) as u8 + 10*i as u8;
+    let mut initial_tx_hash: H256 = sam.into() ;
+    let input = UtxoInput{tx_hash: initial_tx_hash, idx: 0};
     let output = UtxoOutput{receipient_addr: *address, value: val};
     initial_state.state_map.insert(input, output);
+    }
   }
-   }
+   
   initial_state
 }

@@ -97,12 +97,12 @@ impl Context {
         info!("Miner initialized into paused mode");
     }
 
-    pub fn tx_pool_gen(&self,mempool:&mut TransactionMempool) -> (Content,H256) {
+    pub fn tx_pool_gen(&self,mempool:&mut TransactionMempool) -> Content {
         let mut vect: Vec<SignedTransaction> = vec![];
-        let mut merkle_init_vect: Vec<H256> = vec![];
+        //let mut merkle_init_vect: Vec<H256> = vec![];
     
         info!("Inside tx_pool_gen");
-        loop {
+        for k in 1..6 {
         info!("Inside tx_pool_gen loop");
         //let mut locked_mempool = self.mempool.lock().unwrap();
         /*
@@ -125,7 +125,7 @@ impl Context {
         match mempool.tx_to_process.get(&h) {
             Some(boolean) => if *boolean && mempool.tx_map.contains_key(&h){
                 vect.push(mempool.tx_map.get(&h).unwrap().clone());
-                merkle_init_vect.push(h);
+                //merkle_init_vect.push(h);
             },
             None => continue
             
@@ -136,10 +136,10 @@ impl Context {
             }
         }
         let mut content: Content = Content{data:vect};
-        let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
-        let mut merkle_root = merkle_tree_tx.root();
+        //let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
+        //let mut merkle_root = merkle_tree_tx.root();
     
-        (content,merkle_root)
+        content
     
     }
 
@@ -163,7 +163,10 @@ impl Context {
         let mut vect: Vec<SignedTransaction> = vec![];
         content = Content{data:vect};
         let mut merkle_root:H256=generate_random_hash();
+        let mut  i:u32 = 0;
         loop {
+            info!("Present counter value is {}",i);
+            i = i+1;
             // check and react to control signals
             match self.operating_state {
                 OperatingState::Paused => {
@@ -216,20 +219,34 @@ impl Context {
             let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
             let mut merkle_root = merkle_tree_tx.root();
             */
+            info!("About to obtain lock {}",i);
             let mut locked_blockchain = self.blockchain.lock().unwrap();
             let mut locked_mempool = self.mempool.lock().unwrap();
             let mut locked_state = self.ledger_state.lock().unwrap();
+            info!("Obtained lock {}",i);
             
             if flag {
-            let (content,merkle_root) = self.tx_pool_gen(&mut locked_mempool);
+                let content = self.tx_pool_gen(&mut locked_mempool);
             }
             flag = false;
             // actual mining
-
+            //println!("Out of loop");
             // create Block
             //TODO: Put this in a function
 
             //Creating Header fields
+            
+            let mut merkle_init_vect: Vec<H256> = vec![];
+            if content.data.len()==0{
+                continue;
+            }
+
+             
+            for tx in content.data.iter() {
+             merkle_init_vect.push(tx.hash());
+            }
+            let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
+            let mut merkle_root = merkle_tree_tx.root();
            
             let phash = locked_blockchain.tiphash;
 
@@ -277,8 +294,16 @@ impl Context {
               let mut new_block_hash : Vec<H256> = vec![];
               new_block_hash.push(new_block.hash());
               self.server.broadcast(Message::NewBlockHashes(new_block_hash));
-              let (content,merkle_root) = self.tx_pool_gen(&mut locked_mempool);
+              
+              content = self.tx_pool_gen(&mut locked_mempool);
+              
+              for tx in content.data.iter() {
+                merkle_init_vect.push(tx.hash());
+               }
+               merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
+               merkle_root = merkle_tree_tx.root();
             }
+
             std::mem::drop(locked_state);
             std::mem::drop(locked_mempool);
             std::mem::drop(locked_blockchain);
