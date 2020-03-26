@@ -67,6 +67,13 @@ pub fn address_from_public_key(public_key: <Ed25519KeyPair as KeyPair>::PublicKe
     H160(raw_address)
 }
 
+pub fn address_from_public_key_vec_ref(public_key: &Vec<u8>) -> H160 {
+    let public_key_hash = digest::digest(&digest::SHA256, public_key);
+
+    let mut raw_address: [u8; 20] = [0; 20];
+    raw_address.copy_from_slice(&(public_key_hash.as_ref()[12..32]));
+    H160(raw_address)
+}
 
 pub fn generate_random_address() -> H160 {
     let mut rng = rand::thread_rng();

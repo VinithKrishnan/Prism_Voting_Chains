@@ -1,9 +1,10 @@
 use crate::network::server::Handle as ServerHandle;
 use crate::blockchain::Blockchain;
 use crate::mempool::TransactionMempool;
+use crate::ledger_state::BlockState;
 use crate::block::*;
 use crate::transaction::{self, SignedTransaction};
-use crate::crypto::hash::{H256, Hashable};
+use crate::crypto::hash::{H256, Hashable,generate_random_hash};
 use crate::crypto::merkle::{*};
 use crate::network::message::Message;
 use log::{debug,info};
@@ -36,6 +37,7 @@ pub struct Context {
     blockchain: Arc<Mutex<Blockchain>>,
     mempool:Arc<Mutex<TransactionMempool>>,
     num_mined:u8,
+    ledger_state: Arc<Mutex<BlockState>>,
 }
 
 #[derive(Clone)]
@@ -50,7 +52,8 @@ pub struct Handle {
 pub fn new(
     server: &ServerHandle,
     blockchain: &Arc<Mutex<Blockchain>>,
-    mempool: &Arc<Mutex<TransactionMempool>>
+    mempool: &Arc<Mutex<TransactionMempool>>,
+    ledger_state: &Arc<Mutex<BlockState>>
 ) -> (Context, Handle) {
     let (signal_chan_sender, signal_chan_receiver) = unbounded();
 
@@ -61,6 +64,7 @@ pub fn new(
         blockchain: Arc::clone(blockchain),
         mempool: Arc::clone(mempool),
         num_mined:0,
+        ledger_state: Arc::clone(ledger_state),
     };
 
     let handle = Handle {
@@ -93,29 +97,43 @@ impl Context {
         info!("Miner initialized into paused mode");
     }
 
-    pub fn tx_pool_gen(&self) -> (Content,H256) {
+    pub fn tx_pool_gen(&self,mempool:&mut TransactionMempool) -> (Content,H256) {
         let mut vect: Vec<SignedTransaction> = vec![];
         let mut merkle_init_vect: Vec<H256> = vec![];
     
         info!("Inside tx_pool_gen");
         loop {
-        let mut locked_mempool = self.mempool.lock().unwrap();
-        if locked_mempool.tx_hash_queue.len()<15 {
-            std::mem::drop(locked_mempool);
+        info!("Inside tx_pool_gen loop");
+        //let mut locked_mempool = self.mempool.lock().unwrap();
+        /*
+        if mempool.tx_hash_queue.len()<15 {
             continue;
         } else {
-            while vect.len()<10 && locked_mempool.tx_hash_queue.len()>0 {
-                let h = locked_mempool.tx_hash_queue.pop_front().unwrap();
-                if locked_mempool.tx_to_process.contains_key(&h) && locked_mempool.tx_to_process.get(&h).unwrap() == &true {
-                    vect.push(locked_mempool.tx_map.get(&h).unwrap().clone());
+            while vect.len()<10 && mempool.tx_hash_queue.len()>0 {
+                let h = mempool.tx_hash_queue.pop_front().unwrap();
+                if mempool.tx_to_process.contains_key(&h) && mempool.tx_to_process.get(&h).unwrap() == &true {
+                    vect.push(mempool.tx_map.get(&h).unwrap().clone());
                     merkle_init_vect.push(h);
                 }
             }
-            std::mem::drop(locked_mempool);
             if vect.len()==10 {
             break;
             }
+        }*/
+        while vect.len()<3 && mempool.tx_hash_queue.len()>0 {
+        let h = mempool.tx_hash_queue.pop_front().unwrap();
+        match mempool.tx_to_process.get(&h) {
+            Some(boolean) => if *boolean && mempool.tx_map.contains_key(&h){
+                vect.push(mempool.tx_map.get(&h).unwrap().clone());
+                merkle_init_vect.push(h);
+            },
+            None => continue
+            
         }
+       }
+        if vect.len()==3 {
+            break;
+            }
         }
         let mut content: Content = Content{data:vect};
         let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
@@ -139,8 +157,12 @@ impl Context {
     }
 
     fn miner_loop(&mut self) {
-        let (mut content,mut merkle_root) = self.tx_pool_gen();
+        let mut flag:bool = true;
         // main mining loop
+        let mut content:Content;
+        let mut vect: Vec<SignedTransaction> = vec![];
+        content = Content{data:vect};
+        let mut merkle_root:H256=generate_random_hash();
         loop {
             // check and react to control signals
             match self.operating_state {
@@ -194,26 +216,34 @@ impl Context {
             let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
             let mut merkle_root = merkle_tree_tx.root();
             */
-           
+            let mut locked_blockchain = self.blockchain.lock().unwrap();
+            let mut locked_mempool = self.mempool.lock().unwrap();
+            let mut locked_state = self.ledger_state.lock().unwrap();
             
-            
+            if flag {
+            let (content,merkle_root) = self.tx_pool_gen(&mut locked_mempool);
+            }
+            flag = false;
             // actual mining
 
             // create Block
             //TODO: Put this in a function
 
             //Creating Header fields
-            let mut locked_blockchain = self.blockchain.lock().unwrap();
+           
             let phash = locked_blockchain.tiphash;
 
             let mut rng = rand::thread_rng();
             let nonce = rng.gen();
 
             let timestamp = Local::now().timestamp_millis();
-            let difficulty = locked_blockchain.chain.get(&locked_blockchain.tiphash)
+            let mut difficulty:H256 =  hex!("09911718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
+            if locked_blockchain.chain.contains_key(&locked_blockchain.tiphash){
+            difficulty = locked_blockchain.chain.get(&locked_blockchain.tiphash)
                              .unwrap()
                              .header
                              .difficulty ;
+            }
 
             //Creating Content
             //It will also be used for Merkel Root for the Header
@@ -239,7 +269,7 @@ impl Context {
             if new_block.hash() <= difficulty {
               info!("block with hash:{} generated\n",new_block.hash());
               println!("Number of blocks mined until now:{}\n",self.num_mined+1);
-              locked_blockchain.insert(&new_block);
+              locked_blockchain.insert(&new_block,&mut locked_mempool,&mut locked_state);
               let encodedhead: Vec<u8> = bincode::serialize(&new_block).unwrap();
               debug!("Size of block generated is {} bytes\n",encodedhead.len());
               //print!("Total number of blocks in blockchain:{}\n",locked_blockchain.chain.len());
@@ -247,8 +277,12 @@ impl Context {
               let mut new_block_hash : Vec<H256> = vec![];
               new_block_hash.push(new_block.hash());
               self.server.broadcast(Message::NewBlockHashes(new_block_hash));
-              let (content,merkle_root) = self.tx_pool_gen();
+              let (content,merkle_root) = self.tx_pool_gen(&mut locked_mempool);
             }
+            std::mem::drop(locked_state);
+            std::mem::drop(locked_mempool);
+            std::mem::drop(locked_blockchain);
+            
 
             if let OperatingState::Run(i) = self.operating_state {
                 if i != 0 {
@@ -257,7 +291,7 @@ impl Context {
                 }
             }
 
-            std::mem::drop(locked_blockchain);
+            
         }
     }
 }

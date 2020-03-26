@@ -3,6 +3,9 @@ use crate::crypto::hash::{H256,Hashable};
 use log::info;
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use crate::mempool::TransactionMempool;
+use crate::ledger_state::{BlockState,update_block_state};
+use crate::utils::{*};
 
 extern crate chrono;
 use chrono::prelude::*;
@@ -33,7 +36,7 @@ impl Blockchain {
     }
 
     /// Insert a block into blockchain
-    pub fn insert(&mut self, block: &Block) {
+    pub fn insert(&mut self, block: &Block,mut mempool:&mut TransactionMempool,mut blockstate:&mut BlockState) {
 
 
         let h:H256 = block.hash();
@@ -42,19 +45,36 @@ impl Blockchain {
 
         match self.chain.get(&block.header.parenthash){
             Some(pblock) => { //insertion into mainchain
-
+                let mut validity:bool = false;
                 if h < pblock.header.difficulty && !self.chain.contains_key(&h) {
                 let b_delay = Local::now().timestamp_millis() - block.header.timestamp;
                 self.totaldelay = self.totaldelay + b_delay;
+                if blockstate.block_state_map.contains_key(&block.header.parenthash){
+                validity = is_blck_valid(&block,&blockstate.block_state_map.get(&block.header.parenthash).unwrap());
+                }
+                else {
+                info!("State of parent block not found");
+                return;
+                }
+                //checks and updates
+                if !validity {
+                    info!("Block with hash {} does not satisfy state validity",h);
+                    return;
+                }
+                
+
                 info!("Adding block with hash {} to chain",h);
                 println!("Block delay is: {:?}",(Local::now().timestamp_millis() - block.header.timestamp));
                 println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));
                 println!("Total number of blocks in blockchain:{}\n",self.chain.len());
                 self.chain.insert(h,block.clone());
+                mempool_update(&block,&mut mempool);
+                update_block_state(&block,&mut blockstate);
                 let len = self.heights[&block.header.parenthash]+1;
                 self.heights.insert(h,len);
                 if len>self.heights[&self.tiphash] {
                     self.tiphash = h;
+                    println!("Current tipheight is {}",len);
                 }
 
                 //let mut bhash_copy:H256 = hash::generate_random_hash();
@@ -69,9 +89,29 @@ impl Blockchain {
                                     //flag = true;
                                     let bhash_copy:H256 = *bhash;
                                     bhash_vec.push(bhash_copy);
+                                    //checks and updates
+                                    let mut validity:bool = false;
+                                    if blockstate.block_state_map.contains_key(&h){
+                                        validity = is_blck_valid(&block,&blockstate.block_state_map.get(&h).unwrap());
+                                    }
+                                    else {
+                                        info!("State of parent block not found");
+                                        continue;
+                                    }
+                                    //let validity:bool = is_blck_valid(&block,&blockstate.block_state_map.get(&block.header.parenthash).unwrap());
+                                        if !validity {
+                                        info!("Block with hash {} does not satisfy state validity",h);
+                                        return;
+                                        }
+                                    
+                                
+
                                     self.chain.insert(bhash_copy,blck.clone());
-                                    let b_delay = Local::now().timestamp_millis() - block.header.timestamp;
+                                    mempool_update(&blck,&mut mempool);
+                                    update_block_state(&blck,&mut blockstate);
+                                    let b_delay = Local::now().timestamp_millis() - blck.header.timestamp;
                                     self.totaldelay = self.totaldelay + b_delay;
+
                                     info!("Adding block with hash {} to chain",blck.hash());
                                     println!("Block delay is: {:?}",(Local::now().timestamp_millis() - blck.header.timestamp));
                                     println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));

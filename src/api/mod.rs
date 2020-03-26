@@ -11,6 +11,7 @@ use tiny_http::Header;
 use tiny_http::Response;
 use tiny_http::Server as HTTPServer;
 use url::Url;
+use std::time;
 
 pub struct Server {
     handle: HTTPServer,
@@ -70,7 +71,9 @@ impl Server {
                     match url.path() {
                         "/miner/start" => {
                             let params = url.query_pairs();
+                            println!("{}",params.count());
                             let params: HashMap<_, _> = params.into_owned().collect();
+                            println!("{}",params.len());
                             let lambda = match params.get("lambda") {
                                 Some(v) => v,
                                 None => {
@@ -89,8 +92,29 @@ impl Server {
                                     return;
                                 }
                             };
-                            miner.start(0);
-                            txgen.start(lambda);
+                            /*let index = match params.get("index") {
+                                Some(v) => v,
+                                None => {
+                                    respond_result!(req, false, "missing index");
+                                    return;
+                                }
+                            };
+                            let index = match index.parse::<u64>() {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    respond_result!(
+                                        req,
+                                        false,
+                                        format!("error parsing index: {}", e)
+                                    );
+                                    return;
+                                }
+                            };*/
+                           
+                            txgen.start(lambda,lambda%3);
+                            let interval = time::Duration::from_micros(10000);
+                            thread::sleep(interval);
+                            miner.start(10000);
                             respond_result!(req, true, "ok");
                         }
                         "/network/ping" => {

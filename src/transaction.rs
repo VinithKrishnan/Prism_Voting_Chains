@@ -9,7 +9,7 @@ use crate::crypto::hash::{self, H256, Hashable};
 use crate::crypto::address::{self, H160};
 
 
-#[derive(Serialize, Deserialize, Debug, Default,Clone)]
+#[derive(Serialize, Deserialize, Debug, Default,Clone, Eq, PartialEq, Hash)]
 pub struct UtxoInput{
   pub tx_hash: H256,
   pub idx: u8,  

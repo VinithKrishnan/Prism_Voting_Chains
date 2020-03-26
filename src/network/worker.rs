@@ -4,9 +4,10 @@ use crate::network::server::Handle as ServerHandle;
 use crate::blockchain::Blockchain;
 use crate::block::*;
 use crate::transaction::SignedTransaction;
-use crate::transaction_checks;
+use crate::utils;
 use crate::mempool::TransactionMempool;
 use crate::crypto::hash::{H256, Hashable};
+use crate::ledger_state::BlockState;
 
 use crossbeam::channel;
 use log::{debug,info, warn};
@@ -21,6 +22,7 @@ pub struct Context {
     server: ServerHandle,
     blockchain: Arc<Mutex<Blockchain>>,
     tx_mempool: Arc<Mutex<TransactionMempool>>,
+    ledger_state: Arc<Mutex<BlockState>>,
 }
 
 pub fn new(
@@ -28,14 +30,16 @@ pub fn new(
     msg_src: channel::Receiver<(Vec<u8>, peer::Handle)>,
     server: &ServerHandle,
     blockchain: &Arc<Mutex<Blockchain>>,
-    tx_mempool: &Arc<Mutex<TransactionMempool>>
+    tx_mempool: &Arc<Mutex<TransactionMempool>>,
+    ledger_state: &Arc<Mutex<BlockState>>
 ) -> Context {
     Context {
         msg_chan: msg_src,
         num_worker,
         server: server.clone(),
         blockchain: Arc::clone(blockchain),
-        tx_mempool: Arc::clone(tx_mempool)
+        tx_mempool: Arc::clone(tx_mempool),
+        ledger_state: Arc::clone(ledger_state),
     }
 }
 
@@ -58,6 +62,7 @@ impl Context {
             let msg: Message = bincode::deserialize(&msg).unwrap();
             let mut locked_blockchain = self.blockchain.lock().unwrap();
             let mut locked_mempool = self.tx_mempool.lock().unwrap();
+            let mut locked_state = self.ledger_state.lock().unwrap();
             match msg {
                 Message::Ping(nonce) => {
                     debug!("Ping: {}", nonce);
@@ -125,7 +130,7 @@ impl Context {
                     for blck in vec_blocks {
                       let mut blck_is_valid: bool = true;
                       for tx in &blck.content.data{
-                          if !transaction_checks::is_tx_valid(tx){
+                          if !utils::is_tx_valid(tx){
                              blck_is_valid = false;
                              debug!("Invalid tx in received block. Ignoring that block");
                              break;
@@ -133,20 +138,23 @@ impl Context {
                       }
 
                       if blck_is_valid {
-                        // added difficulty check in insert method
-                        locked_blockchain.insert(&blck);
-                        
-                        //Sending getblocks message if block is orphan
-                        
-                        if !locked_blockchain.chain.contains_key(&blck.header.parenthash){
-                         get_block_hash.push(blck.header.parenthash);
-                        }
 
                         
+                        // added difficulty check in insert method
+                        locked_blockchain.insert(&blck,&mut locked_mempool,&mut locked_state);
+                        //locked_blockchain.insert(&blck,&locked_mempool);
+                        
+                        //Sending getblocks message if block is orphan
+                        get_block_hash.push(blck.header.parenthash);
+                        if !locked_blockchain.chain.contains_key(&blck.header.parenthash){
+                            self.server.broadcast(Message::GetBlocks(get_block_hash.clone()));
+                        }
+
+                        //broadcasting new block hashes
                         new_block_hash.push(blck.hash());
                         self.server.broadcast(Message::NewBlockHashes(new_block_hash.clone()));
 
-                        //Updating mempool
+                        /*//Updating mempool
                         for signed_tx in &blck.content.data {
                           let signed_tx_hash = signed_tx.hash();
                           match locked_mempool.tx_to_process.get(&signed_tx_hash){
@@ -158,7 +166,7 @@ impl Context {
                                   locked_mempool.tx_map.insert(signed_tx_hash, signed_tx.clone());
                               }
                           }
-                        }
+                        }*/
 
                         //Updating State
                       
@@ -202,26 +210,32 @@ impl Context {
                 }
                 Message::Transactions(vec_signed_txs) => {
                     debug!("Received Transactions");
-                    let mut new_tx_hashes: Vec<H256> = vec![];
+                    let mut tx_hashes_to_broadcast: Vec<H256> = vec![];
                     for signed_tx in vec_signed_txs {
-                      if transaction_checks::is_tx_valid(&signed_tx){
+                      if utils::is_tx_valid(&signed_tx){
                           let signed_tx_hash = signed_tx.hash();
                           match locked_mempool.tx_to_process.get(&signed_tx_hash){
                               Some(_tx_present) => debug!("tx_hash {} already present. Not adding to mempool", 
                                                          signed_tx_hash),
                               None => {
                                   info!("tx_hash {} is being added to mempool", signed_tx_hash);
-                                  new_tx_hashes.push(signed_tx_hash);
                                   locked_mempool.tx_to_process.insert(signed_tx_hash, true);
                                   locked_mempool.tx_map.insert(signed_tx_hash, signed_tx);
                                   locked_mempool.tx_hash_queue.push_back(signed_tx_hash);
+                                  tx_hashes_to_broadcast.push(signed_tx_hash);
                               }
                           }
                       }
                     }
-                    self.server.broadcast(Message::NewTransactionHashes(new_tx_hashes.clone()));
+                    if tx_hashes_to_broadcast.len() != 0{
+                        self.server.broadcast(Message::NewTransactionHashes(tx_hashes_to_broadcast.clone()));
+                    }
                 }
             }
+        std::mem::drop(locked_state);
+        std::mem::drop(locked_mempool);
+        std::mem::drop(locked_blockchain);
+        
         }
     }
 }

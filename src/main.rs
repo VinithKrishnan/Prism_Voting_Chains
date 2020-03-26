@@ -10,8 +10,9 @@ pub mod miner;
 pub mod network;
 pub mod transaction;
 pub mod mempool;
-pub mod transaction_checks;
+pub mod utils;
 pub mod tx_generator;
+pub mod ledger_state;
 
 use clap::clap_app;
 use crossbeam::channel;
@@ -23,6 +24,9 @@ use std::process;
 use std::thread;
 use std::time;
 use std::sync::{Arc, Mutex};
+use crate::crypto::hash::{self, H256, Hashable};
+use crate::block::{*};
+
 
 fn main() {
     // parse command line arguments
@@ -70,20 +74,38 @@ fn main() {
     let (server_ctx, server) = server::new(p2p_addr, msg_tx).unwrap();
     server_ctx.start().unwrap();
 
-    // start the transaction generator
+
+    // generating genblock and genhash
+    let buffer: [u8; 32] = [0; 32];
+    let b:H256 = buffer.into();
+    let genesis:Block = block::generate_genesis_block(&b);
+    let genhash:H256 = genesis.hash();
+     
+    // create state_chain
+    let ledger_state = Arc::new(Mutex::new(ledger_state::BlockState::new(&genhash)));
+
+    // create mempool
     let mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
+
+     // create blockchain
+     let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new()));
+
+    // start the transaction generator
     let (txgen_ctx,txgen) = tx_generator::new(
         &server,
         &mempool,
+        &ledger_state,
+        &blockchain,
     );
     txgen_ctx.start(); 
 
-    // start the miner
-    let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new()));
+  
+     // start the miner
     let (miner_ctx, miner) = miner::new(
         &server,
         &blockchain,
         &mempool,
+        &ledger_state,
     );
     miner_ctx.start();
 
@@ -102,6 +124,7 @@ fn main() {
         &server,
         &blockchain,
         &mempool,
+        &ledger_state,
     );
     worker_ctx.start();
 
