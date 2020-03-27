@@ -1,0 +1,1256 @@
+Establishing connection to peer 127.0.0.1:6001
+Received NewTransactionHashes
+Sending GetTransactions Message
+Received Transactions
+tx_hash 81f3ca7023462bcb7fb024a4ca2633410547b53f53fe92073e1956df522b641e is being added to mempool
+tx_hash cd5d89a6c0d6a6187b1e29051c6ac160d8ef497a43ca4c57cae2e674f41b4e23 is being added to mempool
+tx_hash 2dd6e6e97d6abdc7ffeba899e6927a9c34549175bae5274a5eb8f55f22c75652 is being added to mempool
+tx_hash ece789c8df5d40a3ae168710c1331c11a41951b1d1efc2e32ecafe018cd1fc7a is being added to mempool
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 9856416e215cd56ade12ec43ca71dffe37d0be5aa0a3c10e1b64168b7670e6a7 mined by  node 1 to chain
+Block delay is: 30
+Average delay is 26
+Total number of blocks in blockchain:1
+
+UtxoInput { tx_hash: 1778..c920, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0d78..c920, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 0f78..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0e78..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 1978..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0c78..c920, idx: 0 }UtxoOutput { receipient_addr: eacf..f3a2, value: 1000 }
+Current tipheight is 1
+balance in addr 6a37..c427 is 2000
+balance in addr eacf..f3a2 is 1000
+balance in addr c316..93da is 2000
+balance in addr eadf..736c is 3000
+balance in addr 25d1..46d9 is 2000
+balance in addr 2e17..0c21 is 2000
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 0320f018e354578915689e934352e06c7cdf770f03ee5ae22b4b17ef32ac4179 mined by  node 1 to chain
+Block delay is: 27
+Average delay is 24
+Total number of blocks in blockchain:2
+
+UtxoInput { tx_hash: 1778..c920, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 0f78..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0e78..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 1978..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0c78..c920, idx: 0 }UtxoOutput { receipient_addr: eacf..f3a2, value: 1000 }
+Current tipheight is 2
+balance in addr c316..93da is 2000
+balance in addr 2e17..0c21 is 2000
+balance in addr 6a37..c427 is 2000
+balance in addr eacf..f3a2 is 1000
+balance in addr eadf..736c is 3000
+balance in addr 25d1..46d9 is 2000
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 086fb73f485155164c8b78cb4ceecb23ffc3fe08b63633c9e5b7b7f73ea19c6b mined by  node 1 to chain
+Block delay is: 28
+Average delay is 24
+Total number of blocks in blockchain:3
+
+UtxoInput { tx_hash: 1778..c920, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 0f78..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0e78..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 1978..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 3
+balance in addr c316..93da is 2000
+balance in addr eadf..736c is 4000
+balance in addr 25d1..46d9 is 2000
+balance in addr 2e17..0c21 is 2000
+balance in addr 6a37..c427 is 2000
+Received NewTransactionHashes
+Sending GetTransactions Message
+Received Transactions
+tx_hash 5ea97ac58156b7bbc2e86f183981a8feaad0c398c7df67873f311d3a9ff4ba0d is being added to mempool
+tx_hash ca0acffbe153920c55b84c7172b5762d4ebc70fe8ae2a253db051eea1bf1254d is being added to mempool
+tx_hash 1f08df0b15836f2a3474a1a8087922ae161fa14f36c42ba0d7e6fa5045b314ea is being added to mempool
+tx_hash 110997038e1e15db5c854d917c630ca3ef39175940ef591894a0e380f7f14469 is being added to mempool
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 844210353daa7f919baa794e0d6129712b618c015c503bbb407acde1e40597e8 mined by  node 2 to chain
+Block delay is: 9
+Average delay is 20
+Total number of blocks in blockchain:4
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 0f78..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0e78..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 1978..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 4
+balance in addr 25d1..46d9 is 2000
+balance in addr 6a37..c427 is 2000
+balance in addr eadf..736c is 4000
+balance in addr c316..93da is 2000
+balance in addr 2e17..0c21 is 2000
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 503073cf71b76c78e0207bd2a432aa807a6d1bc07186f153f919d8e195178b56 mined by  node 1 to chain
+Block delay is: 18
+Average delay is 19
+Total number of blocks in blockchain:5
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 0f78..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0e78..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 1978..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 6f6812bec1f68b9bf3d87d444fdde353cefb19f7743f17e8b68d14351b982816 mined by  node 1 to chain
+Block delay is: 15
+Average delay is 18
+Total number of blocks in blockchain:6
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0e78..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: 1978..c920, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 5
+balance in addr 2e17..0c21 is 2000
+balance in addr c316..93da is 2000
+balance in addr 6a37..c427 is 2000
+balance in addr 25d1..46d9 is 2000
+balance in addr eadf..736c is 4000
+Received New Block Hashes
+Sending getBlocks Message
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 60e996ba8f2885627d33d1020f845a2e32173f9afbfb6dda7fbe16f7ca6d9afa mined by  node 1 to chain
+Block delay is: 15
+Average delay is 17
+Total number of blocks in blockchain:7
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0e78..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 6
+balance in addr 2e17..0c21 is 2000
+balance in addr eadf..736c is 4000
+balance in addr c316..93da is 2000
+balance in addr 6a37..c427 is 2000
+balance in addr 25d1..46d9 is 2000
+Received New Block Hashes
+Sending getBlocks Message
+Received New Block Hashes
+Sending getBlocks Message
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 331fd45499b617c002598b953027132ed6dc3ca43a0aafd8defcd13c54899fab mined by  node 1 to chain
+Block delay is: 28
+Average delay is 18
+Total number of blocks in blockchain:8
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 }UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 7
+balance in addr c316..93da is 2000
+balance in addr 25d1..46d9 is 2000
+balance in addr 6a37..c427 is 3000
+balance in addr 2e17..0c21 is 1000
+balance in addr eadf..736c is 4000
+1
+1
+Generator starting in continuous mode with lambda 1000002 and index 0
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 },UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 },UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 1878..c920, idx: 0 },UtxoOutput { receipient_addr: 2e17..0c21, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+Adding transaction with recepient address c316..93da to mempool in tx_generator
+Adding transaction with recepient address c316..93da to mempool in tx_generator
+Miner starting in continuous mode with lambda 10000 adn index 0
+Adding transaction with recepient address c316..93da to mempool in tx_generator
+Adding transaction with recepient address c316..93da to mempool in tx_generator
+Received New Block Hashes
+Sending getBlocks Message
+Inside tx_pool_gen
+Inside tx_pool_gen loop
+The len of mempool is 12
+hello
+About to check whether hash less than difficulty
+block with hash:8801dfb483c1f6991b2aa28aaa9c0b0b71480b5ef2faf367f4fc1e17bd6e61df generated
+
+Number of blocks mined until now:1
+
+Block generated by node 0
+Length of data is :1
+Adding block with hash 8801dfb483c1f6991b2aa28aaa9c0b0b71480b5ef2faf367f4fc1e17bd6e61df mined by  node 0 to chain
+Block delay is: 2
+Average delay is 16
+Total number of blocks in blockchain:9
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 8
+balance in addr 25d1..46d9 is 2000
+balance in addr c316..93da is 2000
+balance in addr eadf..736c is 4000
+balance in addr 6a37..c427 is 4000
+Size of block generated is 305 bytes
+
+Inside tx_pool_gen
+Inside tx_pool_gen loop
+The len of mempool is 4
+Received New Block Hashes
+Sending getBlocks Message
+Received Blocks message
+Length of data is :1
+Adding block with hash 913764a35f5e030a556a31919028031314ff5695b0b8779b555036432b01c64e mined by  node 2 to chain
+Block delay is: 21
+Average delay is 16
+Total number of blocks in blockchain:10
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Received GetTransactions
+Sending Transactions message
+Received GetBlocks
+Adding block with hash 8801dfb483c1f6991b2aa28aaa9c0b0b71480b5ef2faf367f4fc1e17bd6e61df to give_blocks
+Sending Blocks message
+Received Blocks message
+Length of data is :1
+Adding block with hash 6c25b389a7ba791f4f6d94d5b268302ba540a6dd70225caae823418bcabbaa9c mined by  node 1 to chain
+Block delay is: 29
+Average delay is 17
+Total number of blocks in blockchain:11
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 1478..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Received NewTransactionHashes
+tx which hashes to a96946f1311bc302692c353cba49ff8599295075bd04ab49b0411d2b4b42c120 already present in mempool
+tx which hashes to afc9c38f7c06cc1c869090c07208122a65ae55d598b3b799ee81d8b6ad6dc75f already present in mempool
+tx which hashes to 61006f4270778ccbbf537ec8300b1553709c6011c1b166928ccebcd5f68358a2 already present in mempool
+tx which hashes to dcf399ddc593be9392bcd4ac4509c37ad4df971f35cfd46b1fcae04177e9de7a already present in mempool
+hello
+About to check whether hash less than difficulty
+block with hash:308ea7e2d562074c205423dd3bb62d9a4ce49a2b3370910fbd7686bda9b2a7ae generated
+
+Number of blocks mined until now:2
+
+Block generated by node 0
+Length of data is :1
+Adding block with hash 308ea7e2d562074c205423dd3bb62d9a4ce49a2b3370910fbd7686bda9b2a7ae mined by  node 0 to chain
+Block delay is: 1
+Average delay is 16
+Total number of blocks in blockchain:12
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 0b78..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 9
+balance in addr 25d1..46d9 is 1000
+balance in addr c316..93da is 3000
+balance in addr eadf..736c is 4000
+balance in addr 6a37..c427 is 4000
+Size of block generated is 305 bytes
+
+Inside tx_pool_gen
+Inside tx_pool_gen loop
+The len of mempool is 3
+Received New Block Hashes
+Block that hashes to 8801dfb483c1f6991b2aa28aaa9c0b0b71480b5ef2faf367f4fc1e17bd6e61df already present
+Received GetBlocks
+Adding block with hash 308ea7e2d562074c205423dd3bb62d9a4ce49a2b3370910fbd7686bda9b2a7ae to give_blocks
+Sending Blocks message
+Received New Block Hashes
+Block that hashes to 308ea7e2d562074c205423dd3bb62d9a4ce49a2b3370910fbd7686bda9b2a7ae already present
+hello
+About to check whether hash less than difficulty
+hello
+About to check whether hash less than difficulty
+hello
+About to check whether hash less than difficulty
+hello
+About to check whether hash less than difficulty
+block with hash:041f26afe4a1f90e3b4eb1b6d43e97b1390e4724206e2d884c8326dd7635a1af generated
+
+Number of blocks mined until now:3
+
+Block generated by node 0
+Length of data is :1
+Adding block with hash 041f26afe4a1f90e3b4eb1b6d43e97b1390e4724206e2d884c8326dd7635a1af mined by  node 0 to chain
+Block delay is: 2
+Average delay is 14
+Total number of blocks in blockchain:13
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 1578..c920, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 10
+balance in addr c316..93da is 3000
+balance in addr 6a37..c427 is 4000
+balance in addr eadf..736c is 4000
+balance in addr 25d1..46d9 is 1000
+Size of block generated is 305 bytes
+
+Inside tx_pool_gen
+Inside tx_pool_gen loop
+The len of mempool is 2
+Received GetBlocks
+Adding block with hash 041f26afe4a1f90e3b4eb1b6d43e97b1390e4724206e2d884c8326dd7635a1af to give_blocks
+Sending Blocks message
+Received New Block Hashes
+Block that hashes to 041f26afe4a1f90e3b4eb1b6d43e97b1390e4724206e2d884c8326dd7635a1af already present
+hello
+About to check whether hash less than difficulty
+hello
+About to check whether hash less than difficulty
+block with hash:870b824788a9b7069aed7275e78dda3b8718bc5a775c30d7f4085ae3c9d229fb generated
+
+Number of blocks mined until now:4
+
+Block generated by node 0
+Length of data is :1
+Adding block with hash 870b824788a9b7069aed7275e78dda3b8718bc5a775c30d7f4085ae3c9d229fb mined by  node 0 to chain
+Block delay is: 2
+Average delay is 13
+Total number of blocks in blockchain:14
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 0a78..c920, idx: 0 }UtxoOutput { receipient_addr: 25d1..46d9, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 11
+balance in addr 6a37..c427 is 4000
+balance in addr 25d1..46d9 is 1000
+balance in addr eadf..736c is 4000
+balance in addr c316..93da is 3000
+Size of block generated is 305 bytes
+
+Inside tx_pool_gen
+Inside tx_pool_gen loop
+The len of mempool is 1
+Received GetBlocks
+Adding block with hash 870b824788a9b7069aed7275e78dda3b8718bc5a775c30d7f4085ae3c9d229fb to give_blocks
+Sending Blocks message
+Received New Block Hashes
+Block that hashes to 870b824788a9b7069aed7275e78dda3b8718bc5a775c30d7f4085ae3c9d229fb already present
+hello
+About to check whether hash less than difficulty
+hello
+About to check whether hash less than difficulty
+block with hash:6bfc6f0b6a6dd536e95566fd91211df0c11834438432cb2cf567d32106f54e9f generated
+
+Number of blocks mined until now:5
+
+Block generated by node 0
+Length of data is :1
+Adding block with hash 6bfc6f0b6a6dd536e95566fd91211df0c11834438432cb2cf567d32106f54e9f mined by  node 0 to chain
+Block delay is: 2
+Average delay is 13
+Total number of blocks in blockchain:15
+
+UtxoInput { tx_hash: 5a21..87da, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 }UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 }UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 }UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+Current tipheight is 12
+balance in addr 6a37..c427 is 4000
+balance in addr eadf..736c is 4000
+balance in addr c316..93da is 4000
+Size of block generated is 305 bytes
+
+Inside tx_pool_gen
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Inside tx_pool_gen loop
+The len of mempool is 0
+Received GetBlocks
+Adding block with hash 6bfc6f0b6a6dd536e95566fd91211df0c11834438432cb2cf567d32106f54e9f to give_blocks
+Sending Blocks message
+Received New Block Hashes
+Block that hashes to 6bfc6f0b6a6dd536e95566fd91211df0c11834438432cb2cf567d32106f54e9f already present
+Received NewTransactionHashes
+Sending GetTransactions Message
+Received Transactions
+tx_hash aa9a3caae3323cf72677a296e42eae78b22fed2e6babe7cd8e76dff710928571 is being added to mempool
+tx_hash 6d93a2352b0782c673b9f7387ac2a157e19dd78c98d1f005d2dc83946bb4442c is being added to mempool
+tx_hash 1f3da952df6851eea54105d71eb5fe2c1111969a95bc70652951b7a155833dfd is being added to mempool
+tx_hash 43a350d49678b1380f9b78bebf03c7d99bbb195529d985545ab24d0beb7e939e is being added to mempool
+Received NewTransactionHashes
+Sending GetTransactions Message
+Received Transactions
+tx_hash 4bc0f399a2f2c4a5ebc1701943f63e7f7176f417074682a9a96dd28a65e30432 is being added to mempool
+tx_hash 0bb20c6e3b7c7fa1cbb39d61d2eafba5d3095044450986e2c3921452fdfe679d is being added to mempool
+tx_hash e772b2947f670c631d4744167903b496b933a934b5f921f35c587a80253b5495 is being added to mempool
+tx_hash 578a99ca755adeb8dba91ae90f5dd8801f7de1bc154ef11618ca374d75101b5b is being added to mempool
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+Adding transaction with recepient address c316..93da to mempool in tx_generator
+Adding transaction with recepient address c316..93da to mempool in tx_generator
+Adding transaction with recepient address c316..93da to mempool in tx_generator
+Adding transaction with recepient address c316..93da to mempool in tx_generator
+Received GetTransactions
+Sending Transactions message
+Received NewTransactionHashes
+tx which hashes to 2dd3a9008ee8f68ef0718f26b236e8c599d775f93f5170e30402533b7c45dad6 already present in mempool
+tx which hashes to e066400978cd5a518095f2bc13730cf527b4bbab6c155870125dbe038831cec7 already present in mempool
+tx which hashes to 6e3abc67427af99c84ddd3312f870132f8107576e09a78809d2f883cb50dcccd already present in mempool
+tx which hashes to 2eb29e0dd6437ed5910fab1cfc10ccb931221fc91f5d62be4ca2bf48ca270564 already present in mempool
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx
+UtxoInput { tx_hash: 5a21..87da, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 6fdf..7e72, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: eb7d..3f06, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: 6727..6adc, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: cbc0..259f, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: d2fb..2171, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 8395..3699, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: f45f..d4f2, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b83..0c9e, idx: 0 },UtxoOutput { receipient_addr: c316..93da, value: 1000 }
+UtxoInput { tx_hash: 0b44..0dc7, idx: 0 },UtxoOutput { receipient_addr: 6a37..c427, value: 1000 }
+UtxoInput { tx_hash: c861..10e6, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+UtxoInput { tx_hash: 7caa..4d6b, idx: 0 },UtxoOutput { receipient_addr: eadf..736c, value: 1000 }
+About to generate tx

@@ -103,7 +103,7 @@ impl Context {
     
         println!("Inside tx_pool_gen");
         //for k in 1..6 {
-        loop {
+        for k in 1..100 {
         println!("Inside tx_pool_gen loop");
         //let mut locked_mempool = self.mempool.lock().unwrap();
         /*
