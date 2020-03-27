@@ -77,6 +77,8 @@ impl Blockchain {
                 if len>self.heights[&self.tiphash] {
                     self.tiphash = h;
                     println!("Current tipheight is {}",len);
+                    println!("All blocks in longest chain: {:?}",self.all_blocks_in_longest_chain());
+                    
 
                     let mut temp_state_map = blockstate.block_state_map.get(&block.hash()).unwrap();
                     let mut utxo_hmap:HashMap<H160,u32> = HashMap::new();
@@ -165,7 +167,7 @@ impl Blockchain {
     }
 
     /// Get the last block's hash of the longest chain
-    #[cfg(any(test, test_utilities))]
+    //#[cfg(any(test, test_utilities))]
     pub fn all_blocks_in_longest_chain(&self) -> Vec<H256> {
 
         let mut phash:H256 = self.tiphash;

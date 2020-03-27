@@ -215,7 +215,7 @@ impl Context {
         
         
         let mut tx_buffer : Vec<H256> = vec![];
-        println!("About to generate tx");
+        
         
         for (input,output) in tip_state.state_map.iter() {
             if output.receipient_addr == ref_addr1 || output.receipient_addr == ref_addr2  {

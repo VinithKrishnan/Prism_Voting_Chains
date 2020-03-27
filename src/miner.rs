@@ -101,10 +101,10 @@ impl Context {
         let mut vect: Vec<SignedTransaction> = vec![];
         //let mut merkle_init_vect: Vec<H256> = vec![];
     
-        println!("Inside tx_pool_gen");
+        
         //for k in 1..6 {
         for k in 1..100 {
-        println!("Inside tx_pool_gen loop");
+       
         //let mut locked_mempool = self.mempool.lock().unwrap();
         /*
         if mempool.tx_hash_queue.len()<15 {
@@ -250,7 +250,7 @@ impl Context {
             if content.data.len()==0{
                 continue;
             }
-            println!("hello");
+            
             
              
             for tx in content.data.iter() {
@@ -295,7 +295,7 @@ impl Context {
             let new_block = Block{header: header, content: content.clone()};
             //Check whether block solved the puzzle
             //If passed, add it to blockchain
-            println!("About to check whether hash less than difficulty");
+            
             if new_block.hash() <= difficulty {
               println!("block with hash:{} generated\n",new_block.hash());
               println!("Number of blocks mined until now:{}\n",self.num_mined+1);

@@ -46,6 +46,7 @@ pub fn update_block_state(block: &Block, block_state: &mut BlockState) {
           cur_block_state.state_map.insert(tx_input, tx_output.clone());
       }
   }
+  println!("UTXO state of current block:");
   let addr_val_map:HashMap<H160,u32> = HashMap::new();
   for (key,value) in cur_block_state.state_map.iter() {
     println!("{:?}{:?}", key,value);
@@ -109,6 +110,25 @@ pub fn ico() -> State {
     let output = UtxoOutput{receipient_addr: *address, value: val};
     initial_state.state_map.insert(input, output);
     }
+  }
+  
+  
+  for (key,value) in initial_state.state_map.iter() {
+    println!("{:?}{:?}", key,value);
+  }
+
+  let mut utxo_hmap:HashMap<H160,u32> = HashMap::new();
+
+  for (utxo_input,utxo_output) in initial_state.state_map.iter() {
+      if !utxo_hmap.contains_key(&utxo_output.receipient_addr){
+          utxo_hmap.insert(utxo_output.receipient_addr,utxo_output.value);
+      }else{
+          *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap() = *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap()+utxo_output.value;
+      }
+  }
+  println!("Balance in accounts after ico:");
+  for (key,value) in utxo_hmap.iter() {
+      println!("balance in addr {:?} is {:?}",key,value);
   }
    
   initial_state

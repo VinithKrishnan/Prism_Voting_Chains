@@ -71,9 +71,9 @@ impl Server {
                     match url.path() {
                         "/miner/start" => {
                             let params = url.query_pairs();
-                            println!("{}",params.count());
+                        
                             let params: HashMap<_, _> = params.into_owned().collect();
-                            println!("{}",params.len());
+                        
                             let lambda = match params.get("lambda") {
                                 Some(v) => v,
                                 None => {
