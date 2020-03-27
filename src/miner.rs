@@ -7,7 +7,7 @@ use crate::transaction::{self, SignedTransaction};
 use crate::crypto::hash::{H256, Hashable,generate_random_hash};
 use crate::crypto::merkle::{*};
 use crate::network::message::Message;
-use log::{debug,info};
+use log::{info,debug};
 use rand::Rng;
 use crossbeam::channel::{unbounded, Receiver, Sender, TryRecvError};
 
@@ -94,16 +94,17 @@ impl Context {
                 self.miner_loop();
             })
             .unwrap();
-        info!("Miner initialized into paused mode");
+        println!("Miner initialized into paused mode");
     }
 
     pub fn tx_pool_gen(&self,mempool:&mut TransactionMempool) -> Content {
         let mut vect: Vec<SignedTransaction> = vec![];
         //let mut merkle_init_vect: Vec<H256> = vec![];
     
-        info!("Inside tx_pool_gen");
-        for k in 1..6 {
-        info!("Inside tx_pool_gen loop");
+        println!("Inside tx_pool_gen");
+        //for k in 1..6 {
+        loop {
+        println!("Inside tx_pool_gen loop");
         //let mut locked_mempool = self.mempool.lock().unwrap();
         /*
         if mempool.tx_hash_queue.len()<15 {
@@ -120,7 +121,8 @@ impl Context {
             break;
             }
         }*/
-        while vect.len()<3 && mempool.tx_hash_queue.len()>0 {
+        println!("The len of mempool is {}",mempool.tx_map.len());
+        while vect.len()<1 && mempool.tx_hash_queue.len()>0 {
         let h = mempool.tx_hash_queue.pop_front().unwrap();
         match mempool.tx_to_process.get(&h) {
             Some(boolean) => if *boolean && mempool.tx_map.contains_key(&h){
@@ -131,7 +133,7 @@ impl Context {
             
         }
        }
-        if vect.len()==3 {
+        if vect.len()==1 {
             break;
             }
         }
@@ -146,11 +148,11 @@ impl Context {
     fn handle_control_signal(&mut self, signal: ControlSignal) {
         match signal {
             ControlSignal::Exit => {
-                info!("Miner shutting down");
+                println!("Miner shutting down");
                 self.operating_state = OperatingState::ShutDown;
             }
             ControlSignal::Start(i) => {
-                info!("Miner starting in continuous mode with lambda {}", i);
+                println!("Miner starting in continuous mode with lambda {}", i);
                 self.operating_state = OperatingState::Run(i);
             }
         }
@@ -165,8 +167,8 @@ impl Context {
         let mut merkle_root:H256=generate_random_hash();
         let mut  i:u32 = 0;
         loop {
-            info!("Present counter value is {}",i);
-            i = i+1;
+            //println!("Inside mining loop");
+            
             // check and react to control signals
             match self.operating_state {
                 OperatingState::Paused => {
@@ -195,7 +197,7 @@ impl Context {
             let mut vect: Vec<SignedTransaction> = vec![];
             let mut merkle_init_vect: Vec<H256> = vec![];
 
-            info!("About to enter loop");
+            println!("About to enter loop");
             loop {
             let mut locked_mempool = self.mempool.lock().unwrap();
             if locked_mempool.transq.len()<15 {
@@ -219,16 +221,17 @@ impl Context {
             let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
             let mut merkle_root = merkle_tree_tx.root();
             */
-            info!("About to obtain lock {}",i);
+           
             let mut locked_blockchain = self.blockchain.lock().unwrap();
             let mut locked_mempool = self.mempool.lock().unwrap();
             let mut locked_state = self.ledger_state.lock().unwrap();
-            info!("Obtained lock {}",i);
             
+            //println!("hello");
             if flag {
-                let content = self.tx_pool_gen(&mut locked_mempool);
+                content = self.tx_pool_gen(&mut locked_mempool);
             }
             flag = false;
+            
             // actual mining
             //println!("Out of loop");
             // create Block
@@ -240,7 +243,8 @@ impl Context {
             if content.data.len()==0{
                 continue;
             }
-
+            println!("hello");
+            
              
             for tx in content.data.iter() {
              merkle_init_vect.push(tx.hash());
@@ -255,6 +259,7 @@ impl Context {
 
             let timestamp = Local::now().timestamp_millis();
             let mut difficulty:H256 =  hex!("09911718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
+            
             if locked_blockchain.chain.contains_key(&locked_blockchain.tiphash){
             difficulty = locked_blockchain.chain.get(&locked_blockchain.tiphash)
                              .unwrap()
@@ -282,13 +287,13 @@ impl Context {
             let new_block = Block{header: header, content: content.clone()};
             //Check whether block solved the puzzle
             //If passed, add it to blockchain
-            //debug!("About to check whether hash less than difficulty");
+            println!("About to check whether hash less than difficulty");
             if new_block.hash() <= difficulty {
-              info!("block with hash:{} generated\n",new_block.hash());
+              println!("block with hash:{} generated\n",new_block.hash());
               println!("Number of blocks mined until now:{}\n",self.num_mined+1);
               locked_blockchain.insert(&new_block,&mut locked_mempool,&mut locked_state);
               let encodedhead: Vec<u8> = bincode::serialize(&new_block).unwrap();
-              debug!("Size of block generated is {} bytes\n",encodedhead.len());
+              println!("Size of block generated is {} bytes\n",encodedhead.len());
               //print!("Total number of blocks in blockchain:{}\n",locked_blockchain.chain.len());
               self.num_mined = self.num_mined + 1;
               let mut new_block_hash : Vec<H256> = vec![];

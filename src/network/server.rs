@@ -1,7 +1,7 @@
 use super::message;
 use super::peer::{self, ReadResult, WriteResult};
 use crossbeam::channel as cbchannel;
-use log::{debug, error, info, trace, warn};
+use log::{info, error, debug, trace, warn};
 use mio::{self, net};
 use mio_extras::channel;
 use std::sync::mpsc;
@@ -100,7 +100,7 @@ impl Context {
     /// Connect to a peer, and register this peer
     fn connect(&mut self, addr: &std::net::SocketAddr) -> std::io::Result<peer::Handle> {
         // we need to estabilsh a stdlib tcp stream, since we need it to block
-        debug!("Establishing connection to peer {}", addr);
+        println!("Establishing connection to peer {}", addr);
         let stream = std::net::TcpStream::connect(addr)?;
         let mio_stream = net::TcpStream::from_stream(stream)?;
         self.register(mio_stream, peer::Direction::Outgoing)
@@ -112,10 +112,10 @@ impl Context {
         stream: net::TcpStream,
         addr: std::net::SocketAddr,
     ) -> std::io::Result<()> {
-        debug!("New incoming connection from {}", addr);
+        println!("New incoming connection from {}", addr);
         match self.register(stream, peer::Direction::Incoming) {
             Ok(_) => {
-                info!("Connected to incoming peer {}", addr);
+                println!("Connected to incoming peer {}", addr);
             }
             Err(e) => {
                 error!("Error initializing incoming peer {}: {}", addr, e);
@@ -163,7 +163,7 @@ impl Context {
             match peer.reader.read() {
                 Ok(ReadResult::EOF) => {
                     // EOF, remove it from the connections set
-                    info!("Peer {} dropped connection", peer.addr);
+                    println!("Peer {} dropped connection", peer.addr);
                     self.peers.remove(peer_id);
                     let index = self.peer_list.iter().position(|&x| x == peer_id).unwrap();
                     self.peer_list.swap_remove(index);
@@ -223,7 +223,7 @@ impl Context {
             }
             Ok(WriteResult::EOF) => {
                 // EOF, remove it from the connections set
-                info!("Peer {} dropped connection", peer.addr);
+                println!("Peer {} dropped connection", peer.addr);
                 self.peers.remove(peer_id);
                 let index = self.peer_list.iter().position(|&x| x == peer_id).unwrap();
                 self.peer_list.swap_remove(index);
@@ -278,7 +278,7 @@ impl Context {
             mio::PollOpt::edge(),
         )?;
 
-        info!("P2P server listening at {}", server.local_addr()?);
+        println!("P2P server listening at {}", server.local_addr()?);
 
         // initialize space for polled events
         let mut events = mio::Events::with_capacity(MAX_EVENT);

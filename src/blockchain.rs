@@ -1,6 +1,6 @@
 use crate::block::{self, *};
 use crate::crypto::hash::{H256,Hashable};
-use log::info;
+use log::debug;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use crate::mempool::TransactionMempool;
@@ -54,23 +54,24 @@ impl Blockchain {
                 validity = is_blck_valid(&block,&blockstate.block_state_map.get(&block.header.parenthash).unwrap());
                 }
                 else {
-                info!("State of parent block not found");
+                println!("State of parent block not found");
                 return;
                 }
                 //checks and updates
                 if !validity {
-                    info!("Block with hash {} does not satisfy state validity",h);
+                    println!("Block with hash {} does not satisfy state validity",h);
                     return;
                 }
                 
 
-                info!("Adding block with hash {} to chain",h);
+                println!("Adding block with hash {} to chain",h);
                 println!("Block delay is: {:?}",(Local::now().timestamp_millis() - block.header.timestamp));
                 println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));
                 println!("Total number of blocks in blockchain:{}\n",self.chain.len());
                 self.chain.insert(h,block.clone());
                 mempool_update(&block,&mut mempool);
                 update_block_state(&block,&mut blockstate);
+                
                 let len = self.heights[&block.header.parenthash]+1;
                 self.heights.insert(h,len);
                 if len>self.heights[&self.tiphash] {
@@ -110,12 +111,12 @@ impl Blockchain {
                                         validity = is_blck_valid(&block,&blockstate.block_state_map.get(&h).unwrap());
                                     }
                                     else {
-                                        info!("State of parent block not found");
+                                        println!("State of parent block not found");
                                         continue;
                                     }
                                     //let validity:bool = is_blck_valid(&block,&blockstate.block_state_map.get(&block.header.parenthash).unwrap());
                                         if !validity {
-                                        info!("Block with hash {} does not satisfy state validity",h);
+                                        println!("Block with hash {} does not satisfy state validity",h);
                                         return;
                                         }
                                     
@@ -127,7 +128,7 @@ impl Blockchain {
                                     let b_delay = Local::now().timestamp_millis() - blck.header.timestamp;
                                     self.totaldelay = self.totaldelay + b_delay;
 
-                                    info!("Adding block with hash {} to chain",blck.hash());
+                                    println!("Adding block with hash {} to chain",blck.hash());
                                     println!("Block delay is: {:?}",(Local::now().timestamp_millis() - blck.header.timestamp));
                                     println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));
                                     println!("Total number of blocks in blockchain:{}\n",self.chain.len());

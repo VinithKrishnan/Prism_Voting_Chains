@@ -15,10 +15,11 @@ pub fn is_tx_valid(signed_tx: &SignedTransaction) -> bool {
 
 
 pub fn is_blck_valid(block: &Block, parent_state: &State) -> bool {
+   println!("Length of data is :{}",block.content.data.len());
    for signed_tx in &block.content.data {
      debug!("current signed_tx {:?}", signed_tx);
       if !is_tx_valid(signed_tx){
-         debug!("tx didn't pass signature check!");
+         println!("tx didn't pass signature check!");
          return false;
       }
 
@@ -31,14 +32,17 @@ pub fn is_blck_valid(block: &Block, parent_state: &State) -> bool {
       for input in &signed_tx.tx.tx_input {
           debug!("current tx_input {:?}", input);
           if !parent_state.state_map.contains_key(&input){
-             debug!("tx is double spend as input is not there in State!");
+             //println!("State map {:?}",parent_state.state_map.keys);
+             
+             println!("Input is {:?}",input);
+             println!("tx is double spend as input is not there in State!");
              return false;  
           }
           let output = &parent_state.state_map[&input];
           if output.receipient_addr != owner_address {
-             debug!("owner of tx input doesn't match to previous tx output");
-             debug!("input addreess {:?}", owner_address);
-             debug!("output address {:?}", output.receipient_addr);
+             println!("owner of tx input doesn't match to previous tx output");
+             println!("input addreess {:?}", owner_address);
+             println!("output address {:?}", output.receipient_addr);
              return false;
           }
           total_input_value = output.value;

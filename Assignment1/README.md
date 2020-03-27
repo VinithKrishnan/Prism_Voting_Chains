@@ -43,17 +43,17 @@ You need to write the main function of the project that does the following:
 3. use SHA256 hash function in *ring* crate to compute the hash value of your name.
 4. use *hex* crate to encode hash value to hex format.
 5. define a struct named **NameHash** and create an instance of this struct that contains both your name and the hex foramt hash.
-6. derive Debug trait on **NameHash**.
+6. derive println trait on **NameHash**.
 7. derive Serialize and Deserialize trait on **NameHash** (see *serde* crate on *docs.rs*, also see [this](https://serde.rs/derive.html)).
 8. serialize the **NameHash** instance into bytes using *bincode* crate.
 9. deserialize bytes back to the instance using *bincode* crate.
-10. print on screen the serialized bytes and the deserialized instance using Debug format (hint: use "{:?}" instead of "{}").
+10. print on screen the serialized bytes and the deserialized instance using println format (hint: use "{:?}" instead of "{}").
 
 The expected output of command `cargo run` would look like the following, where the first line is the serialized bytes and the second line is the instance:<a name="output">
 ```
    Compiling hello_world v0.1.0 (/home/user/Documents/hello_world)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.56s
-     Running `target/debug/hello_world`
+    Finished dev [unoptimized + printlnprintln] target(s) in 0.56s
+     Running `target/println/hello_world`
 [10, 0, 0, 0, 0, 0, 0, 0, 74, 111, 104, 110, 32, 83, 109, 105, 116, 104, 64, 0, 0, 0, 0, 0, 0, 0, 101, 102, 54, 49, 97, 53, 55, 57, 99, 57, 48, 55, 98, 98, 101, 100, 54, 55, 52, 99, 48, 100, 98, 99, 98, 99, 102, 55, 102, 55, 97, 102, 56, 102, 56, 53, 49, 53, 51, 56, 101, 101, 102, 55, 98, 56, 101, 53, 56, 99, 53, 98, 101, 101, 48, 98, 56, 99, 102, 100, 97, 99, 52, 97]
 NameHash { name: "John Smith", hash: "ef61a579c907bbed674c0dbcbcf7f7af8f851538eef7b8e58c5bee0b8cfdac4a" }
 ```

@@ -4,7 +4,7 @@ use crate::tx_generator::Handle as TxGenHandle;
 use crate::network::server::Handle as NetworkServerHandle;
 use crate::network::message::Message;
 
-use log::info;
+use log::debug;
 use std::collections::HashMap;
 use std::thread;
 use tiny_http::Header;
@@ -139,6 +139,6 @@ impl Server {
                 });
             }
         });
-        info!("API server listening at {}", &addr);
+        println!("API server listening at {}", &addr);
     }
 }

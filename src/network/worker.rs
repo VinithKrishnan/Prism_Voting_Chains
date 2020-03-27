@@ -10,7 +10,7 @@ use crate::crypto::hash::{H256, Hashable};
 use crate::ledger_state::BlockState;
 
 use crossbeam::channel;
-use log::{debug,info, warn};
+use log::{info,debug, warn};
 
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -65,27 +65,27 @@ impl Context {
             let mut locked_state = self.ledger_state.lock().unwrap();
             match msg {
                 Message::Ping(nonce) => {
-                    debug!("Ping: {}", nonce);
+                    println!("Ping: {}", nonce);
                     peer.write(Message::Pong(nonce.to_string()));
                 }
                 Message::Pong(nonce) => {
-                    debug!("Pong: {}", nonce);
+                    println!("Pong: {}", nonce);
                 }
                 Message::NewBlockHashes(vec_hashes) => {
                     let mut required_blocks:Vec<H256> = vec![];
-                    debug!("Received New Block Hashes");
+                    println!("Received New Block Hashes");
 
                     for recv_hash in vec_hashes {
                         let mut flag: bool = false;
                         for (bhash,_) in locked_blockchain.chain.iter(){
                             if *bhash == recv_hash{
-                                debug!("Block that hashes to {} already present", bhash);
+                                println!("Block that hashes to {} already present", bhash);
                                 flag = true;
                             }
                         }
                         for (bhash,_) in locked_blockchain.buffer.iter(){
                             if *bhash == recv_hash {
-                                debug!("Block that hashes to {} already present", bhash);
+                                println!("Block that hashes to {} already present", bhash);
                                 flag = true;
                             }
                         }
@@ -94,37 +94,37 @@ impl Context {
                         }
                     }
                     if required_blocks.len()!= 0 {
-                        debug!("Sending getBlocks Message");
+                        println!("Sending getBlocks Message");
                         peer.write(Message::GetBlocks(required_blocks));
                     }
 
                 }
                 Message::GetBlocks(vec_hashes) => {
                     let mut give_blocks:Vec<Block> = vec![];
-                    debug!("Received GetBlocks");
+                    println!("Received GetBlocks");
                     for getblock_hash in vec_hashes {
                         for (bhash,blck) in locked_blockchain.chain.iter(){
                             if *bhash == getblock_hash{
-                                debug!("Adding block with hash {} to give_blocks", bhash);
+                                println!("Adding block with hash {} to give_blocks", bhash);
                                 give_blocks.push(blck.clone());
                             }
                         }
                         for (bhash,blck) in locked_blockchain.buffer.iter(){
                             if *bhash == getblock_hash {
-                                debug!("Adding block with hash {} to give_blocks", bhash);
+                                println!("Adding block with hash {} to give_blocks", bhash);
                                 give_blocks.push(blck.clone());
                             }
                         }
 
                     }
                     if give_blocks.len()!=0 {
-                        debug!("Sending Blocks message");
+                        println!("Sending Blocks message");
                         peer.write(Message::Blocks(give_blocks));
                     }
 
                 }
                 Message::Blocks(vec_blocks) => {
-                    debug!("Received Blocks message");
+                    println!("Received Blocks message");
                     let mut get_block_hash : Vec<H256> = vec![];
                     let mut new_block_hash : Vec<H256> = vec![];
                     for blck in vec_blocks {
@@ -132,7 +132,7 @@ impl Context {
                       for tx in &blck.content.data{
                           if !utils::is_tx_valid(tx){
                              blck_is_valid = false;
-                             debug!("Invalid tx in received block. Ignoring that block");
+                             println!("Invalid tx in received block. Ignoring that block");
                              break;
                           }
                       }
@@ -175,50 +175,50 @@ impl Context {
                 }
                 Message::NewTransactionHashes(vec_tx_hashes) => {
                     let mut required_txs: Vec<H256> = vec![];
-                    debug!("Received NewTransactionHashes");
+                    println!("Received NewTransactionHashes");
                     
                     for recv_tx_hash in vec_tx_hashes {
                         match locked_mempool.tx_to_process.get(&recv_tx_hash){
-                            Some(_tx_present) => debug!("tx which hashes to {} already present in mempool", 
+                            Some(_tx_present) => println!("tx which hashes to {} already present in mempool", 
                                                         recv_tx_hash),
                             None => required_txs.push(recv_tx_hash.clone())
                         }
                     }
 
                     if required_txs.len()!= 0 {
-                        debug!("Sending GetTransactions Message");
+                        println!("Sending GetTransactions Message");
                         peer.write(Message::GetTransactions(required_txs));
                         
                     }
                 }
                 Message::GetTransactions(vec_tx_hashes) => {
                     let mut txs_to_send:Vec<SignedTransaction> = vec![];
-                    debug!("Received GetTransactions");
+                    println!("Received GetTransactions");
                     
                     for tx_hash in vec_tx_hashes {
                         match locked_mempool.tx_map.get(&tx_hash){
                             Some(signed_tx) => txs_to_send.push(signed_tx.clone()), 
-                            None => {debug!("tx which hashes to {} not present in mempool", tx_hash);
-                            debug!("Size of mempool is: {}",locked_mempool.tx_map.len());}
+                            None => {println!("tx which hashes to {} not present in mempool", tx_hash);
+                            println!("Size of mempool is: {}",locked_mempool.tx_map.len());}
                         }
                     }
                     
                     if txs_to_send.len()!=0 {
-                        debug!("Sending Transactions message");
+                        println!("Sending Transactions message");
                         peer.write(Message::Transactions(txs_to_send));
                     }
                 }
                 Message::Transactions(vec_signed_txs) => {
-                    debug!("Received Transactions");
+                    println!("Received Transactions");
                     let mut tx_hashes_to_broadcast: Vec<H256> = vec![];
                     for signed_tx in vec_signed_txs {
                       if utils::is_tx_valid(&signed_tx){
                           let signed_tx_hash = signed_tx.hash();
                           match locked_mempool.tx_to_process.get(&signed_tx_hash){
-                              Some(_tx_present) => debug!("tx_hash {} already present. Not adding to mempool", 
+                              Some(_tx_present) => println!("tx_hash {} already present. Not adding to mempool", 
                                                          signed_tx_hash),
                               None => {
-                                  info!("tx_hash {} is being added to mempool", signed_tx_hash);
+                                  println!("tx_hash {} is being added to mempool", signed_tx_hash);
                                   locked_mempool.tx_to_process.insert(signed_tx_hash, true);
                                   locked_mempool.tx_map.insert(signed_tx_hash, signed_tx);
                                   locked_mempool.tx_hash_queue.push_back(signed_tx_hash);
