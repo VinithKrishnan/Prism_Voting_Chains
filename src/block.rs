@@ -16,6 +16,7 @@ pub struct Header {
     pub difficulty: H256,
     pub timestamp: i64,
     pub merkle_root:H256,
+    pub miner_id:i32,
 }
 #[derive(Serialize, Deserialize, Debug,Clone)]
 pub struct Content {
@@ -49,7 +50,7 @@ pub fn generate_random_block(parent: &H256) -> Block {
 
     //let mut buffer: [u8; 32] = [0; 32];
     let b:H256 = hex!("99911718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
-    let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:local.timestamp_millis(),merkle_root:b};
+    let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:local.timestamp_millis(),merkle_root:b,miner_id:-1};
     let t = transaction::generate_random_signed_transaction();
     //transaction::pr();
     let mut vect:Vec<SignedTransaction> = vec![];
@@ -65,7 +66,7 @@ pub fn generate_genesis_block(parent: &H256) -> Block {
     let r1:u32 = 0;
     let r2:i64 = 0;
     //let local: DateTime<Local> = Local::now();
-    let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:r2,merkle_root:b};
+    let h:Header = Header{parenthash:*parent,nonce:r1,difficulty:b,timestamp:r2,merkle_root:b,miner_id:-1};
     let t = transaction::generate_genesis_signed_transaction();
     //transaction::pr();
     let mut vect:Vec<SignedTransaction> = vec![];

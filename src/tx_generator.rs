@@ -96,7 +96,7 @@ impl Context {
                 self.gen_loop();
             })
             .unwrap();
-        println!("Generator initialized into paused mode");
+        info!("Generator initialized into paused mode");
     }
 
     fn handle_control_signal(&mut self, signal: ControlSignal) {
@@ -127,19 +127,19 @@ impl Context {
 
         let key_pair1 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 187, 131, 74, 161, 134, 11, 240, 6, 188, 109, 18, 108, 124, 219, 167, 164, 215, 125, 168, 79, 204, 194, 232, 91, 58, 186, 181, 230, 212, 78, 163, 28, 161, 35, 3, 33, 0, 233, 72, 146, 218, 220, 235, 17, 123, 202, 112, 119, 63, 134, 105, 134, 71, 34, 185, 71, 193, 59, 66, 43, 137, 50, 194, 120, 234, 97, 132, 235, 159].as_ref().into()).unwrap();
         let key_pair2 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 154, 186, 73, 239, 105, 129, 142, 211, 156, 79, 213, 209, 229, 87, 22, 92, 113, 203, 244, 222, 244, 33, 199, 254, 130, 102, 178, 65, 198, 67, 20, 132, 161, 35, 3, 33, 0, 161, 153, 171, 27, 96, 146, 25, 237, 5, 189, 186, 116, 0, 24, 2, 8, 28, 143, 5, 119, 20, 47, 142, 186, 55, 234, 189, 167, 154, 15, 210, 97].as_ref().into()).unwrap();
-        //let key_pair3 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 147, 195, 231, 118, 135, 29, 32, 40, 23, 117, 107, 218, 6, 220, 198, 50, 81, 113, 167, 122, 175, 161, 118, 93, 191, 137, 50, 125, 203, 69, 70, 42, 161, 35, 3, 33, 0, 125, 80, 160, 138, 247, 46, 227, 162, 118, 51, 64, 42, 174, 60, 87, 134, 77, 60, 225, 11, 189, 222, 22, 185, 65, 10, 67, 78, 250, 41, 188, 60].as_ref().into()).unwrap();
-        //let key_pair4 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 11, 212, 170, 1, 126, 8, 32, 58, 40, 116, 165, 98, 48, 127, 67, 109, 86, 251, 249, 203, 244, 203, 1, 223, 248, 164, 176, 195, 23, 17, 146, 8, 161, 35, 3, 33, 0, 206, 15, 234, 106, 58, 45, 177, 81, 0, 193, 13, 113, 249, 55, 152, 151, 227, 224, 35, 185, 148, 49, 186, 234, 17, 106, 132, 216, 83, 196, 127, 99].as_ref().into()).unwrap();  
+        let key_pair3 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 147, 195, 231, 118, 135, 29, 32, 40, 23, 117, 107, 218, 6, 220, 198, 50, 81, 113, 167, 122, 175, 161, 118, 93, 191, 137, 50, 125, 203, 69, 70, 42, 161, 35, 3, 33, 0, 125, 80, 160, 138, 247, 46, 227, 162, 118, 51, 64, 42, 174, 60, 87, 134, 77, 60, 225, 11, 189, 222, 22, 185, 65, 10, 67, 78, 250, 41, 188, 60].as_ref().into()).unwrap();
+        let key_pair4 = signature::Ed25519KeyPair::from_pkcs8([48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 11, 212, 170, 1, 126, 8, 32, 58, 40, 116, 165, 98, 48, 127, 67, 109, 86, 251, 249, 203, 244, 203, 1, 223, 248, 164, 176, 195, 23, 17, 146, 8, 161, 35, 3, 33, 0, 206, 15, 234, 106, 58, 45, 177, 81, 0, 193, 13, 113, 249, 55, 152, 151, 227, 224, 35, 185, 148, 49, 186, 234, 17, 106, 132, 216, 83, 196, 127, 99].as_ref().into()).unwrap();  
 
         let vector1 = [48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 187, 131, 74, 161, 134, 11, 240, 6, 188, 109, 18, 108, 124, 219, 167, 164, 215, 125, 168, 79, 204, 194, 232, 91, 58, 186, 181, 230, 212, 78, 163, 28, 161, 35, 3, 33, 0, 233, 72, 146, 218, 220, 235, 17, 123, 202, 112, 119, 63, 134, 105, 134, 71, 34, 185, 71, 193, 59, 66, 43, 137, 50, 194, 120, 234, 97, 132, 235, 159];
         let vector2 = [48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 154, 186, 73, 239, 105, 129, 142, 211, 156, 79, 213, 209, 229, 87, 22, 92, 113, 203, 244, 222, 244, 33, 199, 254, 130, 102, 178, 65, 198, 67, 20, 132, 161, 35, 3, 33, 0, 161, 153, 171, 27, 96, 146, 25, 237, 5, 189, 186, 116, 0, 24, 2, 8, 28, 143, 5, 119, 20, 47, 142, 186, 55, 234, 189, 167, 154, 15, 210, 97];
-        //let vector3 = [48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 147, 195, 231, 118, 135, 29, 32, 40, 23, 117, 107, 218, 6, 220, 198, 50, 81, 113, 167, 122, 175, 161, 118, 93, 191, 137, 50, 125, 203, 69, 70, 42, 161, 35, 3, 33, 0, 125, 80, 160, 138, 247, 46, 227, 162, 118, 51, 64, 42, 174, 60, 87, 134, 77, 60, 225, 11, 189, 222, 22, 185, 65, 10, 67, 78, 250, 41, 188, 60];
-        //let vector4 = [48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 11, 212, 170, 1, 126, 8, 32, 58, 40, 116, 165, 98, 48, 127, 67, 109, 86, 251, 249, 203, 244, 203, 1, 223, 248, 164, 176, 195, 23, 17, 146, 8, 161, 35, 3, 33, 0, 206, 15, 234, 106, 58, 45, 177, 81, 0, 193, 13, 113, 249, 55, 152, 151, 227, 224, 35, 185, 148, 49, 186, 234, 17, 106, 132, 216, 83, 196, 127, 99];
+        let vector3 = [48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 147, 195, 231, 118, 135, 29, 32, 40, 23, 117, 107, 218, 6, 220, 198, 50, 81, 113, 167, 122, 175, 161, 118, 93, 191, 137, 50, 125, 203, 69, 70, 42, 161, 35, 3, 33, 0, 125, 80, 160, 138, 247, 46, 227, 162, 118, 51, 64, 42, 174, 60, 87, 134, 77, 60, 225, 11, 189, 222, 22, 185, 65, 10, 67, 78, 250, 41, 188, 60];
+        let vector4 = [48, 83, 2, 1, 1, 48, 5, 6, 3, 43, 101, 112, 4, 34, 4, 32, 11, 212, 170, 1, 126, 8, 32, 58, 40, 116, 165, 98, 48, 127, 67, 109, 86, 251, 249, 203, 244, 203, 1, 223, 248, 164, 176, 195, 23, 17, 146, 8, 161, 35, 3, 33, 0, 206, 15, 234, 106, 58, 45, 177, 81, 0, 193, 13, 113, 249, 55, 152, 151, 227, 224, 35, 185, 148, 49, 186, 234, 17, 106, 132, 216, 83, 196, 127, 99];
         
 
         let address1 = address::address_from_public_key_vec_ref(&key_pair1.public_key().as_ref().to_vec());
         let address2 = address::address_from_public_key_vec_ref(&key_pair2.public_key().as_ref().to_vec());
-        //let address3 = address::address_from_public_key_vec_ref(&key_pair3.public_key().as_ref().to_vec());
-        //let address4 = address::address_from_public_key_vec_ref(&key_pair4.public_key().as_ref().to_vec());
+        let address3 = address::address_from_public_key_vec_ref(&key_pair3.public_key().as_ref().to_vec());
+        let address4 = address::address_from_public_key_vec_ref(&key_pair4.public_key().as_ref().to_vec());
         
         let mut index:u64 = 0;
         let mut time_i:u64 = 0;
@@ -202,7 +202,7 @@ impl Context {
         let mut key2:signature::Ed25519KeyPair=key_pair::random();
         match index {
             0 => {ref_addr1 = address1;send_addr=address2;ref_addr2 = address2;key1 = signature::Ed25519KeyPair::from_pkcs8(vector1.as_ref().into()).unwrap();key2 = signature::Ed25519KeyPair::from_pkcs8(vector2.as_ref().into()).unwrap(); },
-           // 1 => {ref_addr1 = address3;send_addr=address4;ref_addr2 = address4;key1 = signature::Ed25519KeyPair::from_pkcs8(vector2.as_ref().into()).unwrap();key2 = signature::Ed25519KeyPair::from_pkcs8(vector4.as_ref().into()).unwrap(); },
+            1 => {ref_addr1 = address3;send_addr=address4;ref_addr2 = address4;key1 = signature::Ed25519KeyPair::from_pkcs8(vector3.as_ref().into()).unwrap();key2 = signature::Ed25519KeyPair::from_pkcs8(vector4.as_ref().into()).unwrap(); },
            // 2 => {ref_addr = address3;send_addr=address3;key = signature::Ed25519KeyPair::from_pkcs8(vector3.as_ref().into()).unwrap(); },
             _ => println!("Invalid index"),
         }
@@ -210,8 +210,7 @@ impl Context {
         
         let mut tx_buffer : Vec<H256> = vec![];
         println!("About to generate tx");
-        let mut balance1:u32 = 0;
-        let mut balance2:u32 = 0;
+        
         for (input,output) in tip_state.state_map.iter() {
             if output.receipient_addr == ref_addr1 || output.receipient_addr == ref_addr2  {
                 let mut vec_input:Vec<UtxoInput> = vec![]; 
@@ -219,11 +218,7 @@ impl Context {
                 vec_input.push(input.clone());
                 let mut new_output = output.clone();
                 new_output.receipient_addr = send_addr;
-                if output.receipient_addr == ref_addr1 {
-                balance1 += new_output.value;
-                }else {
-                balance2 += new_output.value;  
-                }
+               
                 vec_output.push(new_output);
                 let mut t = Transaction{tx_input:vec_input,tx_output:vec_output};
                 let mut signed_tx = generate_random_signed_transaction();
@@ -247,7 +242,7 @@ impl Context {
                 }
             }
         }
-        println!("Balance of account1 is {} and balance of account 2 is {}.",balance1,balance2);
+        //println!("Balance of account1 is {} and balance of account 2 is {}.",balance1,balance2);
         /*for x in 0..10 {
             let t = transaction::generate_random_transaction();
             let key = key_pair::random();

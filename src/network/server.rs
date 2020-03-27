@@ -112,10 +112,10 @@ impl Context {
         stream: net::TcpStream,
         addr: std::net::SocketAddr,
     ) -> std::io::Result<()> {
-        println!("New incoming connection from {}", addr);
+        info!("New incoming connection from {}", addr);
         match self.register(stream, peer::Direction::Incoming) {
             Ok(_) => {
-                println!("Connected to incoming peer {}", addr);
+                info!("Connected to incoming peer {}", addr);
             }
             Err(e) => {
                 error!("Error initializing incoming peer {}: {}", addr, e);
@@ -278,7 +278,7 @@ impl Context {
             mio::PollOpt::edge(),
         )?;
 
-        println!("P2P server listening at {}", server.local_addr()?);
+        info!("P2P server listening at {}", server.local_addr()?);
 
         // initialize space for polled events
         let mut events = mio::Events::with_capacity(MAX_EVENT);

@@ -16,7 +16,7 @@ pub mod ledger_state;
 
 use clap::clap_app;
 use crossbeam::channel;
-use log::{error, debug};
+use log::{error, debug,info};
 use api::Server as ApiServer;
 use network::{server, worker};
 use std::net;
@@ -146,7 +146,7 @@ fn main() {
                     };
                     match server.connect(addr) {
                         Ok(_) => {
-                            println!("Connected to outgoing peer {}", &addr);
+                            info!("Connected to outgoing peer {}", &addr);
                             break;
                         }
                         Err(e) => {

@@ -64,7 +64,7 @@ impl Blockchain {
                 }
                 
 
-                println!("Adding block with hash {} to chain",h);
+                println!("Adding block with hash {} mined by  node {} to chain",h,block.header.miner_id);
                 println!("Block delay is: {:?}",(Local::now().timestamp_millis() - block.header.timestamp));
                 println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));
                 println!("Total number of blocks in blockchain:{}\n",self.chain.len());
@@ -85,7 +85,7 @@ impl Blockchain {
                         if !utxo_hmap.contains_key(&utxo_output.receipient_addr){
                             utxo_hmap.insert(utxo_output.receipient_addr,utxo_output.value);
                         }else{
-                            *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap() += *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap()+utxo_output.value;
+                            *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap() = *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap()+utxo_output.value;
                         }
                     }
                     for (key,value) in utxo_hmap.iter() {

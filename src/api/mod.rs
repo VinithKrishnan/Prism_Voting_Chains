@@ -12,7 +12,7 @@ use tiny_http::Response;
 use tiny_http::Server as HTTPServer;
 use url::Url;
 use std::time;
-
+use log::info;
 pub struct Server {
     handle: HTTPServer,
     miner: MinerHandle,
@@ -114,7 +114,7 @@ impl Server {
                             txgen.start(lambda,lambda%2);
                             let interval = time::Duration::from_micros(10000);
                             thread::sleep(interval);
-                            miner.start(10000);
+                            miner.start(10000,lambda%2);
                             respond_result!(req, true, "ok");
                         }
                         "/network/ping" => {
@@ -139,6 +139,6 @@ impl Server {
                 });
             }
         });
-        println!("API server listening at {}", &addr);
+        info!("API server listening at {}", &addr);
     }
 }
