@@ -5,6 +5,7 @@ use rand::Rng;
 use serde::{Serialize, Deserialize};
 use crate::crypto::hash::{H256, Hashable};
 use crate::transaction::{self, SignedTransaction};
+use crate::crypto::merkle::MerkleTree;
 
 extern crate chrono;
 use chrono::prelude::*;
@@ -19,14 +20,83 @@ pub struct Header {
     pub miner_id:i32,
 }
 #[derive(Serialize, Deserialize, Debug,Clone)]
-pub struct Content {
-    pub data:Vec<SignedTransaction>,
+// content depends on type of block, represented by enum
+pub enum Content {
+    Proposer(ProposerContent),
+    Voter(VoterContent),
+}
+
+impl Hashable for Content {
+    fn hash(&self) -> H256 {
+        match self {
+            Content::Proposer(c) => c.hash(),
+            Content::Voter(c) => c.hash(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug,Clone)]
 pub struct Block {
     pub header:Header,
     pub content:Content,
+    pub sortition_proof:Vec<H256>,
+}
+
+
+impl Block {
+    pub fn new(
+        parent: H256,
+        ts: i64,
+        n: u32,
+        content_merkle_root: H256,
+        sortition_proof: Vec<H256>,
+        content: Content,
+        miner_identity:i32,
+        diff: H256,
+    ) -> Self {
+        let header = Header{
+            parenthash:parent,
+            nonce:n,
+            difficulty:diff,
+            timestamp:ts,
+            merkle_root:content_merkle_root,
+            miner_id:miner_identity,
+        };
+        Self {
+            header,
+            content,
+            sortition_proof,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct ProposerContent {
+    pub transactions: Vec<SignedTransaction>,
+}
+
+impl Hashable for ProposerContent {
+    fn hash(&self) -> H256 {
+        let merkle_tree = MerkleTree::new(&self.transactions);
+        merkle_tree.root()
+    }
+}
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct VoterContent {
+    pub votes: Vec<H256>, // hashes of blocks to which votes have been cast
+    pub parent_hash : H256, //hash of parent block
+    pub chain_num: u16, //chain number of voter block 
+}
+
+impl Hashable for  VoterContent {
+    fn hash(&self)->H256 {
+        let merkle_tree =  MerkleTree::new(&self.votes);
+        let mut bytes = [0u8; 66];
+        bytes[..2].copy_from_slice(&self.chain_num.to_be_bytes());
+        bytes[2..34].copy_from_slice(self.parent_hash.as_ref());
+        bytes[34..66].copy_from_slice(merkle_tree.root().as_ref());
+        ring::digest::digest(&ring::digest::SHA256, &bytes).into()
+    }
 }
 
 impl Hashable for Block {
@@ -42,7 +112,7 @@ impl Hashable for Header {
     }
 }
 
-pub fn generate_random_block(parent: &H256) -> Block {
+/*pub fn generate_random_block(parent: &H256) -> Block {
     let mut rng = rand::thread_rng();
     let r1:u32 = rng.gen();
     //let r2:u128 = rng.gen();
@@ -74,4 +144,46 @@ pub fn generate_genesis_block(parent: &H256) -> Block {
     let c:Content = Content{data:vect};
     let b:Block = Block{header:h,content:c};
     b
+}*/
+
+pub fn genesis_proposer() -> Block {
+   let content = ProposerContent {
+      transactions:vec![],
+   };
+   let zero_vec : [u8; 32] = [0; 32];
+   let raw: [u8; 32] = [255; 32];
+   let default_diff:H256= raw.into();
+   Block::new(
+       zero_vec.into(),
+       0,
+       0,
+       zero_vec.into(),
+       vec![],
+       Content::Proposer(content),
+       0,
+       default_diff,
+   )
 }
+
+pub fn genesis_voter(chain_number:u16) -> Block {
+    let zero_vec : [u8; 32] = [0; 32];
+    let content = VoterContent {
+        chain_num: chain_number,
+        parent_hash: zero_vec.into(),
+        votes: vec![],
+    };
+    let raw: [u8; 32] = [255; 32];
+    let default_diff:H256= raw.into();
+
+    Block::new(
+        zero_vec.into(),
+        0,
+        0,
+        zero_vec.into(),
+        vec![],
+        Content::Voter(content),
+        0,
+        default_diff,
+    )
+}
+
