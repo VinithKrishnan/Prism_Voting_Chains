@@ -99,8 +99,9 @@ impl TransactionMempool{
        Some(txstore)
     }
     
-    // when a new propser block is found, txs in it must be deleted from mempool
-    // remove other txs that use "to be deleted tx's output" as input
+    // when a new propser block is found, txs(tx1) in it must be deleted from mempool
+    //other txs(tx2) that use the same inputs as tx1 must be deleted
+    // this func is used to remove other txs that use "to be deleted tx's output(tx2)" as input
     pub fn delete_dependent_txs(&mut self, txoutput: &UtxoInput){
 
     //makes recursively calls,should i use aa queue to simulate recursion instead?
