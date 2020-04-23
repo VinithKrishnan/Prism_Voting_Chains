@@ -73,12 +73,17 @@ impl Block {
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct ProposerContent {
     pub transactions: Vec<SignedTransaction>,
+    pub proposer_refs: Vec<H256>,
 }
 
 impl Hashable for ProposerContent {
     fn hash(&self) -> H256 {
-        let merkle_tree = MerkleTree::new(&self.transactions);
-        merkle_tree.root()
+        let txns_merkle_tree = MerkleTree::new(&self.transactions);
+        let prop_refs_merkle_tree = MerkleTree::new(&self.proposer_refs);
+        let mut byte_array = [0u8; 64];
+        byte_array[..32].copy_from_slice(prop_refs_merkle_tree.root().as_ref());
+        byte_array[32..64].copy_from_slice(txns_merkle_tree.root().as_ref());
+        ring::digest::digest(&ring::digest::SHA256, &byte_array).into()
     }
 }
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
@@ -149,20 +154,12 @@ pub fn generate_genesis_block(parent: &H256) -> Block {
 pub fn genesis_proposer() -> Block {
    let content = ProposerContent {
       transactions:vec![],
+      proposer_refs:vec![],
    };
    let zero_vec : [u8; 32] = [0; 32];
    let raw: [u8; 32] = [255; 32];
    let default_diff:H256= raw.into();
-   Block::new(
-       zero_vec.into(),
-       0,
-       0,
-       zero_vec.into(),
-       vec![],
-       Content::Proposer(content),
-       0,
-       default_diff,
-   )
+   Block::new(zero_vec.into(),0,0,zero_vec.into(),vec![],Content::Proposer(content),0,default_diff,)
 }
 
 pub fn genesis_voter(chain_number:u16) -> Block {
@@ -175,15 +172,6 @@ pub fn genesis_voter(chain_number:u16) -> Block {
     let raw: [u8; 32] = [255; 32];
     let default_diff:H256= raw.into();
 
-    Block::new(
-        zero_vec.into(),
-        0,
-        0,
-        zero_vec.into(),
-        vec![],
-        Content::Voter(content),
-        0,
-        default_diff,
-    )
+    Block::new(zero_vec.into(),0,0,zero_vec.into(),vec![],Content::Voter(content),0,default_diff,)
 }
 
