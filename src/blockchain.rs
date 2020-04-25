@@ -7,15 +7,19 @@ use crate::utils::{*};
 
 extern crate chrono;
 use chrono::prelude::*;
-use multimap::MultiMap;
 use std::cmp;
+
+
+pub enum InsertStatus {
+    // Invalid,
+    Orphan,
+    Valid
+}
 
 pub struct Metablock {
     pub block: Block,
     pub level: u32,
 }
-
-// TODO: check if u32 is required to record depth
 
 pub struct Blockchain {
     pub proposer_chain: HashMap<H256, Metablock>,
@@ -37,11 +41,12 @@ pub struct Blockchain {
 
     // Last voted level corresponding to each voter chain
     // IMP TODO: need changes to handle forking in the voter chain
+    // TODO: which size to use? u16 or u32
     pub chain2level: HashMap<u32, u32>,
 
     // orphan buffer stores a mapping between missing reference and block
     // use multimap as many blocks could wait on a single reference.
-    pub orphan_buffer: MultiMap<H256, Block>,
+    pub orphan_buffer: HashMap<H256, Vec<Block>>,
 }
 
 impl Blockchain {
@@ -70,7 +75,6 @@ impl Blockchain {
                 level: 1,
             };
             tmp_chain.insert(voter_hash, metablock);
-            // might have to make a copy of tmp_chain?
             voter_chains.push(tmp_chain);
             voter_tips.push(voter_hash);
             voter_depths.push(1);
@@ -106,98 +110,101 @@ impl Blockchain {
             proposer2votecount: proposer2votecount,
             chain2level: chain2level,
 
-            orphan_buffer: MultiMap::new(),
+            orphan_buffer: HashMap::new(),
         }
     }
 
-    pub fn insert(&mut self, block: &Block) {
-        // IMP TODO: If block has missing refs, add to orphan buffermap
-        
-        // Assume all block references are present
-        // TODO: Haven't added all checks -- parent present then unwrap with confidence etc
+    pub fn is_orphan (&mut self, block: &Block) -> bool {
+        // If there are missing references, it will add 
+        // (first missing ref -> block) entry to orphan buffer map
         match block.content {
             Content::Proposer(content) => {
-                // Check all references
                 if (!self.proposer_chain.contains_key(&block.header.parenthash)) {
                     // parent proposer not found, add to orphan buffer
-                    self.orphan_buffer.insert(block.header.parenthash, block);
-                    return;
+                    self.orphan_buffer.entry(block.header.parenthash).or_insert(Vec::new()).push(block);
+                    return true;
                 }
 
-                let mut orphan: bool = false;
                 for ref_proposer in content.proposer_refs {
                     if (!self.proposer_chain.contains_key(&ref_proposer)) {
-                        let orphan = true;
-                        self.orphan_buffer.insert(ref_proposer, block);
-                        break;
+                        self.orphan_buffer.entry(ref_proposer).or_insert(Vec::new()).push(block);
+                        return true;
                     }
                 }
-                if (orphan) {
-                    return;
+                return false;
+            }
+            Content::Voter(content) => {
+                let chain_num = content.chain_num;
+
+                if (!self.voter_chains[(chain_num-1) as usize].contains_key(&block.header.parenthash)) {
+                    // parent proposer not found, add to orphan buffer
+                    self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block);
+                    // self.orphan_buffer.insert(block.header.parenthash, block);
+                    return true;
                 }
 
-                // At this point, all references are guaranteed to be present
+                for vote in content.votes {
+                    if (!self.proposer_chain.contains_key(&vote)) {
+                        self.orphan_buffer.entry(vote).or_insert(Vec::new()).push(block);
+                        // self.orphan_buffer.insert(vote, block);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    }
 
-                // add selfhash to unreferenced, remove referenced proposers in content
-                let block_hash = block.hash();
+    pub fn insert(&mut self, block: &Block) -> InsertStatus {
+
+        if is_orphan(block) {
+            return InsertStatus::Orphan;
+        }
+        
+        // All references inside the block are guaranteed to be present
+        let block_hash = block.hash();
+
+        match block.content {
+            Content::Proposer(content) => {
+                
+                // Add self hash and remove referenced proposer hashes from `unref_proposers`
                 self.unref_proposers.push(block_hash);
                 for ref_proposer in content.proposer_refs {
-                    // safe removal from self.unref_proposers vec
                     let result = self.unref_proposers.iter().position(|x| *x == ref_proposer);
                     match result {
                         Some(index) => self.unref_proposers.remove(index),
+                        None => println!("How come you trying to reference something not in `unref_proposers`?"),
                     }
                 }
-                // unwrap is safe since all references are present
-                // let parent_meta = self.proposer_chain.get(&block.header.parenthash).unwrap();
+
                 let parent_meta = self.proposer_chain[&block.header.parenthash];
+                let block_level = parent_meta.level + 1;
+                // Add to `level2proposer` if first proposer at its level
+                if !self.level2proposer.contains_key(&block_level) {
+                    self.level2proposer.insert(block_level, block_hash);
+                }
+                // Add to `level2allproposers`
+                self.level2allproposers.entry(block_level).or_insert(Vec::new()).push(block_hash);
+
+                // Add to `proposer_chain` and update tip
                 let metablock = Metablock {
                     block: *block,
-                    level: parent_meta.level + 1,
+                    level: block_level,
                 };
-
-                // if this is the first proposer block at its level, update level2proposer map
-                if !self.level2proposer.contains_key(&metablock.level) {
-                    self.level2proposer.insert(metablock.level, block_hash);
-                }
-                // add the proposer block hash to the list of its level
-                self.level2allproposers.entry(metablock.level).or_insert(Vec::new()).push(block_hash);
-
-                // add to proposer chain and update proposer tip if depth has increased
                 self.proposer_chain.insert(block_hash, metablock);
                 if metablock.level > self.proposer_depth {
                     self.proposer_depth = metablock.level;
                     self.proposer_tip = block_hash;
                 }
-
-                // IMP TODO: check if any orphaned blocks can be unorphaned
-                // This is going to cause some major changes are orphan handling can have cascading effects.
             }
 
             Content::Voter(content) => {
                 let chain_num = content.chain_num;
 
-                // Check if all references are present
-                if (!self.voter_chains[(chain_num-1) as usize].contains_key(&block.header.parenthash)) {
-                    // parent proposer not found, add to orphan buffer
-                    self.orphan_buffer.insert(block.header.parenthash, block);
-                    return;
-                }
-
-                let mut orphan: bool = false;
-                for vote in content.votes {
-                    if (!self.proposer_chain.contains_key(&vote)) {
-                        let orphan = true;
-                        self.orphan_buffer.insert(vote, block);
-                        break;
-                    }
-                }
-                if (orphan) {
-                    return;
-                }
-
-                // At this point, all references are guaranteed to be present
-                let block_hash = block.hash();
+                // BEHOLD
+                // The below code is inaccurate: votes aren't counted from every block, 
+                // only the blocks belonging to the longest chain. So this is a major TODO.
+                // Bhavana will work on this 4/25. 
 
                 // go through all votes, update proposer2votecount and chain2level
                 let mut max_vote_level: u32 = self.chain2level[&chain_num];
@@ -211,8 +218,7 @@ impl Blockchain {
                 }
                 self.chain2level.insert(&chain_num, max_vote_level);
 
-                // add to voter chain and update tip if required
-                // let parent_meta = self.voter_chains[chain_num-1].get(&block.header.parenthash).unwrap();
+                // add to voter chain and update tip
                 let parent_meta = self.voter_chains[(chain_num-1) as usize][&block.header.parenthash];
                 let metablock = Metablock {
                     block: *block,
@@ -223,10 +229,23 @@ impl Blockchain {
                     self.voter_depths[(chain_num-1) as usize] = metablock.level;
                     self.voter_tips[(chain_num-1) as usize] = block_hash;
                 }
-
-                // IMP TODO: check if any orphaned blocks can be unorphaned
-                // This is going to cause some major changes are orphan handling can have cascading effects.
             }
+        }
+
+        let result = self.orphan_buffer.remove(&block_hash);
+        match result {
+            Some(orphan_blocks) => {
+                let count: u32 = 0;
+                for orphan_block in orphan_blocks {
+                    let status = self.insert(orphan_block);
+                    match status {
+                        InsertStatus::Valid => count += 1,
+                        InsertStatus::Orphan => {},
+                    }
+                }
+                println!("{:?} unorphaned {} blocks, out of {} waiting on it", block_hash, count, orphan_blocks.len());
+            },
+            None => println!("No orphan blocks waiting on {:?}", block_hash),
         }
     }
 
