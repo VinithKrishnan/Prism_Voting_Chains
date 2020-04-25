@@ -38,6 +38,9 @@ pub struct Context {
     mempool:Arc<Mutex<TransactionMempool>>,
     num_mined:u8,
     ledger_state: Arc<Mutex<BlockState>>,
+    header:Header,
+    contents: Vec<Content>,
+    content_merkle_tree: MerkleTree,
 }
 
 #[derive(Clone)]
@@ -56,7 +59,8 @@ pub fn new(
     ledger_state: &Arc<Mutex<BlockState>>
 ) -> (Context, Handle) {
     let (signal_chan_sender, signal_chan_receiver) = unbounded();
-
+    
+    let mut contents: Vec<Content> = vec![];
     let ctx = Context {
         control_chan: signal_chan_receiver,
         operating_state: OperatingState::Paused,
@@ -103,7 +107,7 @@ impl Context {
     
         
         //for k in 1..6 {
-        for k in 1..100 {
+         
        
         //let mut locked_mempool = self.mempool.lock().unwrap();
         /*
@@ -133,10 +137,8 @@ impl Context {
             
         }
        }
-        if vect.len()==1 {
-            break;
-            }
-        }
+        
+        
         let mut content: Content = Content{data:vect};
         //let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
         //let mut merkle_root = merkle_tree_tx.root();
@@ -233,7 +235,7 @@ impl Context {
             let mut locked_mempool = self.mempool.lock().unwrap();
             let mut locked_state = self.ledger_state.lock().unwrap();
             
-            //println!("hello");
+        
             if flag {
                 content = self.tx_pool_gen(&mut locked_mempool);
             }

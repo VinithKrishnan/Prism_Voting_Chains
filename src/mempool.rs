@@ -3,21 +3,21 @@ use crate::transaction::{SignedTransaction,UtxoInput};
 use crate::crypto::hash::Hashable;
 use std::collections::VecDeque;
 use std::collections::HashMap;
-use std::collection::BTreeMap;
+use std::collections::BTreeMap;
 use std::convert::TryInto;
   
 #[derive(Debug)]
 pub struct TransactionMempool{
     
     //counter for storage_index for btree
-    counter: u64,
+    counter: u32,
 
     //tx_hash to TxStore 
     hash_to_txstore:HashMap<H256,TxStore>,
     //map from tx_input to tx_hash (required for db check and  dependant tx removal)
     input_to_hash:HashMap<UtxoInput,H256>,
     // storage_index to txhash, used for maintaining FIFO order
-    index_to_hash:BtreeMap<u64,H256>,
+    index_to_hash:BTreeMap<u32,H256>,
 
 
 
@@ -28,7 +28,7 @@ pub struct TxStore{  //used for storing a tx and its btree index
     pub signed_tx: SignedTransaction,
     
     //storage index for btree
-    index: u64,
+    index: u32,
 
 }
   
@@ -108,7 +108,7 @@ impl TransactionMempool{
             if let Some(txstore_hash) = self.input_to_hash.get(&txoutput) {
                 let txstore_hash = *txstore_hash;
                 let txstore = self.delete_and_get(&txstore_hash).unwrap();
-                for (index, output) in entry.transaction.output.iter().enumerate() {
+                for (index, output) in txstore.signed_tx.tx.tx_output.iter().enumerate() {
                     let input = UtxoInput {
                         
                             tx_hash: txstore_hash,
@@ -127,9 +127,9 @@ impl TransactionMempool{
         if n > self.mempool_len().try_into().unwrap(){
             return vec![];
         }
-        for i in 0..n {
-            hash = self.index_to_hash.get(i).unwrap();
-            txstore = self.hash_to_txstore.get(hash).unwrap();
+        for i  in 0..n {
+            let hash = self.index_to_hash.get(&i).unwrap();
+            let txstore = self.hash_to_txstore.get(hash).unwrap();
             result.push(txstore.signed_tx);
         }
         result

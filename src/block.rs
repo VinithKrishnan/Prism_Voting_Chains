@@ -12,10 +12,10 @@ use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug,Clone)]
 pub struct Header {
-    pub parenthash: H256,
+    //pub parenthash: H256,
     pub nonce: u32,
     pub difficulty: H256,
-    pub timestamp: i64,
+    pub timestamp: i32,
     pub merkle_root:H256,
     pub miner_id:i32,
 }
@@ -45,8 +45,8 @@ pub struct Block {
 
 impl Block {
     pub fn new(
-        parent: H256,
-        ts: i64,
+        //parent: H256,
+        ts: i32,
         n: u32,
         content_merkle_root: H256,
         sortition_proof: Vec<H256>,
@@ -55,7 +55,7 @@ impl Block {
         diff: H256,
     ) -> Self {
         let header = Header{
-            parenthash:parent,
+           // parenthash:parent,
             nonce:n,
             difficulty:diff,
             timestamp:ts,
@@ -72,6 +72,7 @@ impl Block {
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct ProposerContent {
+    pub parent_hash:H256,
     pub transactions: Vec<SignedTransaction>,
     pub proposer_refs: Vec<H256>,
 }
@@ -80,9 +81,10 @@ impl Hashable for ProposerContent {
     fn hash(&self) -> H256 {
         let txns_merkle_tree = MerkleTree::new(&self.transactions);
         let prop_refs_merkle_tree = MerkleTree::new(&self.proposer_refs);
-        let mut byte_array = [0u8; 64];
-        byte_array[..32].copy_from_slice(prop_refs_merkle_tree.root().as_ref());
-        byte_array[32..64].copy_from_slice(txns_merkle_tree.root().as_ref());
+        let mut byte_array = [0u8; 96];
+        byte_array[..32].copy_from_slice(self.parent_hash.as_ref());
+        byte_array[32..64].copy_from_slice(prop_refs_merkle_tree.root().as_ref());
+        byte_array[64..96].copy_from_slice(txns_merkle_tree.root().as_ref());
         ring::digest::digest(&ring::digest::SHA256, &byte_array).into()
     }
 }
@@ -90,7 +92,7 @@ impl Hashable for ProposerContent {
 pub struct VoterContent {
     pub votes: Vec<H256>, // hashes of blocks to which votes have been cast
     pub parent_hash : H256, //hash of parent block
-    pub chain_num: u16, //chain number of voter block 
+    pub chain_num: u32, //chain number of voter block 
 }
 
 impl Hashable for  VoterContent {
@@ -152,17 +154,19 @@ pub fn generate_genesis_block(parent: &H256) -> Block {
 }*/
 
 pub fn genesis_proposer() -> Block {
+let zero_vec : [u8; 32] = [0; 32];
    let content = ProposerContent {
+      parent_hash:zero_vec.into(),
       transactions:vec![],
       proposer_refs:vec![],
    };
-   let zero_vec : [u8; 32] = [0; 32];
+   
    let raw: [u8; 32] = [255; 32];
    let default_diff:H256= raw.into();
-   Block::new(zero_vec.into(),0,0,zero_vec.into(),vec![],Content::Proposer(content),0,default_diff,)
+   Block::new(0,0,zero_vec.into(),vec![],Content::Proposer(content),0,default_diff,)
 }
 
-pub fn genesis_voter(chain_number:u16) -> Block {
+pub fn genesis_voter(chain_number:u32) -> Block {
     let zero_vec : [u8; 32] = [0; 32];
     let content = VoterContent {
         chain_num: chain_number,
@@ -172,6 +176,6 @@ pub fn genesis_voter(chain_number:u16) -> Block {
     let raw: [u8; 32] = [255; 32];
     let default_diff:H256= raw.into();
 
-    Block::new(zero_vec.into(),0,0,zero_vec.into(),vec![],Content::Voter(content),0,default_diff,)
+    Block::new(0,0,zero_vec.into(),vec![],Content::Voter(content),0,default_diff,)
 }
 
