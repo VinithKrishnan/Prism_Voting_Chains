@@ -3,15 +3,12 @@ use crate::crypto::hash::{H256,Hashable};
 use log::debug;
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use crate::mempool::TransactionMempool;
-use crate::ledger_state::{BlockState,update_block_state};
 use crate::utils::{*};
-use crate::crypto::address::H160;
 
 extern crate chrono;
 use chrono::prelude::*;
 use multimap::MultiMap;
-
+use std::cmp;
 
 pub struct Metablock {
     pub block: Block,
@@ -56,7 +53,7 @@ impl Blockchain {
         let metablock = Metablock {
             block: proposer,
             level: 1,
-        }
+        };
         proposer_chain.insert(proposer_hash, metablock);
         let proposer_tip = proposer_hash;
 
@@ -66,12 +63,12 @@ impl Blockchain {
         let mut chain2level = HashMap::new();
         for chain_num in 1..m {
             let mut tmp_chain = HashMap::new();
-            let voter = genesis_voter(i);
+            let voter = genesis_voter(chain_num);
             let voter_hash = voter.hash();
             let metablock = Metablock {
                 block: voter,
                 level: 1,
-            }
+            };
             tmp_chain.insert(voter_hash, metablock);
             // might have to make a copy of tmp_chain?
             voter_chains.push(tmp_chain);
@@ -119,24 +116,24 @@ impl Blockchain {
         // Assume all block references are present
         // TODO: Haven't added all checks -- parent present then unwrap with confidence etc
         match block.content {
-            Content::Proposer(c) => {
+            Content::Proposer(content) => {
                 // Check all references
-                if (!self.proposer_chain.contains_key(block.header.parenthash)) {
+                if (!self.proposer_chain.contains_key(&block.header.parenthash)) {
                     // parent proposer not found, add to orphan buffer
                     self.orphan_buffer.insert(block.header.parenthash, block);
-                    continue;
+                    return;
                 }
 
                 let mut orphan: bool = false;
-                for ref_proposer in block.content.proposer_refs {
-                    if (!self.proposer_chain.contains_key(ref_proposer)) {
+                for ref_proposer in content.proposer_refs {
+                    if (!self.proposer_chain.contains_key(&ref_proposer)) {
                         let orphan = true;
                         self.orphan_buffer.insert(ref_proposer, block);
                         break;
                     }
                 }
                 if (orphan) {
-                    continue;
+                    return;
                 }
 
                 // At this point, all references are guaranteed to be present
@@ -144,20 +141,20 @@ impl Blockchain {
                 // add selfhash to unreferenced, remove referenced proposers in content
                 let block_hash = block.hash();
                 self.unref_proposers.push(block_hash);
-                for ref_proposer in block.content.proposer_refs {
+                for ref_proposer in content.proposer_refs {
                     // safe removal from self.unref_proposers vec
                     let result = self.unref_proposers.iter().position(|x| *x == ref_proposer);
                     match result {
-                        Some(index) => self.unref_proposers.remove(index);
+                        Some(index) => self.unref_proposers.remove(index),
                     }
                 }
                 // unwrap is safe since all references are present
                 // let parent_meta = self.proposer_chain.get(&block.header.parenthash).unwrap();
-                let parent_meta = self.proposer_chain[block.header.parenthash];
+                let parent_meta = self.proposer_chain[&block.header.parenthash];
                 let metablock = Metablock {
                     block: *block,
                     level: parent_meta.level + 1,
-                }
+                };
 
                 // if this is the first proposer block at its level, update level2proposer map
                 if !self.level2proposer.contains_key(&metablock.level) {
@@ -170,60 +167,61 @@ impl Blockchain {
                 self.proposer_chain.insert(block_hash, metablock);
                 if metablock.level > self.proposer_depth {
                     self.proposer_depth = metablock.level;
-                    self.proposer_tip = block_hash,
+                    self.proposer_tip = block_hash;
                 }
 
                 // IMP TODO: check if any orphaned blocks can be unorphaned
                 // This is going to cause some major changes are orphan handling can have cascading effects.
             }
 
-            Content::Voter(c) => {
-                let chain_num = *block.content.chain_num;
+            Content::Voter(content) => {
+                let chain_num = content.chain_num;
 
                 // Check if all references are present
-                if (!self.voter_chains[chain_num-1].contains_key(block.header.parenthash)) {
+                if (!self.voter_chains[(chain_num-1) as usize].contains_key(&block.header.parenthash)) {
                     // parent proposer not found, add to orphan buffer
                     self.orphan_buffer.insert(block.header.parenthash, block);
-                    continue;
+                    return;
                 }
 
                 let mut orphan: bool = false;
-                for vote in block.content.votes {
-                    if (!self.proposer_chain.contains_key(vote)) {
+                for vote in content.votes {
+                    if (!self.proposer_chain.contains_key(&vote)) {
                         let orphan = true;
                         self.orphan_buffer.insert(vote, block);
                         break;
                     }
                 }
                 if (orphan) {
-                    continue;
+                    return;
                 }
 
                 // At this point, all references are guaranteed to be present
+                let block_hash = block.hash();
 
                 // go through all votes, update proposer2votecount and chain2level
-                let mut max_vote_level: u32 = self.chain2level[chain_num];
-                for vote in block.content.votes {
+                let mut max_vote_level: u32 = self.chain2level[&chain_num];
+                for vote in content.votes {
                     // update proposer2votecount
                     let counter = self.proposer2votecount.entry(vote).or_insert(0);
                     *counter += 1;
                     // update max vote level variable
                     let block_level = self.proposer_chain[&vote].level;
-                    let max_vote_level = max(max_vote_level, block_level);
+                    let max_vote_level = cmp::max(max_vote_level, block_level);
                 }
-                self.chain2level.insert(chain_num, max_vote_level);
+                self.chain2level.insert(&chain_num, max_vote_level);
 
                 // add to voter chain and update tip if required
                 // let parent_meta = self.voter_chains[chain_num-1].get(&block.header.parenthash).unwrap();
-                let parent_meta = self.voter_chains[chain_num-1][block.header.parenthash];
+                let parent_meta = self.voter_chains[(chain_num-1) as usize][&block.header.parenthash];
                 let metablock = Metablock {
                     block: *block,
                     level: parent_meta.level + 1
-                }
-                self.voter_chains[chain_num-1].insert(block_hash, metablock);
-                if metablock.level > self.voter_depths[chain_num-1] {
-                    self.voter_depths[chain_num-1] = metablock.level;
-                    self.voter_tips[chain_num-1] = block_hash,
+                };
+                self.voter_chains[(chain_num-1) as usize].insert(block_hash, metablock);
+                if metablock.level > self.voter_depths[(chain_num-1) as usize] {
+                    self.voter_depths[(chain_num-1) as usize] = metablock.level;
+                    self.voter_tips[(chain_num-1) as usize] = block_hash;
                 }
 
                 // IMP TODO: check if any orphaned blocks can be unorphaned
@@ -236,10 +234,22 @@ impl Blockchain {
         self.proposer_tip
     }
 
-    pub fn get_voter_tip(&self, chain_num) -> H256 {
-        self.voter_tips[chain_num]
+    pub fn get_voter_tip(&self, chain_num: u32) -> H256 {
+        self.voter_tips[chain_num as usize]
     }
 
 }
 
 // write tests for blockchain
+#[cfg(any(test, test_utilities))]
+mod tests {
+    use super::*;
+    // use crate::block::test::generate_random_block;
+    use crate::crypto::hash::Hashable;
+
+    #[test]
+    fn blockchain_init() {
+        // 10 voting chains
+        let mut blockchain = Blockchain::new(10);
+    }
+}
