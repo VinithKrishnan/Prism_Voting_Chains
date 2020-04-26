@@ -3,198 +3,272 @@ use crate::crypto::hash::{H256,Hashable};
 use log::debug;
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use crate::mempool::TransactionMempool;
-use crate::ledger_state::{BlockState,update_block_state};
 use crate::utils::{*};
-use crate::crypto::address::H160;
 
 extern crate chrono;
 use chrono::prelude::*;
+use std::cmp;
+
+
+pub enum InsertStatus {
+    // Invalid,
+    Orphan,
+    Valid
+}
+
+pub struct Metablock {
+    pub block: Block,
+    pub level: u32,
+}
 
 pub struct Blockchain {
-    pub chain:HashMap<H256,Block>,
-    pub tiphash:H256,
-    pub heights:HashMap<H256,u8>,
-    pub buffer:HashMap<H256,Block>,
-    pub totaldelay:i64,
+    pub proposer_chain: HashMap<H256, Metablock>,
+    pub proposer_tip: H256,
+    pub proposer_depth: u32,
+
+    pub voter_chains: Vec<HashMap<H256, Metablock>>,
+    pub voter_tips: Vec<H256>,
+    pub voter_depths: Vec<u32>,
+
+    // M: list of unreferenced proposer blocks
+    pub unref_proposers: Vec<H256>,
+    // M: Hash of first proposer block seen corresponding to each level
+    pub level2proposer: HashMap<u32, H256>,
+    // LM: level -> proposer hash mapping
+    pub level2allproposers: HashMap<u32, Vec<H256>>,
+    // LM: store the number of votes for each proposer
+    pub proposer2votecount: HashMap<H256, u32>,
+
+    // Last voted level corresponding to each voter chain
+    // IMP TODO: need changes to handle forking in the voter chain
+    // TODO: which size to use? u16 or u32
+    pub chain2level: HashMap<u32, u32>,
+
+    // orphan buffer stores a mapping between missing reference and block
+    // use multimap as many blocks could wait on a single reference.
+    pub orphan_buffer: HashMap<H256, Vec<Block>>,
 }
 
 impl Blockchain {
-    /// Create a new blockchain, only containing the genesis block
-    pub fn new() -> Self {
-        let buffer: [u8; 32] = [0; 32];
-        let b:H256 = buffer.into();
-        let genesis:Block = block::generate_genesis_block(&b);
-        let genhash:H256 = genesis.hash();
-        let mut chainmap:HashMap<H256,Block> = HashMap::new();
-        let mut heightsmap:HashMap<H256,u8> = HashMap::new();
-        let buffermap:HashMap<H256,Block> = HashMap::new();
-        chainmap.insert(genhash,genesis);
-        heightsmap.insert(genhash,0);
-        let t:H256 = genhash;
-        let newchain:Blockchain = Blockchain{chain:chainmap,tiphash:t,heights:heightsmap,buffer:buffermap,totaldelay:0};
-        newchain
+    pub fn new(m: u32) -> Self {
+        // genesis for proposer and voter chains
+        let mut proposer_chain = HashMap::new();
+        let proposer = genesis_proposer();
+        let proposer_hash = proposer.hash();
+        let metablock = Metablock {
+            block: proposer,
+            level: 1,
+        };
+        proposer_chain.insert(proposer_hash, metablock);
+        let proposer_tip = proposer_hash;
+
+        let mut voter_chains = Vec::new();
+        let mut voter_tips = Vec::new();
+        let mut voter_depths = Vec::new();
+        let mut chain2level = HashMap::new();
+        for chain_num in 1..m {
+            let mut tmp_chain = HashMap::new();
+            let voter = genesis_voter(chain_num);
+            let voter_hash = voter.hash();
+            let metablock = Metablock {
+                block: voter,
+                level: 1,
+            };
+            tmp_chain.insert(voter_hash, metablock);
+            voter_chains.push(tmp_chain);
+            voter_tips.push(voter_hash);
+            voter_depths.push(1);
+
+            chain2level.insert(chain_num, 0);
+        } 
+
+        let mut unref_proposers = Vec::new();
+        unref_proposers.push(proposer_hash);
+
+        let mut level2proposer = HashMap::new();
+        level2proposer.insert(1, proposer_hash);
+
+        let mut level2allproposers = HashMap::new();
+        level2allproposers.insert(1, vec![proposer_hash]);
+
+        let mut proposer2votecount = HashMap::new();
+        proposer2votecount.insert(proposer_hash, 0);
+
+        Blockchain {
+            proposer_chain: proposer_chain,
+            proposer_tip: proposer_hash,
+            proposer_depth: 1,
+
+            voter_chains: voter_chains,
+            voter_tips: voter_tips,
+            voter_depths: voter_depths,
+
+            unref_proposers: unref_proposers,
+            level2proposer: level2proposer,
+            level2allproposers: level2allproposers,
+
+            proposer2votecount: proposer2votecount,
+            chain2level: chain2level,
+
+            orphan_buffer: HashMap::new(),
+        }
     }
 
-    /// Insert a block into blockchain
-    pub fn insert(&mut self, block: &Block,mut mempool:&mut TransactionMempool,mut blockstate:&mut BlockState) {
-
-
-        let h:H256 = block.hash();
-        //let mut flag:bool = false;
-
-
-        match self.chain.get(&block.header.parenthash){
-            Some(pblock) => { //insertion into mainchain
-                let mut validity:bool = false;
-                if h < pblock.header.difficulty && !self.chain.contains_key(&h) {
-                let b_delay = Local::now().timestamp_millis() - block.header.timestamp;
-                self.totaldelay = self.totaldelay + b_delay;
-                if blockstate.block_state_map.contains_key(&block.header.parenthash){
-                validity = is_blck_valid(&block,&blockstate.block_state_map.get(&block.header.parenthash).unwrap());
+    pub fn is_orphan (&mut self, block: &Block) -> bool {
+        // If there are missing references, it will add 
+        // (first missing ref -> block) entry to orphan buffer map
+        match block.content {
+            Content::Proposer(content) => {
+                if (!self.proposer_chain.contains_key(&block.header.parenthash)) {
+                    // parent proposer not found, add to orphan buffer
+                    self.orphan_buffer.entry(block.header.parenthash).or_insert(Vec::new()).push(block);
+                    return true;
                 }
-                else {
-                println!("State of parent block not found");
-                return;
+
+                for ref_proposer in content.proposer_refs {
+                    if (!self.proposer_chain.contains_key(&ref_proposer)) {
+                        self.orphan_buffer.entry(ref_proposer).or_insert(Vec::new()).push(block);
+                        return true;
+                    }
                 }
-                //checks and updates
-                if !validity {
-                    println!("Block with hash {} does not satisfy state validity",h);
-                    return;
+                return false;
+            }
+            Content::Voter(content) => {
+                let chain_num = content.chain_num;
+
+                if (!self.voter_chains[(chain_num-1) as usize].contains_key(&block.header.parenthash)) {
+                    // parent proposer not found, add to orphan buffer
+                    self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block);
+                    // self.orphan_buffer.insert(block.header.parenthash, block);
+                    return true;
                 }
+
+                for vote in content.votes {
+                    if (!self.proposer_chain.contains_key(&vote)) {
+                        self.orphan_buffer.entry(vote).or_insert(Vec::new()).push(block);
+                        // self.orphan_buffer.insert(vote, block);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    }
+
+    pub fn insert(&mut self, block: &Block) -> InsertStatus {
+
+        if is_orphan(block) {
+            return InsertStatus::Orphan;
+        }
+        
+        // All references inside the block are guaranteed to be present
+        let block_hash = block.hash();
+
+        match block.content {
+            Content::Proposer(content) => {
                 
-
-                println!("Adding block with hash {} mined by  node {} to chain",h,block.header.miner_id);
-                println!("Block delay is: {:?}",(Local::now().timestamp_millis() - block.header.timestamp));
-                println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));
-                println!("Total number of blocks in blockchain:{}\n",self.chain.len());
-                self.chain.insert(h,block.clone());
-                mempool_update(&block,&mut mempool);
-                update_block_state(&block,&mut blockstate);
-                
-                let len = self.heights[&block.header.parenthash]+1;
-                self.heights.insert(h,len);
-                if len>self.heights[&self.tiphash] {
-                    self.tiphash = h;
-                    println!("Current tipheight is {}",len);
-                    println!("All blocks in longest chain: {:?}",self.all_blocks_in_longest_chain());
-                    
-
-                    let mut temp_state_map = blockstate.block_state_map.get(&block.hash()).unwrap();
-                    let mut utxo_hmap:HashMap<H160,u32> = HashMap::new();
-
-                    for (utxo_input,utxo_output) in temp_state_map.state_map.iter() {
-                        if !utxo_hmap.contains_key(&utxo_output.receipient_addr){
-                            utxo_hmap.insert(utxo_output.receipient_addr,utxo_output.value);
-                        }else{
-                            *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap() = *utxo_hmap.get_mut(&utxo_output.receipient_addr).unwrap()+utxo_output.value;
-                        }
-                    }
-                    for (key,value) in utxo_hmap.iter() {
-                        println!("balance in addr {:?} is {:?}",key,value);
+                // Add self hash and remove referenced proposer hashes from `unref_proposers`
+                self.unref_proposers.push(block_hash);
+                for ref_proposer in content.proposer_refs {
+                    let result = self.unref_proposers.iter().position(|x| *x == ref_proposer);
+                    match result {
+                        Some(index) => self.unref_proposers.remove(index),
+                        None => println!("How come you trying to reference something not in `unref_proposers`?"),
                     }
                 }
 
-                //let mut bhash_copy:H256 = hash::generate_random_hash();
-                //if stale blocks parent has arrived, insert it into main chain
-                let mut bhash_vec = Vec::new();
-                let mut phash_q: VecDeque<H256>= VecDeque::new();
-                phash_q.push_back(h);
-                while !phash_q.is_empty() {
-                    match phash_q.pop_front() {
-                        Some(h) => for (bhash,blck) in self.buffer.iter(){
-                                if blck.header.parenthash == h {
-                                    //flag = true;
-                                    let bhash_copy:H256 = *bhash;
-                                    bhash_vec.push(bhash_copy);
-                                    //checks and updates
-                                    let mut validity:bool = false;
-                                    if blockstate.block_state_map.contains_key(&h){
-                                        validity = is_blck_valid(&block,&blockstate.block_state_map.get(&h).unwrap());
-                                    }
-                                    else {
-                                        println!("State of parent block not found");
-                                        continue;
-                                    }
-                                    //let validity:bool = is_blck_valid(&block,&blockstate.block_state_map.get(&block.header.parenthash).unwrap());
-                                        if !validity {
-                                        println!("Block with hash {} does not satisfy state validity",h);
-                                        return;
-                                        }
-                                    
-                                
-
-                                    self.chain.insert(bhash_copy,blck.clone());
-                                    mempool_update(&blck,&mut mempool);
-                                    update_block_state(&blck,&mut blockstate);
-                                    let b_delay = Local::now().timestamp_millis() - blck.header.timestamp;
-                                    self.totaldelay = self.totaldelay + b_delay;
-
-                                    println!("Adding block with hash {} to chain",blck.hash());
-                                    println!("Block delay is: {:?}",(Local::now().timestamp_millis() - blck.header.timestamp));
-                                    println!("Average delay is {}",self.totaldelay/(self.chain.len() as i64));
-                                    println!("Total number of blocks in blockchain:{}\n",self.chain.len());
-                                    let len = self.heights[&blck.header.parenthash]+1;
-                                    self.heights.insert(bhash_copy,len);
-                                    if len>self.heights[&self.tiphash] {
-                                        self.tiphash = bhash_copy;
-                                    }
-                                }
-                            },
-                        None => (),
-                    }
+                let parent_meta = self.proposer_chain[&block.header.parenthash];
+                let block_level = parent_meta.level + 1;
+                // Add to `level2proposer` if first proposer at its level
+                if !self.level2proposer.contains_key(&block_level) {
+                    self.level2proposer.insert(block_level, block_hash);
                 }
+                // Add to `level2allproposers`
+                self.level2allproposers.entry(block_level).or_insert(Vec::new()).push(block_hash);
 
-
-                for bh in bhash_vec{
-                    self.buffer.remove(&bh);
+                // Add to `proposer_chain` and update tip
+                let metablock = Metablock {
+                    block: *block,
+                    level: block_level,
+                };
+                self.proposer_chain.insert(block_hash, metablock);
+                if metablock.level > self.proposer_depth {
+                    self.proposer_depth = metablock.level;
+                    self.proposer_tip = block_hash;
                 }
-             }
-            }, // insert stale block into buffer
-            _ => {
-                  print!("Adding block with hash {} to buffer\n",h); 
-                  if !self.buffer.contains_key(&h){
-                  self.buffer.insert(h,block.clone()); 
-                  }
-                 },
+            }
+
+            Content::Voter(content) => {
+                let chain_num = content.chain_num;
+
+                // BEHOLD
+                // The below code is inaccurate: votes aren't counted from every block, 
+                // only the blocks belonging to the longest chain. So this is a major TODO.
+                // Bhavana will work on this 4/25. 
+
+                // go through all votes, update proposer2votecount and chain2level
+                let mut max_vote_level: u32 = self.chain2level[&chain_num];
+                for vote in content.votes {
+                    // update proposer2votecount
+                    let counter = self.proposer2votecount.entry(vote).or_insert(0);
+                    *counter += 1;
+                    // update max vote level variable
+                    let block_level = self.proposer_chain[&vote].level;
+                    let max_vote_level = cmp::max(max_vote_level, block_level);
+                }
+                self.chain2level.insert(&chain_num, max_vote_level);
+
+                // add to voter chain and update tip
+                let parent_meta = self.voter_chains[(chain_num-1) as usize][&block.header.parenthash];
+                let metablock = Metablock {
+                    block: *block,
+                    level: parent_meta.level + 1
+                };
+                self.voter_chains[(chain_num-1) as usize].insert(block_hash, metablock);
+                if metablock.level > self.voter_depths[(chain_num-1) as usize] {
+                    self.voter_depths[(chain_num-1) as usize] = metablock.level;
+                    self.voter_tips[(chain_num-1) as usize] = block_hash;
+                }
+            }
         }
 
-    }
-
-    /// Get the last block's hash of the longest chain
-    pub fn tip(&self) -> H256 {
-        self.tiphash
-    }
-
-    /// Get the last block's hash of the longest chain
-    //#[cfg(any(test, test_utilities))]
-    pub fn all_blocks_in_longest_chain(&self) -> Vec<H256> {
-
-        let mut phash:H256 = self.tiphash;
-        let mut result:Vec<H256>=vec![];
-        let mut buffer: [u8; 32] = [0; 32];
-        let b:H256 = buffer.into();
-        while(phash!=b){
-            result.push(phash);
-            phash = self.chain[&phash].header.parenthash;
+        let result = self.orphan_buffer.remove(&block_hash);
+        match result {
+            Some(orphan_blocks) => {
+                let count: u32 = 0;
+                for orphan_block in orphan_blocks {
+                    let status = self.insert(orphan_block);
+                    match status {
+                        InsertStatus::Valid => count += 1,
+                        InsertStatus::Orphan => {},
+                    }
+                }
+                println!("{:?} unorphaned {} blocks, out of {} waiting on it", block_hash, count, orphan_blocks.len());
+            },
+            None => println!("No orphan blocks waiting on {:?}", block_hash),
         }
-        let mut res = result.reverse();
-        result
     }
+
+    pub fn get_proposer_tip(&self) -> H256 {
+        self.proposer_tip
+    }
+
+    pub fn get_voter_tip(&self, chain_num: u32) -> H256 {
+        self.voter_tips[chain_num as usize]
+    }
+
 }
 
+// write tests for blockchain
 #[cfg(any(test, test_utilities))]
 mod tests {
     use super::*;
-    use crate::block;
+    // use crate::block::test::generate_random_block;
     use crate::crypto::hash::Hashable;
 
     #[test]
-    fn insert_one() {
-        let mut blockchain = Blockchain::new();
-        let genesis_hash = blockchain.tip();
-        let block = block::generate_random_block(&genesis_hash);
-        blockchain.insert(&block);
-        assert_eq!(blockchain.tip(), block.hash());
+    fn blockchain_init() {
+        // 10 voting chains
+        let mut blockchain = Blockchain::new(10);
     }
 }
