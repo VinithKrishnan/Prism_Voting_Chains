@@ -1,5 +1,7 @@
 use crate::crypto::hash::H256;
 use crate::blockchain::Blockchain;
+use crate::block::Content;
+use crate::transaction::SignedTransaction;
 
 use std::collections::HashSet;
 use std::thread;
@@ -52,13 +54,13 @@ impl LedgerManager {
     //3. Sanitize Tx and update UTXO state
     //All 3 steps are done in the loop
     //
-    pub fn ledger_manager_loop(&mut self) {
+    fn ledger_manager_loop(&mut self) {
         loop{
             //Step 1
             let leader_sequence = self.get_leader_sequence();
             
             //Step 2
-            //let tx_sequence = self.get_transaction_sequence(&leader_sequence);
+            let tx_sequence = self.get_transaction_sequence(&leader_sequence);
             
             //Step 3
             //self.confirm_transactions(&tx_sequence);
@@ -108,9 +110,60 @@ impl LedgerManager {
         leader_sequence
     }
     
+    fn get_transaction_sequence(&mut self, leader_sequence: &Vec<H256>) -> Vec<SignedTransaction> {        
+        let locked_blockchain = self.blockchain.lock().unwrap();
 
-    fn get_transaction_sequence(&mut self) {
+        let tx_sequence: Vec<SignedTransaction> = Vec::new();
 
+        //TODO: Should we do it recusrively? Like should we also see references to
+        //proposer references of leader?
+        //TODO: Also we should refactor it later
+        for leader in leader_sequence {
+            let leader_block = locked_blockchain.proposer_chain[leader].block;
+            
+            let proposer_refs_to_process: Vec<H256> = Vec::new();
+            let leader_txs: Vec<SignedTransaction> = Vec::new();
+            match leader_block.content {
+                Content::Proposer(content) => {
+                    //proposer_refs of leader
+                    let proposer_refs = content.proposer_refs;
+                    for proposer_ref in &proposer_refs {
+                        if !self.ledger_manager_state.proposer_blocks_processed.contains(proposer_ref) {
+                            proposer_refs_to_process.push(*proposer_ref);
+                        }
+                    }
+
+                    //txs of leader
+                    leader_txs = content.transactions.clone(); 
+                }
+                _ => {
+
+                }
+            }
+
+            //TODO: Do we have to do match in this and previous loop as we know it will always
+            //match to Proposer(content). Can we unwrap??
+            for proposer_ref in &proposer_refs_to_process {
+                let proposer_block = locked_blockchain.proposer_chain[proposer_ref].block;
+                match proposer_block.content {
+                    Content::Proposer(content) => {
+                        tx_sequence.append(&mut content.transactions.clone()); 
+                    }
+                    _ => {
+
+                    }
+                }             
+                
+                self.ledger_manager_state.proposer_blocks_processed.insert(*proposer_ref);
+            }
+
+            //appending leader txs finally
+            //adding leader to proposer_blocks_processed
+            tx_sequence.append(&mut leader_txs);
+            self.ledger_manager_state.proposer_blocks_processed.insert(*leader);
+        }
+
+        tx_sequence
     }
 
     fn confirm_transactions(& self) {
