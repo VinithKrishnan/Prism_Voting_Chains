@@ -121,15 +121,15 @@ impl Blockchain {
         // (first missing ref -> block) entry to orphan buffer map
         match block.content {
             Content::Proposer(content) => {
-                if (!self.proposer_chain.contains_key(&block.header.parenthash)) {
+                if (!self.proposer_chain.contains_key(&content.parent_hash)) {
                     // parent proposer not found, add to orphan buffer
-                    self.orphan_buffer.entry(block.header.parenthash).or_insert(Vec::new()).push(block);
+                    self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(*block);
                     return true;
                 }
 
                 for ref_proposer in content.proposer_refs {
                     if (!self.proposer_chain.contains_key(&ref_proposer)) {
-                        self.orphan_buffer.entry(ref_proposer).or_insert(Vec::new()).push(block);
+                        self.orphan_buffer.entry(ref_proposer).or_insert(Vec::new()).push(*block);
                         return true;
                     }
                 }
@@ -138,16 +138,16 @@ impl Blockchain {
             Content::Voter(content) => {
                 let chain_num = content.chain_num;
 
-                if (!self.voter_chains[(chain_num-1) as usize].contains_key(&block.header.parenthash)) {
+                if (!self.voter_chains[(chain_num-1) as usize].contains_key(&content.parent_hash)) {
                     // parent proposer not found, add to orphan buffer
-                    self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block);
+                    self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(*block);
                     // self.orphan_buffer.insert(block.header.parenthash, block);
                     return true;
                 }
 
                 for vote in content.votes {
                     if (!self.proposer_chain.contains_key(&vote)) {
-                        self.orphan_buffer.entry(vote).or_insert(Vec::new()).push(block);
+                        self.orphan_buffer.entry(vote).or_insert(Vec::new()).push(*block);
                         // self.orphan_buffer.insert(vote, block);
                         return true;
                     }
@@ -159,7 +159,7 @@ impl Blockchain {
 
     pub fn insert(&mut self, block: &Block) -> InsertStatus {
 
-        if is_orphan(block) {
+        if self.is_orphan(block) {
             return InsertStatus::Orphan;
         }
         
@@ -174,12 +174,16 @@ impl Blockchain {
                 for ref_proposer in content.proposer_refs {
                     let result = self.unref_proposers.iter().position(|x| *x == ref_proposer);
                     match result {
-                        Some(index) => self.unref_proposers.remove(index),
-                        None => println!("How come you trying to reference something not in `unref_proposers`?"),
+                        Some(index) => {
+                            self.unref_proposers.remove(index);
+                        }
+                        None => {
+                            println!("How come you trying to reference something not in `unref_proposers`?");
+                        }
                     }
                 }
 
-                let parent_meta = self.proposer_chain[&block.header.parenthash];
+                let parent_meta = self.proposer_chain[&content.parent_hash];
                 let block_level = parent_meta.level + 1;
                 // Add to `level2proposer` if first proposer at its level
                 if !self.level2proposer.contains_key(&block_level) {
@@ -218,10 +222,10 @@ impl Blockchain {
                     let block_level = self.proposer_chain[&vote].level;
                     let max_vote_level = cmp::max(max_vote_level, block_level);
                 }
-                self.chain2level.insert(&chain_num, max_vote_level);
+                self.chain2level.insert(chain_num, max_vote_level);
 
                 // add to voter chain and update tip
-                let parent_meta = self.voter_chains[(chain_num-1) as usize][&block.header.parenthash];
+                let parent_meta = self.voter_chains[(chain_num-1) as usize][&content.parent_hash];
                 let metablock = Metablock {
                     block: *block,
                     level: parent_meta.level + 1
@@ -239,7 +243,7 @@ impl Blockchain {
             Some(orphan_blocks) => {
                 let count: u32 = 0;
                 for orphan_block in orphan_blocks {
-                    let status = self.insert(orphan_block);
+                    let status = self.insert(&orphan_block);
                     match status {
                         InsertStatus::Valid => count += 1,
                         InsertStatus::Orphan => {},
@@ -249,6 +253,8 @@ impl Blockchain {
             },
             None => println!("No orphan blocks waiting on {:?}", block_hash),
         }
+
+        InsertStatus::Valid
     }
 
     pub fn get_proposer_tip(&self) -> H256 {
@@ -265,10 +271,10 @@ impl Blockchain {
 
     pub fn get_votes(&self, chain_num: u32) -> Vec<H256> {
         let mut votes: Vec<H256> = Vec::new();
-        let last_voted_level = self.chain2level[chain_num];
-        let last_proposer_level = self.proposer_chain[self.proposer_tip].level;
+        let last_voted_level = self.chain2level[&chain_num];
+        let last_proposer_level = self.proposer_chain[&self.proposer_tip].level;
         for level in (last_voted_level+1)..(last_proposer_level+1) {
-            votes.push(self.level2proposer[level]);
+            votes.push(self.level2proposer[&level]);
         }
         votes
     }

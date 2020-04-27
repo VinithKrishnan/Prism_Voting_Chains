@@ -1,31 +1,81 @@
 use crate::network::server::Handle as ServerHandle;
-use crate::blockchain::Blockchain;
-use crate::mempool::TransactionMempool;
-use crate::ledger_state::BlockState;
-use crate::block::*;
-use crate::transaction::{self, SignedTransaction};
-use crate::crypto::hash::{H256, Hashable,generate_random_hash};
-use crate::crypto::merkle::{*};
-use crate::network::message::Message;
-use log::{info,debug};
-use rand::Rng;
-use crossbeam::channel::{unbounded, Receiver, Sender, TryRecvError};
-
-extern crate chrono;
-use chrono::prelude::*;
-
-use std::time;
-use std::thread;
+use crate::block::{self, *};
+use crate::blockchain::{Blockchain};
+use crate::crypto::hash::{H256, Hashable};
+use crate::crypto::merkle::MerkleTree;
 use std::sync::{Arc, Mutex};
+use std::time::{SystemTime, UNIX_EPOCH, Duration, Instant};
+use crate::network::message::{Message};
+use log::info;
+use bigint::uint::U256;
+use rand::Rng;
+
+use crossbeam::channel::{unbounded, Receiver, Sender, TryRecvError};
+use std::time;
+
+use std::thread;
+
+const TOTAL_SORTITION_WIDTH: u64 = std::u64::MAX;
+pub const PROPOSER_INDEX: u32 = 0;
+pub const FIRST_VOTER_IDX: u32 = 1;
+
+// pub struct SB_header {
+//     pub nonce: u32,
+//     pub difficulty: H256,
+//     pub timestamp: i64,
+//     pub content_mkl_root: H256,
+//     pub miner_id: i32,
+// }
+
+pub struct Superblock {
+    pub header: Header,
+    pub content: Vec<Content>,
+}
+
+impl Hashable for Superblock {
+    fn hash(&self) -> H256 {
+        self.header.hash()
+    }
+}
+
+// impl Hashable for SB_header {
+//     fn hash(&self) -> H256 {
+//         let encoded = bincode::serialize(&self).unwrap();
+//         ring::digest::digest(&ring::digest::SHA256, &encoded).into()
+//     }
+// }
+
+pub fn get_difficulty() -> H256 {
+    (hex!("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
+}
+
+pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Option<u32> {
+    let hash = U256::from_big_endian(hash.as_ref());
+    let difficulty = U256::from_big_endian(difficulty.as_ref());
+    let multiplier = difficulty / TOTAL_SORTITION_WIDTH.into();
+
+    let precise: f32 = (1.0
+    let proposer_sortition_width: u64 = precise.ceil() as u64;
+    let proposer_width = multiplier * proposer_sortition_width.into();
+    if hash < proposer_width {
+        Some(PROPOSER_INDEX)
+    } else if hash < difficulty {
+        let voter_idx = (hash - proposer_width) % num_voter_chains.into();
+        Some(FIRST_VOTER_IDX + voter_idx.as_u32())
+    } else {
+        println!("Why you sortitioning something that is not less than difficulty?");
+        None
+    }
+}
 
 enum ControlSignal {
-    Start(u64,u64), // the number controls the lambda of interval between block generation
+    Start(u64), // the number controls the lambda of interval between block generation
     Exit,
 }
 
 enum OperatingState {
     Paused,
-    Run(u64,u64),
+    Run(u64),
     ShutDown,
 }
 
@@ -35,40 +85,25 @@ pub struct Context {
     operating_state: OperatingState,
     server: ServerHandle,
     blockchain: Arc<Mutex<Blockchain>>,
-    mempool:Arc<Mutex<TransactionMempool>>,
-    num_mined:u8,
-    ledger_state: Arc<Mutex<BlockState>>,
-    header:Header,
-    contents: Vec<Content>,
-    content_merkle_tree: MerkleTree,
 }
 
 #[derive(Clone)]
 pub struct Handle {
     /// Channel for sending signal to the miner thread
     control_chan: Sender<ControlSignal>,
-
 }
-
-
 
 pub fn new(
     server: &ServerHandle,
     blockchain: &Arc<Mutex<Blockchain>>,
-    mempool: &Arc<Mutex<TransactionMempool>>,
-    ledger_state: &Arc<Mutex<BlockState>>
 ) -> (Context, Handle) {
     let (signal_chan_sender, signal_chan_receiver) = unbounded();
-    
-    let mut contents: Vec<Content> = vec![];
+
     let ctx = Context {
         control_chan: signal_chan_receiver,
         operating_state: OperatingState::Paused,
         server: server.clone(),
         blockchain: Arc::clone(blockchain),
-        mempool: Arc::clone(mempool),
-        num_mined:0,
-        ledger_state: Arc::clone(ledger_state),
     };
 
     let handle = Handle {
@@ -83,11 +118,12 @@ impl Handle {
         self.control_chan.send(ControlSignal::Exit).unwrap();
     }
 
-    pub fn start(&self, lambda: u64,index: u64) {
+    pub fn start(&self, lambda: u64) {
         self.control_chan
-            .send(ControlSignal::Start(lambda,index))
+            .send(ControlSignal::Start(lambda))
             .unwrap();
     }
+
 }
 
 impl Context {
@@ -101,78 +137,22 @@ impl Context {
         info!("Miner initialized into paused mode");
     }
 
-    pub fn tx_pool_gen(&self,mempool:&mut TransactionMempool) -> Content {
-        let mut vect: Vec<SignedTransaction> = vec![];
-        //let mut merkle_init_vect: Vec<H256> = vec![];
-    
-        
-        //for k in 1..6 {
-         
-       
-        //let mut locked_mempool = self.mempool.lock().unwrap();
-        /*
-        if mempool.tx_hash_queue.len()<15 {
-            continue;
-        } else {
-            while vect.len()<10 && mempool.tx_hash_queue.len()>0 {
-                let h = mempool.tx_hash_queue.pop_front().unwrap();
-                if mempool.tx_to_process.contains_key(&h) && mempool.tx_to_process.get(&h).unwrap() == &true {
-                    vect.push(mempool.tx_map.get(&h).unwrap().clone());
-                    merkle_init_vect.push(h);
-                }
-            }
-            if vect.len()==10 {
-            break;
-            }
-        }*/
-        println!("The len of mempool is {}",mempool.tx_hash_queue.len());
-        while vect.len()<1 && mempool.tx_hash_queue.len()>0 {
-        let h = mempool.tx_hash_queue.pop_front().unwrap();
-        match mempool.tx_to_process.get(&h) {
-            Some(boolean) => if *boolean && mempool.tx_map.contains_key(&h){
-                vect.push(mempool.tx_map.get(&h).unwrap().clone());
-                //merkle_init_vect.push(h);
-            },
-            None => continue
-            
-        }
-       }
-        
-        
-        let mut content: Content = Content{data:vect};
-        //let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
-        //let mut merkle_root = merkle_tree_tx.root();
-    
-        content
-    
-    }
-
     fn handle_control_signal(&mut self, signal: ControlSignal) {
         match signal {
             ControlSignal::Exit => {
-                println!("Miner shutting down");
+                info!("Miner shutting down");
                 self.operating_state = OperatingState::ShutDown;
             }
-            ControlSignal::Start(i,j) => {
-                println!("Miner starting in continuous mode with lambda {} adn index {}", i , j);
-                self.operating_state = OperatingState::Run(i,j);
+            ControlSignal::Start(i) => {
+                info!("Miner starting in continuous mode with lambda {}", i);
+                self.operating_state = OperatingState::Run(i);
             }
         }
     }
 
     fn miner_loop(&mut self) {
-        let mut flag:bool = true;
         // main mining loop
-        let mut content:Content;
-        let mut vect: Vec<SignedTransaction> = vec![];
-        content = Content{data:vect};
-        let mut merkle_root:H256=generate_random_hash();
-        let mut  i:u32 = 0;
         loop {
-            let mut index:u64 = 0;
-            let mut time_i:u64 = 0;
-            //println!("Inside mining loop");
-            
             // check and react to control signals
             match self.operating_state {
                 OperatingState::Paused => {
@@ -195,146 +175,90 @@ impl Context {
                 return;
             }
 
-            if let OperatingState::Run(i,j) = self.operating_state {
-                index = j;
-                time_i =i;  
-            }
-
-             
-            // transaction pool generation for block 
-            /*
-            let mut vect: Vec<SignedTransaction> = vec![];
-            let mut merkle_init_vect: Vec<H256> = vec![];
-
-            println!("About to enter loop");
-            loop {
-            let mut locked_mempool = self.mempool.lock().unwrap();
-            if locked_mempool.transq.len()<15 {
-                std::mem::drop(locked_mempool);
-                continue;
-            } else {
-                while vect.len()<10 && locked_mempool.transq.len()>0 {
-                    let h = locked_mempool.transq.pop_front().unwrap();
-                    if locked_mempool.bool_map.contains_key(&h) && locked_mempool.bool_map.get(&h).unwrap() == &true {
-                        vect.push(locked_mempool.trans_map.get(&h).unwrap().clone());
-                        merkle_init_vect.push(h);
-                    }
-                }
-                std::mem::drop(locked_mempool);
-                if vect.len()==10 {
-                break;
-                }
-            }
-            }
-            let mut content: Content = Content{data:vect};
-            let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
-            let mut merkle_root = merkle_tree_tx.root();
-            */
-           
-            let mut locked_blockchain = self.blockchain.lock().unwrap();
-            let mut locked_mempool = self.mempool.lock().unwrap();
-            let mut locked_state = self.ledger_state.lock().unwrap();
-            
-        
-            if flag {
-                content = self.tx_pool_gen(&mut locked_mempool);
-            }
-            flag = false;
-            
-            // actual mining
-            //println!("Out of loop");
-            // create Block
-            //TODO: Put this in a function
-
-            //Creating Header fields
-            
-            let mut merkle_init_vect: Vec<H256> = vec![];
-            if content.data.len()==0{
-                continue;
-            }
-            
-            
-             
-            for tx in content.data.iter() {
-             merkle_init_vect.push(tx.hash());
-            }
-            let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
-            let mut merkle_root = merkle_tree_tx.root();
-           
-            let phash = locked_blockchain.tiphash;
-
-            let mut rng = rand::thread_rng();
-            let nonce = rng.gen();
-
-            let timestamp = Local::now().timestamp_millis();
-            let mut difficulty:H256 =  hex!("09911718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920").into();
-            
-            if locked_blockchain.chain.contains_key(&locked_blockchain.tiphash){
-            difficulty = locked_blockchain.chain.get(&locked_blockchain.tiphash)
-                             .unwrap()
-                             .header
-                             .difficulty ;
-            }
-
-            //Creating Content
-            //It will also be used for Merkel Root for the Header
-            /*let t = transaction::generate_random_signed_transaction();
-            let mut vect: Vec<SignedTransaction> = vec![];
-            vect.push(t);
-            let content: Content = Content{data:vect};
-
-            let merkle_root = H256::from([0; 32]);*/
-
-            //Putting all together
-            let header = Header{
-                parenthash: phash,
-                nonce: nonce,
-                difficulty: difficulty,
-                timestamp: timestamp,
-                merkle_root: merkle_root,
-                miner_id:index as i32,
-            };
-            let new_block = Block{header: header, content: content.clone()};
-            //Check whether block solved the puzzle
-            //If passed, add it to blockchain
-            
-            if new_block.hash() <= difficulty {
-              println!("block with hash:{} generated\n",new_block.hash());
-              println!("Number of blocks mined until now:{}\n",self.num_mined+1);
-              println!("Block generated by node {}",new_block.header.miner_id);
-              locked_blockchain.insert(&new_block,&mut locked_mempool,&mut locked_state);
-              let encodedhead: Vec<u8> = bincode::serialize(&new_block).unwrap();
-              println!("Size of block generated is {} bytes\n",encodedhead.len());
-              //print!("Total number of blocks in blockchain:{}\n",locked_blockchain.chain.len());
-              self.num_mined = self.num_mined + 1;
-              let mut new_block_hash : Vec<H256> = vec![];
-              new_block_hash.push(new_block.hash());
-              self.server.broadcast(Message::NewBlockHashes(new_block_hash));
-              
-              content = self.tx_pool_gen(&mut locked_mempool);
-              
-              for tx in content.data.iter() {
-                merkle_init_vect.push(tx.hash());
-               }
-               merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
-               merkle_root = merkle_tree_tx.root();
-            }
-
-            std::mem::drop(locked_state);
-            std::mem::drop(locked_mempool);
-            std::mem::drop(locked_blockchain);
-            
-
-            /*if let OperatingState::Run(i) = self.operating_state {
+            if let OperatingState::Run(i) = self.operating_state {
                 if i != 0 {
                     let interval = time::Duration::from_micros(i as u64);
                     thread::sleep(interval);
                 }
-            }*/
 
-            if time_i != 0 {
-                let interval = time::Duration::from_micros(time_i);
-                thread::sleep(interval);
+                loop {
+                    // step1: assemble a new superblock
+                    // TODO: We can optimize the assembly by using the version numbers trick
+                    let locked_blockchain = self.blockchain.lock().unwrap();
+                    // let mut parents: Vec<H256> = Vec::new();
+                    let mut contents: Vec<Content> = Vec::new();
+
+                    // create a proposer block
+                    let proposer_content = ProposerContent {
+                        parent_hash: locked_blockchain.get_proposer_tip(),
+                        transactions: vec![],
+                        proposer_refs: locked_blockchain.get_unref_proposers(),
+                    };
+                    // parents.push(proposer_content.parent_hash);
+                    contents.push(block::Content::Proposer(proposer_content));
+
+                    // create all voter blocks
+                    let num_voter_chains = locked_blockchain.num_voter_chains;
+                    for chain_num in 1..(num_voter_chains + 1) {
+                        let tmp = VoterContent {
+                            votes: locked_blockchain.get_votes(chain_num),
+                            parent_hash: locked_blockchain.get_voter_tip(chain_num),
+                            chain_num: chain_num,
+                        };
+                        // parents.push(tmp.parent_hash);
+                        contents.push(block::Content::Voter(tmp));
+                    }
+
+                    drop(locked_blockchain);
+
+                    // let parent_mkl_tree = MerkleTree::new(&parents);
+                    let content_mkl_tree = MerkleTree::new(&contents);
+
+                    // let sb_content = SB_content {
+                    //     parents: parents,
+                    //     contents: contents,
+                    // }
+
+                    let mut rng = rand::thread_rng();
+
+                    let header = Header {
+                        // parent_mkl_root: parent_mkl_tree.root(),
+                        nonce: rng.gen::<u32>(),
+                        difficulty: get_difficulty(),
+                        timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros(),
+                        merkle_root: content_mkl_tree.root(),
+                        miner_id: 0,    // TODO: set proper miner ID
+                    };
+
+                    let superblock = Superblock {
+                        header: header,
+                        content: contents,
+                    };
+
+                    let block_hash = superblock.hash();
+                    // NOTE: Below works only for static difficulty
+                    let difficulty = get_difficulty();
+
+                    if block_hash < difficulty {
+                        let block_idx: u32 = sortition_hash(block_hash, difficulty, num_voter_chains).unwrap();
+                        let sortition_proof = content_mkl_tree.proof(block_idx as usize);
+                        let processed_block = Block {
+                            header: superblock.header,
+                            content: superblock.content[block_idx as usize],
+                            sortition_proof: sortition_proof,
+                        };
+
+                        let locked_blockchain = self.blockchain.lock().unwrap();
+                        locked_blockchain.insert(&processed_block);
+                        drop(locked_blockchain);
+
+                        self.server.broadcast(Message::NewBlockHashes(vec![block_hash]));
+                    
+                    }
+
+                }
+
+
             }
         }
     }
