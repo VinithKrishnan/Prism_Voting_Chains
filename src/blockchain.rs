@@ -42,6 +42,7 @@ pub struct Blockchain {
     // Last voted level corresponding to each voter chain
     // IMP TODO: need changes to handle forking in the voter chain
     // TODO: which size to use? u16 or u32
+    pub num_voter_chains: u32,
     pub chain2level: HashMap<u32, u32>,
 
     // orphan buffer stores a mapping between missing reference and block
@@ -50,7 +51,7 @@ pub struct Blockchain {
 }
 
 impl Blockchain {
-    pub fn new(m: u32) -> Self {
+    pub fn new(num_voter_chains: u32) -> Self {
         // genesis for proposer and voter chains
         let mut proposer_chain = HashMap::new();
         let proposer = genesis_proposer();
@@ -66,7 +67,7 @@ impl Blockchain {
         let mut voter_tips = Vec::new();
         let mut voter_depths = Vec::new();
         let mut chain2level = HashMap::new();
-        for chain_num in 1..m {
+        for chain_num in 1..(num_voter_chains + 1) {
             let mut tmp_chain = HashMap::new();
             let voter = genesis_voter(chain_num);
             let voter_hash = voter.hash();
@@ -108,6 +109,7 @@ impl Blockchain {
             level2allproposers: level2allproposers,
 
             proposer2votecount: proposer2votecount,
+            num_voter_chains: num_voter_chains,
             chain2level: chain2level,
 
             orphan_buffer: HashMap::new(),
@@ -254,7 +256,21 @@ impl Blockchain {
     }
 
     pub fn get_voter_tip(&self, chain_num: u32) -> H256 {
-        self.voter_tips[chain_num as usize]
+        self.voter_tips[(chain_num-1) as usize]
+    }
+
+    pub fn get_unref_proposers(&self) -> Vec<H256> {
+        self.unref_proposers
+    }
+
+    pub fn get_votes(&self, chain_num: u32) -> Vec<H256> {
+        let mut votes: Vec<H256> = Vec::new();
+        let last_voted_level = self.chain2level[chain_num];
+        let last_proposer_level = self.proposer_chain[self.proposer_tip].level;
+        for level in (last_voted_level+1)..(last_proposer_level+1) {
+            votes.push(self.level2proposer[level]);
+        }
+        votes
     }
 
 }
