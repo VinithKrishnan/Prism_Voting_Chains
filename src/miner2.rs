@@ -4,11 +4,16 @@ use crate::crypto::hash::{H256, Hashable};
 use crate::crypto::merkle::MerkleTree;
 
 use log::info;
+use bigint::uint::U256;
 
 use crossbeam::channel::{unbounded, Receiver, Sender, TryRecvError};
 use std::time;
 
 use std::thread;
+
+const TOTAL_SORTITION_WIDTH: u64 = std::u64::MAX;
+pub const PROPOSER_INDEX: u32 = 0;
+pub const FIRST_VOTER_IDX: u32 = 1;
 
 pub struct SB_header {
     // pub parent_mkl_root: H256,
@@ -24,10 +29,6 @@ pub struct Superblock {
     pub content: Vec<Content>,
 }
 
-pub fn get_difficulty() -> H256 {
-    (hex!("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
-}
-
 impl Hashable for Superblock {
     fn hash(&self) -> H256 {
         self.header.hash()
@@ -38,6 +39,29 @@ impl Hashable for SB_header {
     fn hash(&self) -> H256 {
         let encoded = bincode::serialize(&self).unwrap();
         ring::digest::digest(&ring::digest::SHA256, &encoded).into()
+    }
+}
+
+pub fn get_difficulty() -> H256 {
+    (hex!("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
+}
+
+pub fn sortition_hash(hash: &H256, difficulty: &H256, num_voter_chains: u32) -> Option<u32> {
+    let hash = U256::from_big_endian(hash.as_ref());
+    let difficulty = U256::from_big_endian(difficulty.as_ref());
+    let multiplier = difficulty / TOTAL_SORTITION_WIDTH.into();
+
+    let precise: f32 = (1 / f32::from(num_voter_chains + 1)) * TOTAL_SORTITION_WIDTH as f32;
+    let proposer_sortition_width: u64 = precise.ceil() as u64
+    let proposer_width = multiplier * proposer_sortition_width.into();
+    if hash < proposer_width {
+        Some(PROPOSER_INDEX)
+    } else if hash < difficulty {
+        let voter_idx = (hash - proposer_width) % num_voter_chains;
+        Some(FIRST_VOTER_IDX + voter_idx)
+    } else {
+        println!("Why you sortitioning something that is not less than difficulty?");
+        None
     }
 }
 
@@ -208,10 +232,25 @@ impl Context {
                         content: contents,
                     }
 
-                    if superblock.hash() < get_difficulty() {
-                        // TODO: sort into a block type, create a processed block, include sortition proof
-                        // TODO: insert into the blockchain
-                        // TODO: broadcast to the network
+                    let block_hash = superblock.hash();
+                    // NOTE: Below works only for static difficulty
+                    let difficulty = get_difficulty();
+
+                    if block_hash < difficulty {
+                        let block_idx: i32 = sortition_hash(block_hash, difficulty, num_voter_chains).unwrap();
+                        let sortition_proof = content_mkl_tree.proof(block_idx as usize);
+                        let processed_block = Block {
+                            header: superblock.header,
+                            content: superblock.content[block_idx],
+                            sortition_proof: sortition_proof,
+                        }
+
+                        let locked_blockchain = self.blockchain.lock().unwrap();
+                        locked_blockchain.insert(processed_block);
+                        drop(locked_blockchain);
+
+                        self.server.broadcast(Message::NewBlockHashes(vec![block_hash]));
+                    
                     }
 
                 }
