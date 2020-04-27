@@ -14,3 +14,31 @@ pub struct LedgerManagerState {
 pub struct LedgerManager {
     pub ledger_manager_state: LedgerManagerState,
 }
+
+impl LedgerManager {
+    pub fn new() -> Self {
+        let ledger_manager_state = LedgerManagerState{
+            last_level_processed: 0,
+            proposer_blocks_processed: HashSet::new(),
+            leader_sequence: Vec::new(),
+            tx_confirmed: HashSet::new(),
+        }
+
+        LedgerManager {
+            ledger_manager_state: ledger_manager_state
+        }
+    }
+
+    pub fn start(mut self) {
+        thread::Builder::new()
+        .name("ledger_manager".to_string())
+        .spawn(move || {
+            self.ledger_manager_loop();
+        })
+        .unwrap();
+    }
+
+    pub fn ledger_manager_loop(&mut self) {
+
+    }
+}
