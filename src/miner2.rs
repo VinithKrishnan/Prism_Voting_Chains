@@ -11,19 +11,34 @@ use std::time;
 use std::thread;
 
 pub struct SB_header {
-    pub parent_mkl_root: H256,
+    // pub parent_mkl_root: H256,
     pub nonce: u32,
+    pub difficulty: H256,
+    pub timestamp: i64,
     pub content_mkl_root: H256,
-}
-
-pub struct SB_content {
-    pub parents: Vec<H256>,
-    pub contents: Vec<Content>,
+    pub miner_id: i32,
 }
 
 pub struct Superblock {
     pub header: SB_header,
-    pub content: SB_content, 
+    pub content: Vec<Content>,
+}
+
+pub fn get_difficulty() -> H256 {
+    (hex!("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
+}
+
+impl Hashable for Superblock {
+    fn hash(&self) -> H256 {
+        self.header.hash()
+    }
+}
+
+impl Hashable for SB_header {
+    fn hash(&self) -> H256 {
+        let encoded = bincode::serialize(&self).unwrap();
+        ring::digest::digest(&ring::digest::SHA256, &encoded).into()
+    }
 }
 
 enum ControlSignal {
@@ -133,66 +148,75 @@ impl Context {
                 return;
             }
 
-            loop {
-                // assemble the superblock --> version numbers 
-                // update nonce
-                // check is hahs <= diffi
-            }
-
-            // TODO: actual mining
-
-            // assemble a superblock
-            let locked_blockchain = self.blockchain.lock().unwrap();
-            let mut parents: Vec<H256> = Vec::new();
-            let mut contents: Vec<Content> = Vec::new();
-            // create a proposer block
-            let proposer_content = ProposerContent {
-                parent_hash: locked_blockchain.get_proposer_tip(),
-                transactions: vec![],
-                proposer_refs: locked_blockchain.get_unref_proposers(),
-            };
-            parents.push(proposer_content.parent_hash);
-            contents.push(proposer_content);
-
-            // create all voter blocks
-            // let mut voter_contents: Vec<VoterContent> = Vec::new();
-
-            let num_voter_chains = locked_blockchain.num_voter_chains;
-            for chain_num in 1..(num_voter_chains + 1) {
-                let tmp = VoterContent {
-                    votes: locked_blockchain.get_votes(chain_num),
-                    parent_hash: locked_blockchain.get_voter_tip(chain_num),
-                    chain_num: chain_num,
-                }
-                parents.push(tmp.parent_hash);
-                contents.push(tmp);
-            }
-
-            let parent_mkl_tree = MerkleTree::new(&parents);
-            let content_mkl_tree = MerkleTree::new(&contents);
-
-            let sb_content = SB_content {
-                parents: parents,
-                contents: contents,
-            }
-
-            let sb_header = SB_header {
-                // parent_mkl_root: parent_mkl_tree.root(),
-                nonce: 0,
-                content_mkl_root: content_mkl_tree.root(),
-                // include timestamp, miner_id, difficulty
-            }
-
-
-
-
-
-
             if let OperatingState::Run(i) = self.operating_state {
                 if i != 0 {
                     let interval = time::Duration::from_micros(i as u64);
                     thread::sleep(interval);
                 }
+
+                loop {
+                    // step1: assemble a new superblock
+                    // TODO: We can optimize the assembly by using the version numbers trick
+                    let locked_blockchain = self.blockchain.lock().unwrap();
+                    // let mut parents: Vec<H256> = Vec::new();
+                    let mut contents: Vec<Content> = Vec::new();
+
+                    // create a proposer block
+                    let proposer_content = ProposerContent {
+                        parent_hash: locked_blockchain.get_proposer_tip(),
+                        transactions: vec![],
+                        proposer_refs: locked_blockchain.get_unref_proposers(),
+                    };
+                    // parents.push(proposer_content.parent_hash);
+                    contents.push(proposer_content);
+
+                    // create all voter blocks
+                    let num_voter_chains = locked_blockchain.num_voter_chains;
+                    for chain_num in 1..(num_voter_chains + 1) {
+                        let tmp = VoterContent {
+                            votes: locked_blockchain.get_votes(chain_num),
+                            parent_hash: locked_blockchain.get_voter_tip(chain_num),
+                            chain_num: chain_num,
+                        }
+                        // parents.push(tmp.parent_hash);
+                        contents.push(tmp);
+                    }
+
+                    drop(locked_blockchain);
+
+                    // let parent_mkl_tree = MerkleTree::new(&parents);
+                    let content_mkl_tree = MerkleTree::new(&contents);
+
+                    // let sb_content = SB_content {
+                    //     parents: parents,
+                    //     contents: contents,
+                    // }
+
+                    let mut rng = rand::thread_rng();
+
+                    let sb_header = SB_header {
+                        // parent_mkl_root: parent_mkl_tree.root(),
+                        nonce: rng.gen::<u32>(),
+                        difficulty: get_difficulty(),
+                        timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros(),
+                        content_mkl_root: content_mkl_tree.root(),
+                        miner_id: 0,    // TODO: set proper miner ID
+                    }
+
+                    let superblock = Superblock {
+                        header: sb_header,
+                        content: contents,
+                    }
+
+                    if superblock.hash() < get_difficulty() {
+                        // TODO: sort into a block type, create a processed block, include sortition proof
+                        // TODO: insert into the blockchain
+                        // TODO: broadcast to the network
+                    }
+
+                }
+
+
             }
         }
     }
