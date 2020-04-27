@@ -13,6 +13,7 @@ pub mod mempool;
 pub mod utils;
 pub mod tx_generator;
 pub mod ledger_state;
+pub mod ledger_manager;
 
 use clap::clap_app;
 use crossbeam::channel;
