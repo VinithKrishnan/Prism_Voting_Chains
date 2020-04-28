@@ -14,6 +14,7 @@ pub mod utils;
 pub mod tx_generator;
 pub mod ledger_state;
 pub mod ledger_manager;
+pub mod utxo;
 
 use clap::clap_app;
 use crossbeam::channel;

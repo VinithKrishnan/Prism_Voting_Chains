@@ -1,7 +1,8 @@
-use crate::crypto::hash::H256;
+use crate::crypto::hash::{H256, Hashable};
 use crate::blockchain::Blockchain;
 use crate::block::Content;
 use crate::transaction::SignedTransaction;
+use crate::utxo::UtxoState;
 
 use std::collections::HashSet;
 use std::thread;
@@ -22,6 +23,7 @@ pub struct LedgerManagerState {
 pub struct LedgerManager {
     pub ledger_manager_state: LedgerManagerState,
     pub blockchain: Arc<Mutex<Blockchain>>,
+    pub utxo_state: UtxoState,
 }
 
 impl LedgerManager {
@@ -36,6 +38,7 @@ impl LedgerManager {
         LedgerManager {
             ledger_manager_state: ledger_manager_state,
             blockchain: Arc::clone(blockchain),
+            utxo_state: UtxoState::new(),
         }
     }
 
@@ -63,7 +66,7 @@ impl LedgerManager {
             let tx_sequence = self.get_transaction_sequence(&leader_sequence);
             
             //Step 3
-            //self.confirm_transactions(&tx_sequence);
+            self.confirm_transactions(&tx_sequence);
             
             thread::sleep(Duration::from_secs(1));
         }
@@ -166,7 +169,19 @@ impl LedgerManager {
         tx_sequence
     }
 
-    fn confirm_transactions(& self) {
+    fn confirm_transactions(&mut self, tx_sequence: &Vec<SignedTransaction>) {
+        for tx in tx_sequence {
+            //if already processed continue
+            if self.ledger_manager_state.tx_confirmed.contains(&tx.hash()) {
+                continue;
+            }
 
+            //check for validity
+            //if valid, update utxo_state and add to confirmed transactions
+            if self.utxo_state.is_tx_valid(tx){
+                self.utxo_state.update_state(tx);
+                self.ledger_manager_state.tx_confirmed.insert(tx.hash());
+            }
+        }
     }
 }
