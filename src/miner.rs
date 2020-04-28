@@ -2,6 +2,7 @@ use crate::network::server::Handle as ServerHandle;
 use crate::block::{self, *};
 use crate::blockchain::{Blockchain};
 use crate::crypto::hash::{H256, Hashable};
+use crate::mempool::{TransactionMempool};
 use crate::crypto::merkle::MerkleTree;
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH, Duration, Instant};
@@ -9,6 +10,7 @@ use crate::network::message::{Message};
 use log::info;
 use bigint::uint::U256;
 use rand::Rng;
+use crate::transaction::{self, SignedTransaction};
 
 use crossbeam::channel::{unbounded, Receiver, Sender, TryRecvError};
 use std::time;
@@ -39,7 +41,8 @@ pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Op
     let difficulty = U256::from_big_endian(difficulty.as_ref());
     let multiplier = difficulty / TOTAL_SORTITION_WIDTH.into();
 
-    let precise: f32 = (1.0 / f32::from(num_voter_chains + 1)) * TOTAL_SORTITION_WIDTH as f32;
+    
+    let precise: f32 = (1.0 / (num_voter_chains + 1) as f32) * TOTAL_SORTITION_WIDTH as f32;
     let proposer_sortition_width: u64 = precise.ceil() as u64;
     let proposer_width = multiplier * proposer_sortition_width.into();
     if hash < proposer_width {
@@ -70,6 +73,7 @@ pub struct Context {
     operating_state: OperatingState,
     server: ServerHandle,
     blockchain: Arc<Mutex<Blockchain>>,
+    mempool:Arc<Mutex<TransactionMempool>>,
 }
 
 #[derive(Clone)]
@@ -81,6 +85,7 @@ pub struct Handle {
 pub fn new(
     server: &ServerHandle,
     blockchain: &Arc<Mutex<Blockchain>>,
+    mempool: &Arc<Mutex<TransactionMempool>>,  
 ) -> (Context, Handle) {
     let (signal_chan_sender, signal_chan_receiver) = unbounded();
 
@@ -89,6 +94,7 @@ pub fn new(
         operating_state: OperatingState::Paused,
         server: server.clone(),
         blockchain: Arc::clone(blockchain),
+        mempool: Arc::clone(mempool)
     };
 
     let handle = Handle {
@@ -135,6 +141,40 @@ impl Context {
         }
     }
 
+    pub fn tx_pool_gen(&self,mempool:&mut TransactionMempool) -> Vec<SignedTransaction> {
+        let mut vect: Vec<SignedTransaction> = vec![];
+        //let mut merkle_init_vect: Vec<H256> = vec![];
+    
+        
+        //for k in 1..6 {
+        
+       
+        //let mut locked_mempool = self.mempool.lock().unwrap();
+        /*
+        if mempool.tx_hash_queue.len()<15 {
+            continue;
+        } else {
+            while vect.len()<10 && mempool.tx_hash_queue.len()>0 {
+                let h = mempool.tx_hash_queue.pop_front().unwrap();
+                if mempool.tx_to_process.contains_key(&h) && mempool.tx_to_process.get(&h).unwrap() == &true {
+                    vect.push(mempool.tx_map.get(&h).unwrap().clone());
+                    merkle_init_vect.push(h);
+                }
+            }
+            if vect.len()==10 {
+            break;
+            }
+        }*/
+        println!("The len of mempool is {}",mempool.mempool_len());
+        vect = mempool.get_transactions(1);
+        //let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
+        //let mut merkle_root = merkle_tree_tx.root();
+        vect
+    
+    }
+
+
+
     fn miner_loop(&mut self) {
         // main mining loop
         loop {
@@ -170,12 +210,20 @@ impl Context {
                     // step1: assemble a new superblock
                     // TODO: We can optimize the assembly by using the version numbers trick
                     let locked_blockchain = self.blockchain.lock().unwrap();
-
+                    let locked_mempool = self.blockchain.lock().unwrap();
                     let mut contents: Vec<Content> = Vec::new();
-                    // Proposer
+                    
+                    let txs = vec![];
+                    while txs.len() == 0 {
+                        let locked_mempool = self.mempool.lock().unwrap();
+                        txs = self.tx_pool_gen(&mut locked_mempool);
+                        drop(locked_mempool);
+                    }
+
+                    //proposer
                     let proposer_content = ProposerContent {
                         parent_hash: locked_blockchain.get_proposer_tip(),
-                        transactions: vec![],
+                        transactions: txs,
                         proposer_refs: locked_blockchain.get_unref_proposers(),
                     };
                     contents.push(block::Content::Proposer(proposer_content));

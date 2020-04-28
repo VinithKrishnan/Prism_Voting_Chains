@@ -13,6 +13,7 @@ pub mod mempool;
 pub mod utils;
 pub mod tx_generator;
 pub mod ledger_state;
+pub mod validation;
 
 use clap::clap_app;
 use crossbeam::channel;
@@ -38,6 +39,7 @@ fn main() {
      (@arg api_addr: --api [ADDR] default_value("127.0.0.1:7000") "Sets the IP address and the port of the API server")
      (@arg known_peer: -c --connect ... [PEER] "Sets the peers to connect to at start")
      (@arg p2p_workers: --("p2p-workers") [INT] default_value("4") "Sets the number of worker threads for P2P server")
+     (@arg p2p_workers: --("voter-chains") [INT] default_value("5") "Sets the number of voter chains")
     )
     .get_matches();
 
@@ -76,25 +78,33 @@ fn main() {
 
 
     // generating genblock and genhash
-    let buffer: [u8; 32] = [0; 32];
+    /*let buffer: [u8; 32] = [0; 32];
     let b:H256 = buffer.into();
     let genesis:Block = block::generate_genesis_block(&b);
-    let genhash:H256 = genesis.hash();
+    let genhash:H256 = genesis.hash();*/
      
     // create state_chain
-    let ledger_state = Arc::new(Mutex::new(ledger_state::BlockState::new(&genhash)));
+    //let ledger_state = Arc::new(Mutex::new(ledger_state::BlockState::new(&genhash)));
 
     // create mempool
     let mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
 
+    //INTMOD
+    let num_chains = matches
+    .value_of("voter-chains")
+    .unwrap()
+    .parse::<u32>()
+    .unwrap_or_else(|e| {
+        error!("Error parsing voter chains: {}", e);
+        process::exit(1);
+    });
      // create blockchain
-     let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new()));
+    let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new(num_chains)));
 
     // start the transaction generator
     let (txgen_ctx,txgen) = tx_generator::new(
         &server,
         &mempool,
-        &ledger_state,
         &blockchain,
     );
     txgen_ctx.start(); 
@@ -105,7 +115,6 @@ fn main() {
         &server,
         &blockchain,
         &mempool,
-        &ledger_state,
     );
     miner_ctx.start();
 
@@ -124,7 +133,6 @@ fn main() {
         &server,
         &blockchain,
         &mempool,
-        &ledger_state,
     );
     worker_ctx.start();
 

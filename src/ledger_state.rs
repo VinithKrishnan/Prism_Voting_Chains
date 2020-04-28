@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use log::debug;
 use log::info;
 
+/*
 #[derive(Debug, Default, Clone)]
 pub struct State{
     pub state_map: HashMap<UtxoInput, UtxoOutput>,  
@@ -133,3 +134,4 @@ pub fn ico() -> State {
    
   initial_state
 }
+*/
