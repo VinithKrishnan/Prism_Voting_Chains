@@ -39,7 +39,7 @@ pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Op
     let difficulty = U256::from_big_endian(difficulty.as_ref());
     let multiplier = difficulty / TOTAL_SORTITION_WIDTH.into();
 
-    let precise: f32 = (1.0 / f32::from(num_voter_chains + 1)) * TOTAL_SORTITION_WIDTH as f32;
+    let precise: f32 = (1.0 / (num_voter_chains + 1) as f32) * TOTAL_SORTITION_WIDTH as f32;
     let proposer_sortition_width: u64 = precise.ceil() as u64;
     let proposer_width = multiplier * proposer_sortition_width.into();
     if hash < proposer_width {
