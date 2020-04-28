@@ -10,6 +10,19 @@ use chrono::prelude::*;
 use std::cmp;
 
 
+// Implement remove by element from a Vec
+pub fn remove_by_element<T>(list: &mut Vec<T>, element: T) where T: PartialEq {
+    let result = list.iter().position(|x| *x == element);
+    match result {
+        Some(index) => {
+            list.remove(index);
+        }
+        None => {
+            println!("element not present in the list");
+        }
+    }
+}
+
 pub enum InsertStatus {
     // Invalid,
     Orphan,
@@ -168,31 +181,25 @@ impl Blockchain {
 
         match block.content {
             Content::Proposer(content) => {
-                
-                // Add self hash and remove referenced proposer hashes from `unref_proposers`
-                self.unref_proposers.push(block_hash);
+                // Remove parent and referenced proposer hashes from `unref_proposers`
+                let parent_hash = content.parent_hash;
+                remove_by_element(&mut self.unref_proposers, parent_hash);
                 for ref_proposer in content.proposer_refs {
-                    let result = self.unref_proposers.iter().position(|x| *x == ref_proposer);
-                    match result {
-                        Some(index) => {
-                            self.unref_proposers.remove(index);
-                        }
-                        None => {
-                            println!("How come you trying to reference something not in `unref_proposers`?");
-                        }
-                    }
+                    // let result = self.unref_proposers.iter().position(|x| *x == ref_proposer);
+                    // match result {
+                    //     Some(index) => {
+                    //         self.unref_proposers.remove(index);
+                    //     }
+                    //     None => {
+                    //         println!("How come you trying to reference something not in `unref_proposers`?");
+                    //     }
+                    // }
+                    remove_by_element(&mut self.unref_proposers, ref_proposer);
                 }
-
-                let parent_meta = self.proposer_chain[&content.parent_hash];
-                let block_level = parent_meta.level + 1;
-                // Add to `level2proposer` if first proposer at its level
-                if !self.level2proposer.contains_key(&block_level) {
-                    self.level2proposer.insert(block_level, block_hash);
-                }
-                // Add to `level2allproposers`
-                self.level2allproposers.entry(block_level).or_insert(Vec::new()).push(block_hash);
 
                 // Add to `proposer_chain` and update tip
+                let parent_meta = self.proposer_chain[&content.parent_hash];
+                let block_level = parent_meta.level + 1;
                 let metablock = Metablock {
                     block: *block,
                     level: block_level,
@@ -202,6 +209,16 @@ impl Blockchain {
                     self.proposer_depth = metablock.level;
                     self.proposer_tip = block_hash;
                 }
+
+                // Add selfhash to unref_proposers
+                self.unref_proposers.push(block_hash);
+
+                // Add to `level2proposer` if first proposer at its level
+                if !self.level2proposer.contains_key(&block_level) {
+                    self.level2proposer.insert(block_level, block_hash);
+                }
+                // Add to `level2allproposers`
+                self.level2allproposers.entry(block_level).or_insert(Vec::new()).push(block_hash);
             }
 
             Content::Voter(content) => {

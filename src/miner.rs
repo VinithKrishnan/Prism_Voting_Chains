@@ -19,14 +19,6 @@ const TOTAL_SORTITION_WIDTH: u64 = std::u64::MAX;
 pub const PROPOSER_INDEX: u32 = 0;
 pub const FIRST_VOTER_IDX: u32 = 1;
 
-// pub struct SB_header {
-//     pub nonce: u32,
-//     pub difficulty: H256,
-//     pub timestamp: i64,
-//     pub content_mkl_root: H256,
-//     pub miner_id: i32,
-// }
-
 pub struct Superblock {
     pub header: Header,
     pub content: Vec<Content>,
@@ -38,13 +30,6 @@ impl Hashable for Superblock {
     }
 }
 
-// impl Hashable for SB_header {
-//     fn hash(&self) -> H256 {
-//         let encoded = bincode::serialize(&self).unwrap();
-//         ring::digest::digest(&ring::digest::SHA256, &encoded).into()
-//     }
-// }
-
 pub fn get_difficulty() -> H256 {
     (hex!("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
 }
@@ -54,7 +39,7 @@ pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Op
     let difficulty = U256::from_big_endian(difficulty.as_ref());
     let multiplier = difficulty / TOTAL_SORTITION_WIDTH.into();
 
-    let precise: f32 = (1.0
+    let precise: f32 = (1.0 / f32::from(num_voter_chains + 1)) * TOTAL_SORTITION_WIDTH as f32;
     let proposer_sortition_width: u64 = precise.ceil() as u64;
     let proposer_width = multiplier * proposer_sortition_width.into();
     if hash < proposer_width {
@@ -185,19 +170,17 @@ impl Context {
                     // step1: assemble a new superblock
                     // TODO: We can optimize the assembly by using the version numbers trick
                     let locked_blockchain = self.blockchain.lock().unwrap();
-                    // let mut parents: Vec<H256> = Vec::new();
-                    let mut contents: Vec<Content> = Vec::new();
 
-                    // create a proposer block
+                    let mut contents: Vec<Content> = Vec::new();
+                    // Proposer
                     let proposer_content = ProposerContent {
                         parent_hash: locked_blockchain.get_proposer_tip(),
                         transactions: vec![],
                         proposer_refs: locked_blockchain.get_unref_proposers(),
                     };
-                    // parents.push(proposer_content.parent_hash);
                     contents.push(block::Content::Proposer(proposer_content));
 
-                    // create all voter blocks
+                    // Voters
                     let num_voter_chains = locked_blockchain.num_voter_chains;
                     for chain_num in 1..(num_voter_chains + 1) {
                         let tmp = VoterContent {
@@ -205,24 +188,15 @@ impl Context {
                             parent_hash: locked_blockchain.get_voter_tip(chain_num),
                             chain_num: chain_num,
                         };
-                        // parents.push(tmp.parent_hash);
                         contents.push(block::Content::Voter(tmp));
                     }
 
                     drop(locked_blockchain);
 
-                    // let parent_mkl_tree = MerkleTree::new(&parents);
                     let content_mkl_tree = MerkleTree::new(&contents);
 
-                    // let sb_content = SB_content {
-                    //     parents: parents,
-                    //     contents: contents,
-                    // }
-
                     let mut rng = rand::thread_rng();
-
                     let header = Header {
-                        // parent_mkl_root: parent_mkl_tree.root(),
                         nonce: rng.gen::<u32>(),
                         difficulty: get_difficulty(),
                         timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros(),
@@ -240,7 +214,11 @@ impl Context {
                     let difficulty = get_difficulty();
 
                     if block_hash < difficulty {
+                        println!("Mined a new block");
+                        // Sortition and decide the block index - proposer(0), voters(1..m)
                         let block_idx: u32 = sortition_hash(block_hash, difficulty, num_voter_chains).unwrap();
+
+                        // Add header, relevant content and sortition proof
                         let sortition_proof = content_mkl_tree.proof(block_idx as usize);
                         let processed_block = Block {
                             header: superblock.header,
@@ -248,17 +226,15 @@ impl Context {
                             sortition_proof: sortition_proof,
                         };
 
+                        // Insert into local blockchain
                         let locked_blockchain = self.blockchain.lock().unwrap();
                         locked_blockchain.insert(&processed_block);
                         drop(locked_blockchain);
 
+                        // Broadcast new block hash to the network
                         self.server.broadcast(Message::NewBlockHashes(vec![block_hash]));
-                    
                     }
-
                 }
-
-
             }
         }
     }
