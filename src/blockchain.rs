@@ -1,6 +1,7 @@
 use crate::block::{self, *};
 use crate::crypto::hash::{H256,Hashable};
 use log::debug;
+use log::info;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use crate::utils::{*};
@@ -137,12 +138,14 @@ impl Blockchain {
                 if (!self.proposer_chain.contains_key(&content.parent_hash)) {
                     // parent proposer not found, add to orphan buffer
                     self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block.clone());
+                    info!("Adding block with hash {} to buffer",block.hash());
                     return true;
                 }
 
                 for ref_proposer in content.proposer_refs.clone() {
                     if (!self.proposer_chain.contains_key(&ref_proposer)) {
                         self.orphan_buffer.entry(ref_proposer).or_insert(Vec::new()).push(block.clone());
+                        info!("Adding block with hash {} to buffer",block.hash());
                         return true;
                     }
                 }
@@ -154,6 +157,7 @@ impl Blockchain {
                 if (!self.voter_chains[(chain_num-1) as usize].contains_key(&content.parent_hash)) {
                     // parent proposer not found, add to orphan buffer
                     self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block.clone());
+                    info!("Adding block with hash {} to buffer",block.hash());
                     // self.orphan_buffer.insert(block.header.parenthash, block);
                     return true;
                 }
@@ -161,6 +165,7 @@ impl Blockchain {
                 for vote in content.votes.clone() {
                     if (!self.proposer_chain.contains_key(&vote)) {
                         self.orphan_buffer.entry(vote).or_insert(Vec::new()).push(block.clone());
+                        info!("Adding block with hash {} to buffer",block.hash());
                         // self.orphan_buffer.insert(vote, block);
                         return true;
                     }
@@ -205,6 +210,9 @@ impl Blockchain {
                     level: block_level,
                 };
                 self.proposer_chain.insert(block_hash, metablock.clone());
+                info!("Adding block with hash {} to main chain",block_hash);
+                info!("Block added to proposer chain at level {}",block_level);
+
                 if metablock.level > self.proposer_depth {
                     self.proposer_depth = metablock.level;
                     self.proposer_tip = block_hash;
@@ -242,12 +250,14 @@ impl Blockchain {
                 self.chain2level.insert(chain_num, max_vote_level);
 
                 // add to voter chain and update tip
-                let parent_meta = &self.voter_chains[(chain_num-1) as usize][&content.parent_hash];
+                let mut parent_meta = &self.voter_chains[(chain_num-1) as usize][&content.parent_hash];
                 let metablock = Metablock {
                     block: block.clone(),
                     level: parent_meta.level + 1
                 };
                 self.voter_chains[(chain_num-1) as usize].insert(block_hash, metablock.clone());
+                info!("Adding block with hash {} to main chain",block_hash);
+                info!("Block added to voter chain  {} at level {}",chain_num,metablock.level);
                 if metablock.level > self.voter_depths[(chain_num-1) as usize] {
                     self.voter_depths[(chain_num-1) as usize] = metablock.level;
                     self.voter_tips[(chain_num-1) as usize] = block_hash;

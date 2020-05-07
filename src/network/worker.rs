@@ -137,7 +137,7 @@ impl Context {
                         for voter_chain in &locked_blockchain.voter_chains{
                             for (bhash,metablock) in voter_chain.iter(){
                                 if *bhash == recv_hash{
-                                    println!("Adding block with hash {} to give_blocks", bhash);
+                                    println!("Adding voter block with hash {} to give_blocks", bhash);
                                     give_blocks.push(metablock.block.clone());
                                 }
                             }
