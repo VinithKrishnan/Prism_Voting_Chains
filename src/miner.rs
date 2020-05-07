@@ -33,7 +33,7 @@ impl Hashable for Superblock {
 }
 
 pub fn get_difficulty() -> H256 {
-    (hex!("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
+    (hex!("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
 }
 
 pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Option<u32> {
@@ -165,7 +165,7 @@ impl Context {
             break;
             }
         }*/
-        println!("The len of mempool is {}",mempool.mempool_len());
+        //println!("The len of mempool is {}",mempool.mempool_len());
         vect = mempool.get_transactions(1);
         //let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
         //let mut merkle_root = merkle_tree_tx.root();
@@ -209,15 +209,15 @@ impl Context {
                 loop {
                     // step1: assemble a new superblock
                     // TODO: We can optimize the assembly by using the version numbers trick
-                    let locked_blockchain = self.blockchain.lock().unwrap();
-                    let locked_mempool = self.blockchain.lock().unwrap();
+                    let mut locked_blockchain = self.blockchain.lock().unwrap();
+                    let  mut locked_mempool = self.mempool.lock().unwrap();
                     let mut contents: Vec<Content> = Vec::new();
                     
-                    let txs = vec![];
+                    let mut txs = vec![];
                     while txs.len() == 0 {
-                        let locked_mempool = self.mempool.lock().unwrap();
+                       // let mut locked_mempool = self.mempool.lock().unwrap();
                         txs = self.tx_pool_gen(&mut locked_mempool);
-                        drop(locked_mempool);
+                       // drop(locked_mempool);
                     }
 
                     //proposer
@@ -239,7 +239,7 @@ impl Context {
                         contents.push(block::Content::Voter(tmp));
                     }
 
-                    drop(locked_blockchain);
+                    //drop(locked_blockchain);
 
                     let content_mkl_tree = MerkleTree::new(&contents);
 
@@ -270,18 +270,20 @@ impl Context {
                         let sortition_proof = content_mkl_tree.proof(block_idx as usize);
                         let processed_block = Block {
                             header: superblock.header,
-                            content: superblock.content[block_idx as usize],
+                            content: superblock.content[block_idx as usize].clone(),
                             sortition_proof: sortition_proof,
                         };
 
                         // Insert into local blockchain
-                        let locked_blockchain = self.blockchain.lock().unwrap();
+                       // let mut locked_blockchain = self.blockchain.lock().unwrap();
                         locked_blockchain.insert(&processed_block);
-                        drop(locked_blockchain);
+                       
 
                         // Broadcast new block hash to the network
                         self.server.broadcast(Message::NewBlockHashes(vec![block_hash]));
                     }
+                    drop(locked_mempool);
+                    drop(locked_blockchain);
                 }
             }
         }

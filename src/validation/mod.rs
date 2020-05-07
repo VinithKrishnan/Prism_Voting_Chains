@@ -4,6 +4,8 @@ use crate::block::{self, *};
 use crate::crypto::hash::{H256, Hashable};
 use crate::crypto::merkle::MerkleTree;
 use crate::blockchain::{Blockchain, InsertStatus};
+use crate::crypto::merkle::verify;
+use crate::block::{Block, Content};
 
 use log::info;
 use bigint::uint::U256;
@@ -30,12 +32,12 @@ pub fn sortition_hash(hash: &H256, difficulty: &H256, num_voter_chains: u32) -> 
     let multiplier = difficulty / TOTAL_SORTITION_WIDTH.into();
     //let precise: f32 = (1 / f32::from(num_voter_chains + 1)) * TOTAL_SORTITION_WIDTH as f32;
     let precise: f32 = (1.0 / (num_voter_chains + 1) as f32) * TOTAL_SORTITION_WIDTH as f32;
-    let proposer_sortition_width: u64 = precise.ceil() as u64
+    let proposer_sortition_width: u64 = precise.ceil() as u64;
     let proposer_width = multiplier * proposer_sortition_width.into();
     if hash < proposer_width {
         Some(PROPOSER_INDEX)
     } else if hash < difficulty {
-        let voter_idx = (hash - proposer_width) % num_voter_chains;
+        let voter_idx = (hash.as_u32() - proposer_width.as_u32()) % num_voter_chains;
         Some(FIRST_VOTER_IDX + voter_idx)
     } else {
         println!("Why you sortitioning something that is not less than difficulty?");
@@ -45,15 +47,16 @@ pub fn sortition_hash(hash: &H256, difficulty: &H256, num_voter_chains: u32) -> 
 //PoW and sortition id
 pub fn check_pow_sortition_id(block: &Block, blockchain: &Blockchain) -> BlockResult {
     //no need to lock blockchain here since we passed locked blcokchain
-    let sortition_id = sortition_hash(&block.hash(), &block.header.difficulty,&blockchain.num_voter_chains);
+    let sortition_id = sortition_hash(&block.hash(), &block.header.difficulty,blockchain.num_voter_chains);
     if sortition_id.is_none() {
         return BlockResult::Fail;
     }
     let correct_sortition_id = match &block.content {
         Content::Proposer(_) => PROPOSER_INDEX,
         Content::Voter(content) => content.chain_num + FIRST_VOTER_IDX,
+
     };
-    if sortition_id != correct_sortition_id {
+    if sortition_id.unwrap() != correct_sortition_id {
         return BlockResult::Fail;
     }
     return BlockResult::Pass;
@@ -61,7 +64,7 @@ pub fn check_pow_sortition_id(block: &Block, blockchain: &Blockchain) -> BlockRe
 
 //check merkle tree there
 pub fn check_sortition_proof(block: &Block, blockchain: &Blockchain) -> BlockResult {
-    let sortition_id = sortition_hash(&block.hash(), &block.header.difficulty,&blockchain.num_voter_chains);
+    let sortition_id = sortition_hash(&block.hash(), &block.header.difficulty,blockchain.num_voter_chains);
     if sortition_id.is_none() {
         return BlockResult::Fail;
     }
@@ -69,8 +72,8 @@ pub fn check_sortition_proof(block: &Block, blockchain: &Blockchain) -> BlockRes
         &block.header.merkle_root,
         &block.content.hash(),
         &block.sortition_proof,
-        sortition_id as usize,
-        (blockchain.num_voter_chains + FIRST_VOTER_INDEX) as usize,
+        sortition_id.unwrap() as usize,
+        (blockchain.num_voter_chains + FIRST_VOTER_IDX) as usize,
     ) {
         return BlockResult::Fail;
     }

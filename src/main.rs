@@ -39,7 +39,7 @@ fn main() {
      (@arg api_addr: --api [ADDR] default_value("127.0.0.1:7000") "Sets the IP address and the port of the API server")
      (@arg known_peer: -c --connect ... [PEER] "Sets the peers to connect to at start")
      (@arg p2p_workers: --("p2p-workers") [INT] default_value("4") "Sets the number of worker threads for P2P server")
-     (@arg p2p_workers: --("voter-chains") [INT] default_value("5") "Sets the number of voter chains")
+     (@arg voter_chains: --("voter-chains") [INT] default_value("5") "Sets the number of voter chains")
     )
     .get_matches();
 
@@ -91,7 +91,7 @@ fn main() {
 
     //INTMOD
     let num_chains = matches
-    .value_of("voter-chains")
+    .value_of("voter_chains")
     .unwrap()
     .parse::<u32>()
     .unwrap_or_else(|e| {
