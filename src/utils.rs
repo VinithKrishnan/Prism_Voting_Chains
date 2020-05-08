@@ -1,13 +1,13 @@
 use crate::transaction::{self, SignedTransaction};
 use crate::block::Block;
-use crate::ledger_state::State;
+//use crate::ledger_state::State;
 use crate::crypto::address;
 use crate::mempool::TransactionMempool;
 use crate::crypto::hash::{H256,Hashable};
 
 use log::debug;
 
-
+/*
 pub fn is_tx_valid(signed_tx: &SignedTransaction) -> bool {
    //verify whether the tx is signed properly
    return transaction::verify(&signed_tx.tx, &signed_tx.signature, &signed_tx.public_key);
@@ -80,3 +80,4 @@ pub fn mempool_update(block: &Block, mempool: &mut TransactionMempool){
 }
 
 
+*/

@@ -1,6 +1,6 @@
 use crate::network::server::Handle as ServerHandle;
 use crate::blockchain::Blockchain;
-use crate::ledger_state::{BlockState,State};
+//use crate::ledger_state::{BlockState,State};
 use crate::block::*;
 use crate::transaction::{self,*};
 use crate::crypto::hash::{H256, Hashable};
@@ -41,7 +41,7 @@ pub struct Context {
     operating_state: OperatingState,
     server: ServerHandle,
     mempool: Arc<Mutex<TransactionMempool>>,
-    ledger_state: Arc<Mutex<BlockState>>,
+   // ledger_state: Arc<Mutex<BlockState>>,
     blockchain: Arc<Mutex<Blockchain>>,
 }
 
@@ -55,7 +55,7 @@ pub struct Handle {
 pub fn new(
     server: &ServerHandle,
     mempool: &Arc<Mutex<TransactionMempool>>,
-    ledger_state: &Arc<Mutex<BlockState>>,
+    //ledger_state: &Arc<Mutex<BlockState>>,
     blockchain: &Arc<Mutex<Blockchain>>
 ) -> (Context, Handle) {
     let (signal_chan_sender, signal_chan_receiver) = unbounded();
@@ -65,7 +65,7 @@ pub fn new(
         operating_state: OperatingState::Paused,
         server: server.clone(),
         mempool: Arc::clone(mempool),
-        ledger_state: Arc::clone(ledger_state),
+       // ledger_state: Arc::clone(ledger_state),
         blockchain: Arc::clone(blockchain),
     };
 
@@ -182,22 +182,22 @@ impl Context {
         //getting tip state
         let locked_blockchain = self.blockchain.lock().unwrap();
         let mut locked_mempool = self.mempool.lock().unwrap();
-        let locked_state = self.ledger_state.lock().unwrap();
+        //let locked_state = self.ledger_state.lock().unwrap();
        
         
-        let tiphash = locked_blockchain.tiphash;
-        let mut map_state:HashMap<UtxoInput, UtxoOutput> = HashMap::new();
-        let mut tip_state:State = State{state_map:map_state};
+        //let tiphash = locked_blockchain.tiphash;
+        //let mut map_state:HashMap<UtxoInput, UtxoOutput> = HashMap::new();
+        /*let mut tip_state:State = State{state_map:map_state};
         if locked_state.block_state_map.contains_key(&tiphash){
         tip_state = locked_state.block_state_map.get(&tiphash).unwrap().clone();
         }
         else{
-            println!("Tiphash not present in state_map");
+            println!(Tiphash not present in state_map);
             continue;
         }
         for (key,value) in tip_state.state_map.iter() {
-            println!("{:?},{:?}", key,value);
-        }
+            println!({:?},{:?}, key,value);
+        }*/
 
 
         let mut ref_addr1:H160=generate_random_address() ;
@@ -217,7 +217,7 @@ impl Context {
         let mut tx_buffer : Vec<H256> = vec![];
         
         
-        for (input,output) in tip_state.state_map.iter() {
+        /*for (input,output) in tip_state.state_map.iter() {
             if output.receipient_addr == ref_addr1 || output.receipient_addr == ref_addr2  {
                 let mut vec_input:Vec<UtxoInput> = vec![]; 
                 let mut vec_output:Vec<UtxoOutput> = vec![];
@@ -240,12 +240,22 @@ impl Context {
                continue;
                } else {
                 tx_buffer.push(signed_tx.hash());
-                println!("Adding transaction with recepient address {:?} to mempool in tx_generator",send_addr);
+                println!(Adding transaction with recepient address {:?} to mempool in tx_generator,send_addr);
                 locked_mempool.tx_to_process.insert(signed_tx.hash(),true);
                 locked_mempool.tx_map.insert(signed_tx.hash(),signed_tx.clone());
                 locked_mempool.tx_hash_queue.push_back(signed_tx.hash());
            //    }
                 }
+            }
+        }*/
+        for x in 1..5 {
+            let mut signed_tx = generate_random_signed_transaction();
+            if locked_mempool.contains(&signed_tx.hash()){
+                continue;
+            }else{
+                tx_buffer.push(signed_tx.hash());
+                println!("Adding transaction with hash {:?} to mempool",signed_tx.hash());
+                locked_mempool.insert(signed_tx);
             }
         }
         //println!("Balance of account1 is {} and balance of account 2 is {}.",balance1,balance2);
@@ -270,7 +280,7 @@ impl Context {
         if tx_buffer.len()>0 {
         self.server.broadcast(Message::NewTransactionHashes(tx_buffer));
         }
-        std::mem::drop(locked_state);
+        //std::mem::drop(locked_state);
         std::mem::drop(locked_mempool);
         std::mem::drop(locked_blockchain);
         

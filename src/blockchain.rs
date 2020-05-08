@@ -61,6 +61,10 @@ pub struct Blockchain {
     // orphan buffer stores a mapping between missing reference and block
     // use multimap as many blocks could wait on a single reference.
     pub orphan_buffer: HashMap<H256, Vec<Block>>,
+
+    // This is the store of all blocks ever received / mined.
+    // Note: temporary
+    pub blocksdb: HashMap<H256, Block>,
 }
 
 impl Blockchain {
@@ -69,6 +73,8 @@ impl Blockchain {
         let mut proposer_chain = HashMap::new();
         let proposer = genesis_proposer();
         let proposer_hash = proposer.hash();
+        blocksdb.insert(proposer_hash, proposer.clone());
+
         let metablock = Metablock {
             block: proposer,
             level: 1,
@@ -84,6 +90,8 @@ impl Blockchain {
             let mut tmp_chain = HashMap::new();
             let voter = genesis_voter(chain_num);
             let voter_hash = voter.hash();
+            blocksdb.insert(voter_hash, voter.clone());
+
             let metablock = Metablock {
                 block: voter,
                 level: 1,
@@ -171,14 +179,14 @@ impl Blockchain {
     }
 
     pub fn insert(&mut self, block: &Block) -> InsertStatus {
+        let block_hash = block.hash();
+        blocksdb.insert(block_hash, block.clone());
 
         if self.is_orphan(block) {
             return InsertStatus::Orphan;
         }
-        
-        // All references inside the block are guaranteed to be present
-        let block_hash = block.hash();
 
+        // All references inside the block are guaranteed to be present
         match block.content {
             Content::Proposer(content) => {
                 // Remove parent and referenced proposer hashes from `unref_proposers`
@@ -294,6 +302,14 @@ impl Blockchain {
             votes.push(self.level2proposer[&level]);
         }
         votes
+    }
+
+    pub fn has_block(&self, block_hash: H256) -> bool {
+        self.blocksdb.contains_key(block_hash)
+    }
+
+    pub fn get_block(&self, block_hash: H256) -> Option<Block> {
+        self.blocksdb.get(block_hash)
     }
 
 }
