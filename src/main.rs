@@ -14,6 +14,8 @@ pub mod utils;
 pub mod tx_generator;
 pub mod ledger_state;
 pub mod validation;
+pub mod ledger_manager;
+pub mod utxo;
 
 use clap::clap_app;
 use crossbeam::channel;
@@ -101,6 +103,8 @@ fn main() {
      // create blockchain
     let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new(num_chains)));
 
+   
+
     // start the transaction generator
     let (txgen_ctx,txgen) = tx_generator::new(
         &server,
@@ -135,6 +139,12 @@ fn main() {
         &mempool,
     );
     worker_ctx.start();
+
+     //create ledger_manager
+    let ledger_manager = ledger_manager::LedgerManager::new(
+        &blockchain,
+    );
+    ledger_manager.start();
 
 
 
