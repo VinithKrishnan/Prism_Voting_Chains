@@ -93,6 +93,7 @@ impl Context {
                     if req_blocks.len() > 0 {
                         peer.write(Message::GetBlocks(req_blocks));
                     }
+                    
 
                     // let mut required_blocks:Vec<H256> = vec![];
                     // println!("Received New Block Hashes");
@@ -222,17 +223,22 @@ impl Context {
                         process_blck.insert(hash);
                         drop(process_blck);
                         //pow and sortation id
-                        let pow_sor_check = validation::check_pow_sortition_id(&blck,&locked_blockchain);
-                        if pow_sor_check.is_none {
-                            println!("Pow check failed");
-                            continue;
-                        }
+                        /*let pow_sor_check = check_pow_sortition_id(&blck,&locked_blockchain);
+                        match pow_sor_check{
+                            BlockResult::Fail => {
+                                continue;
+                            }
+                            _ => {}
+                        }*/
                         //sortition proof
-                        let sor_proof_check = validation::check_sortition_proof(&blck,&locked_blockchain);
-                        if sor_proof_check.is_none {
-                            println!("Sortition proof failed");
-                            continue;
-                        }
+                        /*let sor_proof_check = check_sortition_proof(&blck,&locked_blockchain);
+                        match sor_proof_check{
+                            BlockResult::Fail => {
+                                continue;
+                            }
+                            _ => {}
+
+                        }*/
                         //check_content_semantic
                         /*let content_check = validation::check_content_semantic(&block,&locked_blockchain);
                         if content_check.is_none {
@@ -243,7 +249,7 @@ impl Context {
                         let insert_status = locked_blockchain.insert(&blck);
                         match insert_status {
                             InsertStatus::Orphan => {
-                                match blck.content {
+                                match blck.content.clone() {
                                     Content::Proposer(content) => {
                                         get_block_hash.push(content.parent_hash);
                                     }
@@ -254,24 +260,25 @@ impl Context {
                                 //get_block_hash.push(blck.content.parent_hash);
                                 self.server.broadcast(Message::GetBlocks(get_block_hash.clone()));
                             }
+                            _ => {}
                         }
                         //broadcasting new block hashes
-                        new_block_hash.push(blck.hash());
+                        new_block_hash.push(blck.clone().hash());
                         self.server.broadcast(Message::NewBlockHashes(new_block_hash.clone()));
                     }
                 }
                 Message::NewTransactionHashes(vec_tx_hashes) => {
                     let mut required_txs: Vec<H256> = vec![];
                     println!("Received NewTransactionHashes");
-                    locked_mempool = self.tx_mempool.lock().unwrap();
+                    //locked_mempool = self.tx_mempool.lock().unwrap();
                     for recv_tx_hash in vec_tx_hashes {
                         if !locked_mempool.contains(&recv_tx_hash) {
                             let requested_txs = self.requested_txs.lock().unwrap();
                             if !requested_txs.contains(&recv_tx_hash) {
                                 required_txs.push(recv_tx_hash.clone());
                             }
-                            drop(requested_txs);
-                            drop(locked_mempool)
+                           drop(requested_txs);
+                           // drop(locked_mempool);
                         } else {
                             println!("tx which hashes to {} already present in mempool",recv_tx_hash)
                         }

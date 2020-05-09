@@ -30,8 +30,9 @@ pub fn check_pow_sortition_id(block: &Block, num_voter_chains: u32) -> BlockResu
     let correct_sortition_id = match &block.content {
         Content::Proposer(_) => PROPOSER_INDEX,
         Content::Voter(content) => content.chain_num + FIRST_VOTER_IDX,
+
     };
-    if sortition_id != correct_sortition_id {
+    if sortition_id.unwrap() != correct_sortition_id {
         return BlockResult::Fail;
     }
     return BlockResult::Pass;
@@ -47,8 +48,8 @@ pub fn check_sortition_proof(block: &Block, num_voter_chains: u32) -> BlockResul
         &block.header.merkle_root,
         &block.content.hash(),
         &block.sortition_proof,
-        sortition_id as usize,
-        (blockchain.num_voter_chains + FIRST_VOTER_INDEX) as usize,
+        sortition_id.unwrap() as usize,
+        (blockchain.num_voter_chains + FIRST_VOTER_IDX) as usize,
     ) {
         return BlockResult::Fail;
     }

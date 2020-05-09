@@ -114,7 +114,7 @@ impl Server {
                             txgen.start(lambda,lambda%3);
                             let interval = time::Duration::from_micros(10000);
                             thread::sleep(interval);
-                            miner.start(lambda);
+                            miner.start(10000,lambda%3);
                             respond_result!(req, true, "ok");
                         }
                         "/network/ping" => {
