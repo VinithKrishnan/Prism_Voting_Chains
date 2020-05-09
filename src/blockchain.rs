@@ -27,7 +27,7 @@ pub fn remove_by_element<T>(list: &mut Vec<T>, element: T) where T: PartialEq {
 pub enum InsertStatus {
     // Invalid,
     Orphan,
-    Valid
+    Valid,
 }
 #[derive(Debug,Clone)]
 pub struct Metablock {
@@ -71,6 +71,8 @@ pub struct Blockchain {
 impl Blockchain {
     pub fn new(num_voter_chains: u32) -> Self {
         // genesis for proposer and voter chains
+        let mut blocksdb = HashMap::new();
+
         let mut proposer_chain = HashMap::new();
         let proposer = genesis_proposer();
         let proposer_hash = proposer.hash();
@@ -135,6 +137,7 @@ impl Blockchain {
             chain2level: chain2level,
 
             orphan_buffer: HashMap::new(),
+            blocksdb: blocksdb,
         }
     }
 
@@ -185,7 +188,7 @@ impl Blockchain {
 
     pub fn insert(&mut self, block: &Block) -> InsertStatus {
         let block_hash = block.hash();
-        blocksdb.insert(block_hash, block.clone());
+        self.blocksdb.insert(block_hash, block.clone());
 
         if self.is_orphan(block) {
             return InsertStatus::Orphan;
@@ -264,8 +267,8 @@ impl Blockchain {
                     level: parent_meta.level + 1
                 };
                 self.voter_chains[(chain_num-1) as usize].insert(block_hash, metablock.clone());
-                info!("Adding block with hash {} to main chain",block_hash);
-                info!("Block added to voter chain  {} at level {}",chain_num,metablock.level);
+                info!("Adding block with hash {:?} to main chain", block_hash);
+                info!("Block added to voter chain {} at level {}", chain_num, metablock.level);
                 if metablock.level > self.voter_depths[(chain_num-1) as usize] {
                     self.voter_depths[(chain_num-1) as usize] = metablock.level;
                     self.voter_tips[(chain_num-1) as usize] = block_hash;
@@ -315,11 +318,41 @@ impl Blockchain {
     }
 
     pub fn has_block(&self, block_hash: H256) -> bool {
-        self.blocksdb.contains_key(block_hash)
+        self.blocksdb.contains_key(&block_hash)
     }
 
-    pub fn get_block(&self, block_hash: H256) -> Option<Block> {
-        self.blocksdb.get(block_hash)
+    pub fn get_block(&self, block_hash: H256) -> Option<&Block> {
+        self.blocksdb.get(&block_hash)
+    }
+
+    pub fn print_chains(&self) {
+        let mut chain: Vec<Vec<H256>> = Vec::new();
+
+        for level in 1..self.proposer_depth {
+            chain.push(self.level2allproposers[&level].clone());
+        }
+
+        println!("proposers: {:?}", chain);
+
+        for chain_num in 1..self.num_voter_chains {
+            let chain_idx = chain_num - 1;
+            let mut voter_chain: Vec<H256> = Vec::new();
+            let mut curr_key = self.voter_tips[chain_idx as usize];
+            while (self.voter_chains[chain_idx as usize].contains_key(&curr_key)) {
+                voter_chain.push(curr_key);
+                let content = &self.voter_chains[chain_idx as usize].get(&curr_key).unwrap().block.content;
+                match (content) {
+                    Content::Voter(c) => {
+                        curr_key = c.parent_hash;
+                    }
+                    Content::Proposer(c) => {
+                        println!("wtf is wrong with you? you're a voter");
+                    }
+                }
+            }
+            voter_chain.reverse();
+            println!("voter chain {}: {:?}", chain_num, voter_chain);
+        }
     }
 
 }

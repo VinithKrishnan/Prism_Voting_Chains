@@ -19,7 +19,7 @@ pub struct LedgerManagerState {
     pub tx_confirmed: HashSet<H256>,
 }
 
-//ledger-manager which will periodically loop and confirm the transactions 
+//ledger-manager will periodically loop and confirm the transactions 
 pub struct LedgerManager {
     pub ledger_manager_state: LedgerManagerState,
     pub blockchain: Arc<Mutex<Blockchain>>,
@@ -79,6 +79,7 @@ impl LedgerManager {
 
         //TODO: This is a workaround for now till we have some DS which asserts that
         //all voter chains at a particular level has voted
+        // level2votes: how many votes have been casted at level i
         let level_start = self.ledger_manager_state.last_level_processed + 1;
         let level_end = locked_blockchain.proposer_depth + 1;
         for level in level_start..level_end {
@@ -103,16 +104,15 @@ impl LedgerManager {
                 break;
             }
 
-            
-            debug!("Adding leader at level {}. Leader hash: {:?}", level, leader);
+            debug!("Adding leader at level {}, leader hash: {:?}, max votes: {}", level, leader, max_vote_count);
             leader_sequence.push(leader);
             self.ledger_manager_state.last_level_processed = level;
-
         }
 
         leader_sequence
     }
     
+    // needs to process parent as well
     fn get_transaction_sequence(&mut self, leader_sequence: &Vec<H256>) -> Vec<SignedTransaction> {        
         let locked_blockchain = self.blockchain.lock().unwrap();
 

@@ -66,8 +66,7 @@ impl TransactionMempool{
     // ^ handy constructs for error handling
 
     pub fn get(&self, h: &H256) -> Option<&TxStore> {
-        let txstore = self.hash_to_txstore.get(h)?;
-        Some(txstore)
+        self.hash_to_txstore.get(h)
     }
 
     // checks whether tx is already in mempool

@@ -273,15 +273,16 @@ impl Context {
                 
                 // Sortition and decide the block index - proposer(0), voters(1..m)
                 let block_idx: u32 = sortition_hash(block_hash, difficulty, num_voter_chains).unwrap();
-                match &superblock.content[block_idx as usize] {
-                    Content::Proposer(content) => {
-                        println!("Mined a new block with hash {} at index: {} and height {}",block_hash,block_idx,locked_blockchain.proposer_chain[&content.parent_hash].level+1);
-                    }
-                    Content::Voter(content) => {
-                        println!("Mined a new block with hash {} at index: {} and height {}",block_hash,block_idx,locked_blockchain.voter_chains[(block_idx-1) as usize][&content.parent_hash].level+1);
-                    }
+                println!("Mined a new block with {:?} hash", block_hash);
+                // match &superblock.content[block_idx as usize] {
+                //     Content::Proposer(content) => {
+                //         println!("Mined a new block with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.proposer_chain[&content.parent_hash].level+1);
+                //     }
+                //     Content::Voter(content) => {
+                //         println!("Mined a new block with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.voter_chains[(block_idx-1) as usize][&content.parent_hash].level+1);
+                //     }
                 
-                }    
+                // }    
 
                 // Add header, relevant content and sortition proof
                 let sortition_proof = content_mkl_tree.proof(block_idx as usize);
@@ -294,6 +295,8 @@ impl Context {
                 // Insert into local blockchain
                 // let mut locked_blockchain = self.blockchain.lock().unwrap();
                 locked_blockchain.insert(&processed_block);
+
+                locked_blockchain.print_chains();
                 
 
                 // Broadcast new block hash to the network

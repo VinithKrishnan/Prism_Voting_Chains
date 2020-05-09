@@ -72,21 +72,9 @@ fn main() {
     // create channels between server and worker
     let (msg_tx, msg_rx) = channel::unbounded();
 
-
-
     // start the p2p server
     let (server_ctx, server) = server::new(p2p_addr, msg_tx).unwrap();
     server_ctx.start().unwrap();
-
-
-    // generating genblock and genhash
-    /*let buffer: [u8; 32] = [0; 32];
-    let b:H256 = buffer.into();
-    let genesis:Block = block::generate_genesis_block(&b);
-    let genhash:H256 = genesis.hash();*/
-     
-    // create state_chain
-    //let ledger_state = Arc::new(Mutex::new(ledger_state::BlockState::new(&genhash)));
 
     // create mempool
     let mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
@@ -100,16 +88,16 @@ fn main() {
         error!("Error parsing voter chains: {}", e);
         process::exit(1);
     });
+
      // create blockchain
     let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new(num_chains)));
 
-   
-
     // start the transaction generator
+    // The transaction generator should not use blockchain
     let (txgen_ctx,txgen) = tx_generator::new(
         &server,
         &mempool,
-        &blockchain,
+        // &blockchain,
     );
     txgen_ctx.start(); 
 
