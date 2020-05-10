@@ -29,6 +29,7 @@ use std::time;
 use std::sync::{Arc, Mutex};
 use crate::crypto::hash::{self, H256, Hashable};
 use crate::block::{*};
+use crate::utxo::{UtxoState};
 
 
 fn main() {
@@ -89,15 +90,24 @@ fn main() {
         process::exit(1);
     });
 
-     // create blockchain
+    // create blockchain
     let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new(num_chains)));
+
+    let utxo_state = Arc::new(Mutex::new(UtxoState::new()));
+
+    //create ledger_manager
+    let ledger_manager = ledger_manager::LedgerManager::new(
+        &blockchain,
+        &utxo_state,
+    );
+    ledger_manager.start();
 
     // start the transaction generator
     // The transaction generator should not use blockchain
     let (txgen_ctx,txgen) = tx_generator::new(
         &server,
         &mempool,
-        // &blockchain,
+        &utxo_state,
     );
     txgen_ctx.start(); 
 
@@ -128,11 +138,7 @@ fn main() {
     );
     worker_ctx.start();
 
-     //create ledger_manager
-    let ledger_manager = ledger_manager::LedgerManager::new(
-        &blockchain,
-    );
-    ledger_manager.start();
+    
 
 
 

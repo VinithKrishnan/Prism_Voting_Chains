@@ -119,7 +119,7 @@ impl Context {
                                     continue;
                                 }
                                 BlockResult::Pass => {
-                                    println!("pow/sortition passed {:?}", block_hash);
+                                    // println!("pow/sortition passed {:?}", block_hash);
                                     let result2 = check_sortition_proof(&block, num_voter_chains);
                                     match result2 {
                                         BlockResult::Fail => {
@@ -127,7 +127,7 @@ impl Context {
                                             continue;
                                         }
                                         BlockResult::Pass => {
-                                            println!("both checks passed {:?}", block_hash);
+                                            // println!("both checks passed {:?}", block_hash);
                                         }
                                     }
                                 }
