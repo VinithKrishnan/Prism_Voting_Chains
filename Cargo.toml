@@ -23,6 +23,7 @@ hex-literal = "0.2"
 clap = { version = "2.33", features = ["wrap_help"]}
 chrono = "0.4"
 bigint = "4"
+statrs = "0.12"
 
 [features]
 default = []
