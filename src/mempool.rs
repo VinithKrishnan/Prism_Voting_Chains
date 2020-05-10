@@ -66,8 +66,7 @@ impl TransactionMempool{
     // ^ handy constructs for error handling
 
     pub fn get(&self, h: &H256) -> Option<&TxStore> {
-        let txstore = self.hash_to_txstore.get(h)?;
-        Some(txstore)
+        self.hash_to_txstore.get(h)
     }
 
     // checks whether tx is already in mempool
@@ -123,14 +122,14 @@ impl TransactionMempool{
     
     /// get n transaction in fifo order
     pub fn get_transactions(&self, n: u32) -> Vec<SignedTransaction> {
-        let result:Vec<SignedTransaction> = vec![];
+        let mut result:Vec<SignedTransaction> = vec![];
         if n > self.mempool_len().try_into().unwrap(){
             return vec![];
         }
         for i  in 0..n {
             let hash = self.index_to_hash.get(&i).unwrap();
             let txstore = self.hash_to_txstore.get(hash).unwrap();
-            result.push(txstore.signed_tx);
+            result.push(txstore.signed_tx.clone());
         }
         result
     }

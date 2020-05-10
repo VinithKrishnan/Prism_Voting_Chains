@@ -12,10 +12,9 @@ use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug,Clone)]
 pub struct Header {
-    //pub parenthash: H256,
     pub nonce: u32,
     pub difficulty: H256,
-    pub timestamp: i32,
+    pub timestamp: u128,
     pub merkle_root:H256,
     pub miner_id:i32,
 }
@@ -46,7 +45,7 @@ pub struct Block {
 impl Block {
     pub fn new(
         //parent: H256,
-        ts: i32,
+        ts: u128,
         n: u32,
         content_merkle_root: H256,
         sortition_proof: Vec<H256>,
@@ -98,10 +97,10 @@ pub struct VoterContent {
 impl Hashable for  VoterContent {
     fn hash(&self)->H256 {
         let merkle_tree =  MerkleTree::new(&self.votes);
-        let mut bytes = [0u8; 66];
-        bytes[..2].copy_from_slice(&self.chain_num.to_be_bytes());
-        bytes[2..34].copy_from_slice(self.parent_hash.as_ref());
-        bytes[34..66].copy_from_slice(merkle_tree.root().as_ref());
+        let mut bytes = [0u8; 68];
+        bytes[..4].copy_from_slice(&self.chain_num.to_be_bytes());
+        bytes[4..36].copy_from_slice(self.parent_hash.as_ref());
+        bytes[36..68].copy_from_slice(merkle_tree.root().as_ref());
         ring::digest::digest(&ring::digest::SHA256, &bytes).into()
     }
 }

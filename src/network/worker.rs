@@ -1,16 +1,18 @@
+// use super::buffer::BlockBuffer;
 use super::message::Message;
 use super::peer;
 use crate::network::server::Handle as ServerHandle;
-use crate::blockchain::Blockchain;
+use crate::blockchain::{Blockchain, InsertStatus};
 use crate::block::*;
 use crate::transaction::SignedTransaction;
 use crate::utils;
 use crate::mempool::TransactionMempool;
 use crate::crypto::hash::{H256, Hashable};
-use crate::ledger_state::BlockState;
-
+use std::collections::{HashMap, HashSet};
+// use crate::validation::{BlockResult};
 use crossbeam::channel;
 use log::{info,debug, warn};
+use crate::validation::{BlockResult, check_pow_sortition_id, check_sortition_proof};
 
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -21,8 +23,7 @@ pub struct Context {
     num_worker: usize,
     server: ServerHandle,
     blockchain: Arc<Mutex<Blockchain>>,
-    tx_mempool: Arc<Mutex<TransactionMempool>>,
-    ledger_state: Arc<Mutex<BlockState>>,
+    mempool: Arc<Mutex<TransactionMempool>>,
 }
 
 pub fn new(
@@ -30,16 +31,14 @@ pub fn new(
     msg_src: channel::Receiver<(Vec<u8>, peer::Handle)>,
     server: &ServerHandle,
     blockchain: &Arc<Mutex<Blockchain>>,
-    tx_mempool: &Arc<Mutex<TransactionMempool>>,
-    ledger_state: &Arc<Mutex<BlockState>>
+    mempool: &Arc<Mutex<TransactionMempool>>,
 ) -> Context {
     Context {
         msg_chan: msg_src,
         num_worker,
         server: server.clone(),
         blockchain: Arc::clone(blockchain),
-        tx_mempool: Arc::clone(tx_mempool),
-        ledger_state: Arc::clone(ledger_state),
+        mempool: Arc::clone(mempool),
     }
 }
 
@@ -60,9 +59,7 @@ impl Context {
             let msg = self.msg_chan.recv().unwrap();
             let (msg, peer) = msg;
             let msg: Message = bincode::deserialize(&msg).unwrap();
-            let mut locked_blockchain = self.blockchain.lock().unwrap();
-            let mut locked_mempool = self.tx_mempool.lock().unwrap();
-            let mut locked_state = self.ledger_state.lock().unwrap();
+            
             match msg {
                 Message::Ping(nonce) => {
                     println!("Ping: {}", nonce);
@@ -72,170 +69,130 @@ impl Context {
                     println!("Pong: {}", nonce);
                 }
                 Message::NewBlockHashes(vec_hashes) => {
-                    let mut required_blocks:Vec<H256> = vec![];
-                    println!("Received New Block Hashes");
-
-                    for recv_hash in vec_hashes {
-                        let mut flag: bool = false;
-                        for (bhash,_) in locked_blockchain.chain.iter(){
-                            if *bhash == recv_hash{
-                                println!("Block that hashes to {} already present", bhash);
-                                flag = true;
-                            }
-                        }
-                        for (bhash,_) in locked_blockchain.buffer.iter(){
-                            if *bhash == recv_hash {
-                                println!("Block that hashes to {} already present", bhash);
-                                flag = true;
-                            }
-                        }
-                        if !flag {
-                            required_blocks.push(recv_hash);
+                    let mut req_blocks = Vec::new();
+                    let locked_blockchain = self.blockchain.lock().unwrap();
+                    for block_hash in vec_hashes {
+                        if (!locked_blockchain.has_block(block_hash)) {
+                            req_blocks.push(block_hash);
                         }
                     }
-                    if required_blocks.len()!= 0 {
-                        println!("Sending getBlocks Message");
-                        peer.write(Message::GetBlocks(required_blocks));
-                    }
+                    drop(locked_blockchain);
 
+                    if req_blocks.len() > 0 {
+                        peer.write(Message::GetBlocks(req_blocks));
+                    }
                 }
+
                 Message::GetBlocks(vec_hashes) => {
-                    let mut give_blocks:Vec<Block> = vec![];
-                    println!("Received GetBlocks");
-                    for getblock_hash in vec_hashes {
-                        for (bhash,blck) in locked_blockchain.chain.iter(){
-                            if *bhash == getblock_hash{
-                                println!("Adding block with hash {} to give_blocks", bhash);
-                                give_blocks.push(blck.clone());
+                    let mut newblocks: Vec<Block> = Vec::new();
+                    let locked_blockchain = self.blockchain.lock().unwrap();
+                    for block_hash in vec_hashes {
+                        let result = locked_blockchain.get_block(block_hash);
+                        match result {
+                            Some(block) => {
+                                newblocks.push(block.clone());
+                            }
+                            None => {
+                                println!("blocksdb does not contain {}", block_hash);
                             }
                         }
-                        for (bhash,blck) in locked_blockchain.buffer.iter(){
-                            if *bhash == getblock_hash {
-                                println!("Adding block with hash {} to give_blocks", bhash);
-                                give_blocks.push(blck.clone());
-                            }
-                        }
-
                     }
-                    if give_blocks.len()!=0 {
-                        println!("Sending Blocks message");
-                        peer.write(Message::Blocks(give_blocks));
-                    }
+                    drop(locked_blockchain);
 
+                    if newblocks.len() > 0 {
+                        peer.write(Message::Blocks(newblocks));
+                    }
                 }
+
                 Message::Blocks(vec_blocks) => {
-                    println!("Received Blocks message");
-                    let mut get_block_hash : Vec<H256> = vec![];
-                    let mut new_block_hash : Vec<H256> = vec![];
-                    for blck in vec_blocks {
-                      let mut blck_is_valid: bool = true;
-                      for tx in &blck.content.data{
-                          if !utils::is_tx_valid(tx){
-                             blck_is_valid = false;
-                             println!("Invalid tx in received block. Ignoring that block");
-                             break;
-                          }
-                      }
-
-                      if blck_is_valid {
-
-                        
-                        // added difficulty check in insert method
-                        locked_blockchain.insert(&blck,&mut locked_mempool,&mut locked_state);
-                        //locked_blockchain.insert(&blck,&locked_mempool);
-                        
-                        //Sending getblocks message if block is orphan
-                        get_block_hash.push(blck.header.parenthash);
-                        if !locked_blockchain.chain.contains_key(&blck.header.parenthash){
-                            self.server.broadcast(Message::GetBlocks(get_block_hash.clone()));
+                    let mut locked_blockchain = self.blockchain.lock().unwrap();
+                    let num_voter_chains = locked_blockchain.num_voter_chains;
+                    let mut valid_block_hashes: Vec<H256> = Vec::new();
+                    for block in vec_blocks {
+                        let block_hash = block.hash();
+                        if (!locked_blockchain.has_block(block_hash)) {
+                            // perform validation checks -- hash < difficulty, sortition id, sortition proof
+                            let result = check_pow_sortition_id(&block, num_voter_chains);
+                            match result {
+                                BlockResult::Fail => {
+                                    println!("Invalid block {:?} pow/sortition failed", block_hash);
+                                    continue;
+                                }
+                                BlockResult::Pass => {
+                                    println!("pow/sortition passed {:?}", block_hash);
+                                    let result2 = check_sortition_proof(&block, num_voter_chains);
+                                    match result2 {
+                                        BlockResult::Fail => {
+                                            println!("Invalid block {:?} sortition proof failed", block_hash);
+                                            continue;
+                                        }
+                                        BlockResult::Pass => {
+                                            println!("both checks passed {:?}", block_hash);
+                                        }
+                                    }
+                                }
+                            }
+                            let result = locked_blockchain.insert(&block);
+                            if let result = InsertStatus::Valid {
+                                valid_block_hashes.push(block_hash);
+                            }
                         }
-
-                        //broadcasting new block hashes
-                        new_block_hash.push(blck.hash());
-                        self.server.broadcast(Message::NewBlockHashes(new_block_hash.clone()));
-
-                        /*//Updating mempool
-                        for signed_tx in &blck.content.data {
-                          let signed_tx_hash = signed_tx.hash();
-                          match locked_mempool.tx_to_process.get(&signed_tx_hash){
-                              Some(_tx_present) => {
-                                  locked_mempool.tx_to_process.insert(signed_tx_hash, false);
-                              },
-                              None => {
-                                  locked_mempool.tx_to_process.insert(signed_tx_hash, false);
-                                  locked_mempool.tx_map.insert(signed_tx_hash, signed_tx.clone());
-                              }
-                          }
-                        }*/
-
-                        //Updating State
-                      
-                      }
+                    } 
+                    drop(locked_blockchain);
+                    if valid_block_hashes.len() > 0 {
+                        self.server.broadcast(Message::NewBlockHashes(valid_block_hashes));
                     }
                 }
+
                 Message::NewTransactionHashes(vec_tx_hashes) => {
-                    let mut required_txs: Vec<H256> = vec![];
-                    println!("Received NewTransactionHashes");
-                    
-                    for recv_tx_hash in vec_tx_hashes {
-                        match locked_mempool.tx_to_process.get(&recv_tx_hash){
-                            Some(_tx_present) => println!("tx which hashes to {} already present in mempool", 
-                                                        recv_tx_hash),
-                            None => required_txs.push(recv_tx_hash.clone())
-                        }
-                    }
-
-                    if required_txs.len()!= 0 {
-                        println!("Sending GetTransactions Message");
-                        peer.write(Message::GetTransactions(required_txs));
-                        
-                    }
-                }
-                Message::GetTransactions(vec_tx_hashes) => {
-                    let mut txs_to_send:Vec<SignedTransaction> = vec![];
-                    println!("Received GetTransactions");
-                    
+                    let mut req_txs: Vec<H256> = vec![];
+                    // println!("Received NewTransactionHashes");
+                    let locked_mempool = self.mempool.lock().unwrap();
                     for tx_hash in vec_tx_hashes {
-                        match locked_mempool.tx_map.get(&tx_hash){
-                            Some(signed_tx) => txs_to_send.push(signed_tx.clone()), 
-                            None => {println!("tx which hashes to {} not present in mempool", tx_hash);
-                            println!("Size of mempool is: {}",locked_mempool.tx_map.len());}
+                        if (!locked_mempool.contains(&tx_hash)) {
+                            req_txs.push(tx_hash);
                         }
                     }
-                    
-                    if txs_to_send.len()!=0 {
-                        println!("Sending Transactions message");
-                        peer.write(Message::Transactions(txs_to_send));
+                    drop(locked_mempool);
+                    if req_txs.len() > 0 {
+                        peer.write(Message::GetTransactions(req_txs));
                     }
                 }
-                Message::Transactions(vec_signed_txs) => {
-                    println!("Received Transactions");
-                    let mut tx_hashes_to_broadcast: Vec<H256> = vec![];
-                    for signed_tx in vec_signed_txs {
-                      if utils::is_tx_valid(&signed_tx){
-                          let signed_tx_hash = signed_tx.hash();
-                          match locked_mempool.tx_to_process.get(&signed_tx_hash){
-                              Some(_tx_present) => println!("tx_hash {} already present. Not adding to mempool", 
-                                                         signed_tx_hash),
-                              None => {
-                                  println!("tx_hash {} is being added to mempool", signed_tx_hash);
-                                  locked_mempool.tx_to_process.insert(signed_tx_hash, true);
-                                  locked_mempool.tx_map.insert(signed_tx_hash, signed_tx);
-                                  locked_mempool.tx_hash_queue.push_back(signed_tx_hash);
-                                  tx_hashes_to_broadcast.push(signed_tx_hash);
-                              }
-                          }
-                      }
+
+                Message::GetTransactions(vec_tx_hashes) => {
+                    let mut newtrxs: Vec<SignedTransaction> = Vec::new();
+                    let locked_mempool = self.mempool.lock().unwrap();
+                    for tx_hash in vec_tx_hashes {
+                        let result = locked_mempool.get(&tx_hash);
+                        match result {
+                            Some(txstore) => newtrxs.push(txstore.signed_tx.clone()),
+                            None => println!("mempool does not contain {}", tx_hash),
+                        }
                     }
-                    if tx_hashes_to_broadcast.len() != 0{
-                        self.server.broadcast(Message::NewTransactionHashes(tx_hashes_to_broadcast.clone()));
+                    drop(locked_mempool);
+                    if newtrxs.len() > 0 {
+                        // println!("Sending Transactions message");
+                        peer.write(Message::Transactions(newtrxs));
                     }
                 }
+
+                Message::Transactions(vec_txs) => {
+                    let mut locked_mempool = self.mempool.lock().unwrap();
+                    let mut new_tx_hashes: Vec<H256> = Vec::new();
+                    for tx in vec_txs {
+                        let tx_hash = tx.hash();
+                        if (!locked_mempool.contains(&tx_hash)) {
+                            locked_mempool.insert(tx);
+                            new_tx_hashes.push(tx_hash);
+                        }
+                    }
+                    drop(locked_mempool);
+                    if new_tx_hashes.len() > 0{
+                        self.server.broadcast(Message::NewTransactionHashes(new_tx_hashes));
+                    }
+                }
+
             }
-        std::mem::drop(locked_state);
-        std::mem::drop(locked_mempool);
-        std::mem::drop(locked_blockchain);
-        
         }
     }
 }

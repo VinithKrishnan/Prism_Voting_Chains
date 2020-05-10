@@ -19,7 +19,7 @@ pub struct LedgerManagerState {
     pub tx_confirmed: HashSet<H256>,
 }
 
-//ledger-manager which will periodically loop and confirm the transactions 
+//ledger-manager will periodically loop and confirm the transactions 
 pub struct LedgerManager {
     pub ledger_manager_state: LedgerManagerState,
     pub blockchain: Arc<Mutex<Blockchain>>,
@@ -66,7 +66,7 @@ impl LedgerManager {
             let tx_sequence = self.get_transaction_sequence(&leader_sequence);
             
             //Step 3
-            self.confirm_transactions(&tx_sequence);
+            //self.confirm_transactions(&tx_sequence);
             
             thread::sleep(Duration::from_secs(1));
         }
@@ -79,16 +79,17 @@ impl LedgerManager {
 
         //TODO: This is a workaround for now till we have some DS which asserts that
         //all voter chains at a particular level has voted
+        // level2votes: how many votes have been casted at level i
         let level_start = self.ledger_manager_state.last_level_processed + 1;
         let level_end = locked_blockchain.proposer_depth + 1;
         for level in level_start..level_end {
-            let proposers = locked_blockchain.level2allproposers[&level];
+            let proposers = &locked_blockchain.level2allproposers[&level];
             
             let mut max_vote_count = 0;
             let mut leader: H256 = [0; 32].into();
             //Assumption: if a vote for proposer not present, assumed to be 0
             //When above TODO is done, then this will not be needed or modified accordingly
-            for proposer in &proposers {
+            for proposer in proposers {
                 if locked_blockchain.proposer2votecount.contains_key(proposer) {
                     let vote_count = locked_blockchain.proposer2votecount[proposer];
                     if vote_count > max_vote_count {
@@ -103,34 +104,33 @@ impl LedgerManager {
                 break;
             }
 
-            
-            debug!("Adding leader at level {}. Leader hash: {:?}", level, leader);
+            debug!("Adding leader at level {}, leader hash: {:?}, max votes: {}", level, leader, max_vote_count);
             leader_sequence.push(leader);
             self.ledger_manager_state.last_level_processed = level;
-
         }
 
         leader_sequence
     }
     
+    // needs to process parent as well
     fn get_transaction_sequence(&mut self, leader_sequence: &Vec<H256>) -> Vec<SignedTransaction> {        
         let locked_blockchain = self.blockchain.lock().unwrap();
 
-        let tx_sequence: Vec<SignedTransaction> = Vec::new();
+        let mut tx_sequence: Vec<SignedTransaction> = Vec::new();
 
         //TODO: Should we do it recusrively? Like should we also see references to
         //proposer references of leader?
         //TODO: Also we should refactor it later
         for leader in leader_sequence {
-            let leader_block = locked_blockchain.proposer_chain[leader].block;
+            let leader_block = &locked_blockchain.proposer_chain[leader].block;
             
-            let proposer_refs_to_process: Vec<H256> = Vec::new();
-            let leader_txs: Vec<SignedTransaction> = Vec::new();
-            match leader_block.content {
+            let mut proposer_refs_to_process: Vec<H256> = Vec::new();
+            let mut leader_txs: Vec<SignedTransaction> = Vec::new();
+            match &leader_block.content {
                 Content::Proposer(content) => {
                     //proposer_refs of leader
-                    let proposer_refs = content.proposer_refs;
-                    for proposer_ref in &proposer_refs {
+                    let proposer_refs = &content.proposer_refs;
+                    for proposer_ref in proposer_refs {
                         if !self.ledger_manager_state.proposer_blocks_processed.contains(proposer_ref) {
                             proposer_refs_to_process.push(*proposer_ref);
                         }
@@ -147,8 +147,8 @@ impl LedgerManager {
             //TODO: Do we have to do match in this and previous loop as we know it will always
             //match to Proposer(content). Can we unwrap??
             for proposer_ref in &proposer_refs_to_process {
-                let proposer_block = locked_blockchain.proposer_chain[proposer_ref].block;
-                match proposer_block.content {
+                let proposer_block = &locked_blockchain.proposer_chain[proposer_ref].block;
+                match &proposer_block.content {
                     Content::Proposer(content) => {
                         tx_sequence.append(&mut content.transactions.clone()); 
                     }
