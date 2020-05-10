@@ -5,7 +5,6 @@ use crate::network::server::Handle as ServerHandle;
 use crate::blockchain::{Blockchain, InsertStatus};
 use crate::block::*;
 use crate::transaction::SignedTransaction;
-use crate::utils;
 use crate::mempool::TransactionMempool;
 use crate::crypto::hash::{H256, Hashable};
 use std::collections::{HashMap, HashSet};
