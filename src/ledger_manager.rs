@@ -174,25 +174,23 @@ impl LedgerManager {
         let mut total_vote_blocks: u32 = 0;
 
         for block in proposer_blocks {
-            if locked_blockchain.proposer2voterchains.contains_key(block) {
-                //TODO: We have to change this to introduce DS in blockchain to get either
-                // - voter depths of the voter blocks who have voted or
-                // - voter blocks info (which chain they belong to and their depth) 
-                //   and current depth of the chain
-                //IMO, second is the best
+            if locked_blockchain.proposer2voterinfo.contains_key(block) {
                 
-                //TODO2: We might also need number of voter blocks at a particular level of a voter chain
+                //TODO: We might also need number of voter blocks at a particular level of a voter chain
                 //This is not urgent as we can **assume**, there is one block at each level
-                
-                //For now writing some dummy code to compile
-                let votes = &locked_blockchain.proposer2voterchains[block];
+                let voters_info = &locked_blockchain.proposer2voterinfo[block];
                 let mut vote_depth: Vec<u32> = vec![];
-                for vote in votes {
-                    total_vote_count += 1;
-                    total_vote_blocks += vote;
+                for (voter_chain, voter_block) in voters_info {
 
-                    let this_depth = *vote;
-                    vote_depth.push(this_depth);
+                    let voter_block_level = locked_blockchain.voter_chains[*voter_chain as usize][voter_block].level;
+                    let voter_chain_level = locked_blockchain.voter_depths[*voter_chain as usize];
+                    
+                    total_vote_blocks += 1;
+                    let this_vote_depth = voter_chain_level - voter_block_level + 1;
+
+                    //TODO: As no voter forking for now, this will be equal to depth
+                    total_vote_count += this_vote_depth;
+                    vote_depth.push(this_vote_depth);
                 }
                 votes_depth.insert(block, vote_depth);
             }
@@ -299,13 +297,20 @@ impl LedgerManager {
         //TODO: Also we should refactor it later
         for leader in leader_sequence {
             let leader_block = &locked_blockchain.proposer_chain[leader].block;
-            
+
+            //processing parent and proposer refs
             let mut proposer_refs_to_process: Vec<H256> = Vec::new();
             let mut leader_txs: Vec<SignedTransaction> = Vec::new();
             match &leader_block.content {
                 Content::Proposer(content) => {
-                    //proposer_refs of leader
+                    //parent and proposer_refs of leader
+                    let parent = &content.parent_hash;
                     let proposer_refs = &content.proposer_refs;
+                    
+                    if !self.ledger_manager_state.proposer_blocks_processed.contains(parent) {
+                        proposer_refs_to_process.push(*parent);
+                    }
+
                     for proposer_ref in proposer_refs {
                         if !self.ledger_manager_state.proposer_blocks_processed.contains(proposer_ref) {
                             proposer_refs_to_process.push(*proposer_ref);

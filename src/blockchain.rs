@@ -52,6 +52,11 @@ pub struct Blockchain {
     // LM: store the number of votes for each proposer
     pub proposer2votecount: HashMap<H256, u32>,
 
+    //This data structure gives info about the voter blocks who voted for a proposer
+    //Basically it gives info about each voter chain and voter block hash which voted for 
+    //that proposer
+    pub proposer2voterinfo: HashMap<H256, Vec<(u32, H256)>>,
+
     // Last voted level corresponding to each voter chain
     // IMP TODO: need changes to handle forking in the voter chain
     // TODO: which size to use? u16 or u32
