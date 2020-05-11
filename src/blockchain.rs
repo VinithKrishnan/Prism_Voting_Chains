@@ -18,7 +18,7 @@ pub fn remove_by_element<T>(list: &mut Vec<T>, element: T) where T: PartialEq {
             list.remove(index);
         }
         None => {
-            println!("element not present in the list");
+            // println!("element not present in the list");
         }
     }
 }
@@ -157,14 +157,14 @@ impl Blockchain {
                 if (!self.proposer_chain.contains_key(&content.parent_hash)) {
                     // parent proposer not found, add to orphan buffer
                     self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block.clone());
-                    info!("Adding block with hash {} to buffer",block.hash());
+                    println!("Adding block with hash {} to buffer",block.hash());
                     return true;
                 }
 
                 for ref_proposer in content.proposer_refs.clone() {
                     if (!self.proposer_chain.contains_key(&ref_proposer)) {
                         self.orphan_buffer.entry(ref_proposer).or_insert(Vec::new()).push(block.clone());
-                        info!("Adding block with hash {} to buffer",block.hash());
+                        println!("Adding block with hash {} to buffer",block.hash());
                         return true;
                     }
                 }
@@ -176,7 +176,7 @@ impl Blockchain {
                 if (!self.voter_chains[(chain_num-1) as usize].contains_key(&content.parent_hash)) {
                     // parent proposer not found, add to orphan buffer
                     self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block.clone());
-                    info!("Adding block with hash {} to buffer",block.hash());
+                    println!("Adding block with hash {} to buffer",block.hash());
                     // self.orphan_buffer.insert(block.header.parenthash, block);
                     return true;
                 }
@@ -184,7 +184,7 @@ impl Blockchain {
                 for vote in content.votes.clone() {
                     if (!self.proposer_chain.contains_key(&vote)) {
                         self.orphan_buffer.entry(vote).or_insert(Vec::new()).push(block.clone());
-                        info!("Adding block with hash {} to buffer",block.hash());
+                        println!("Adding block with hash {} to buffer",block.hash());
                         // self.orphan_buffer.insert(vote, block);
                         return true;
                     }
@@ -229,8 +229,7 @@ impl Blockchain {
                     level: block_level,
                 };
                 self.proposer_chain.insert(block_hash, metablock.clone());
-                info!("Adding block with hash {} to main chain",block_hash);
-                info!("Block added to proposer chain at level {}",block_level);
+                println!("Added {:?} to proposer chain at level {}", block_hash, block_level);
 
                 if metablock.level > self.proposer_depth {
                     self.proposer_depth = metablock.level;
@@ -280,8 +279,7 @@ impl Blockchain {
                     level: parent_meta.level + 1
                 };
                 self.voter_chains[(chain_num-1) as usize].insert(block_hash, metablock.clone());
-                info!("Adding block with hash {:?} to main chain", block_hash);
-                info!("Block added to voter chain {} at level {}", chain_num, metablock.level);
+                println!("Added {:?} to voter chain #{} at level {}", block_hash, chain_num, metablock.level);
                 if metablock.level > self.voter_depths[(chain_num-1) as usize] {
                     self.voter_depths[(chain_num-1) as usize] = metablock.level;
                     self.voter_tips[(chain_num-1) as usize] = block_hash;
@@ -302,7 +300,9 @@ impl Blockchain {
                 }
                 println!("{:?} unorphaned {} blocks, out of {} waiting on it", block_hash, count, orphan_blocks.len());
             },
-            None => println!("No orphan blocks waiting on {:?}", block_hash),
+            None => {
+                // println!("No orphan blocks waiting on {:?}", block_hash)
+            },
         }
 
         InsertStatus::Valid

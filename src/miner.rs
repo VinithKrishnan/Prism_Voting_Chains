@@ -33,7 +33,7 @@ impl Hashable for Superblock {
 }
 
 pub fn get_difficulty() -> H256 {
-    (hex!("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
+    (hex!("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
 }
 
 pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Option<u32> {

@@ -6,7 +6,7 @@ use crate::utxo::UtxoState;
 
 use std::collections::{HashMap, HashSet};
 use std::thread;
-use std::time::Duration;
+use std::time::{SystemTime, UNIX_EPOCH, Duration};
 use std::sync::{Arc, Mutex};
 
 use statrs::distribution::{Discrete, Poisson, Univariate};
@@ -25,11 +25,11 @@ pub struct LedgerManagerState {
 pub struct LedgerManager {
     pub ledger_manager_state: LedgerManagerState,
     pub blockchain: Arc<Mutex<Blockchain>>,
-    pub utxo_state: UtxoState,
+    pub utxo_state: Arc<Mutex<UtxoState>>,
 }
 
 impl LedgerManager {
-    pub fn new(blockchain: &Arc<Mutex<Blockchain>>) -> Self {
+    pub fn new(blockchain: &Arc<Mutex<Blockchain>>, utxo_state: &Arc<Mutex<UtxoState>>) -> Self {
         let ledger_manager_state = LedgerManagerState{
             last_level_processed: 0,
             proposer_blocks_processed: HashSet::new(),
@@ -40,7 +40,7 @@ impl LedgerManager {
         LedgerManager {
             ledger_manager_state: ledger_manager_state,
             blockchain: Arc::clone(blockchain),
-            utxo_state: UtxoState::new(),
+            utxo_state: Arc::clone(utxo_state),
         }
     }
 
@@ -109,7 +109,7 @@ impl LedgerManager {
                 break;
             }
 
-            debug!("Adding leader at level {}, leader hash: {:?}, max votes: {}", level, leader, max_vote_count);
+            println!("Adding leader at level {}, leader hash: {:?}, max votes: {}", level, leader, max_vote_count);
             leader_sequence.push(leader);
             self.ledger_manager_state.last_level_processed = level;
         }
@@ -351,6 +351,7 @@ impl LedgerManager {
     }
 
     fn confirm_transactions(&mut self, tx_sequence: &Vec<SignedTransaction>) {
+        let mut locked_utxostate = self.utxo_state.lock().unwrap();
         for tx in tx_sequence {
             //if already processed continue
             if self.ledger_manager_state.tx_confirmed.contains(&tx.hash()) {
@@ -359,10 +360,14 @@ impl LedgerManager {
 
             //check for validity
             //if valid, update utxo_state and add to confirmed transactions
-            if self.utxo_state.is_tx_valid(tx){
-                self.utxo_state.update_state(tx);
+            if locked_utxostate.is_tx_valid(tx){
+                locked_utxostate.update_state(tx);
                 self.ledger_manager_state.tx_confirmed.insert(tx.hash());
+                println!("Confirmed trans hash {} at {}", tx.hash(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros());
+                // Print UTXO state
+                locked_utxostate.print();
             }
         }
+        drop(locked_utxostate);
     }
 }

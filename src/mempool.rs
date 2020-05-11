@@ -5,6 +5,9 @@ use std::collections::VecDeque;
 use std::collections::HashMap;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
+
+use std::time::{SystemTime, UNIX_EPOCH, Duration, Instant};
+
   
 #[derive(Debug)]
 pub struct TransactionMempool{
@@ -18,9 +21,6 @@ pub struct TransactionMempool{
     input_to_hash:HashMap<UtxoInput,H256>,
     // storage_index to txhash, used for maintaining FIFO order
     index_to_hash:BTreeMap<u32,H256>,
-
-
-
 }
 #[derive(Debug, Clone)]
 pub struct TxStore{  //used for storing a tx and its btree index
@@ -42,7 +42,8 @@ impl TransactionMempool{
     }
 
     pub fn insert(&mut self,tx:SignedTransaction) {
-            
+            println!("Received trans hash {} at {}", tx.hash(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros());
+
             let hash = tx.hash();
 
             let txstore = TxStore{
