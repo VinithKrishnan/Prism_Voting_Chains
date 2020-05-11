@@ -73,7 +73,7 @@ impl LedgerManager {
             //Step 3
             self.confirm_transactions(&tx_sequence);
             
-            thread::sleep(Duration::from_secs(1));
+            thread::sleep(Duration::from_secs(5));
         }
     }
 
@@ -182,8 +182,8 @@ impl LedgerManager {
                 let mut vote_depth: Vec<u32> = vec![];
                 for (voter_chain, voter_block) in voters_info {
 
-                    let voter_block_level = locked_blockchain.voter_chains[*voter_chain as usize][voter_block].level;
-                    let voter_chain_level = locked_blockchain.voter_depths[*voter_chain as usize];
+                    let voter_block_level = locked_blockchain.voter_chains[(*voter_chain-1) as usize][voter_block].level;
+                    let voter_chain_level = locked_blockchain.voter_depths[(*voter_chain-1) as usize];
                     
                     total_vote_blocks += 1;
                     let this_vote_depth = voter_chain_level - voter_block_level + 1;
@@ -304,12 +304,12 @@ impl LedgerManager {
             match &leader_block.content {
                 Content::Proposer(content) => {
                     //parent and proposer_refs of leader
-                    let parent = &content.parent_hash;
+                    // let parent = &content.parent_hash;
                     let proposer_refs = &content.proposer_refs;
                     
-                    if !self.ledger_manager_state.proposer_blocks_processed.contains(parent) {
-                        proposer_refs_to_process.push(*parent);
-                    }
+                    // if !self.ledger_manager_state.proposer_blocks_processed.contains(parent) {
+                    //     proposer_refs_to_process.push(*parent);
+                    // }
 
                     for proposer_ref in proposer_refs {
                         if !self.ledger_manager_state.proposer_blocks_processed.contains(proposer_ref) {

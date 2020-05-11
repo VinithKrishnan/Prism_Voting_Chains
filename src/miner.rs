@@ -186,95 +186,102 @@ impl Context {
                 thread::sleep(interval);
             }
 
-            // step1: assemble a new superblock
-            // TODO: We can optimize the assembly by using the version numbers trick
-            let mut locked_blockchain = self.blockchain.lock().unwrap();
-            if locked_blockchain.has_new_proposer() {
-                let  mut locked_mempool = self.mempool.lock().unwrap();
-                println!("miner: acquired mempool lock");
-                txs = locked_mempool.get_transactions(2);
-                drop(locked_mempool);
-                println!("miner: dropped mempool lock");
-            }
-            
-            let mut contents: Vec<Content> = Vec::new();
+            while (true) {
+                // step1: assemble a new superblock
+                // TODO: We can optimize the assembly by using the version numbers trick
+                // println!("miner: acquired blockchain lock");
+                let mut locked_blockchain = self.blockchain.lock().unwrap();
+                // println!("miner: dropped blockchain lock");
 
-            //proposer
-            let proposer_content = ProposerContent {
-                parent_hash: locked_blockchain.get_proposer_tip(),
-                transactions: txs.clone(),
-                proposer_refs: locked_blockchain.get_unref_proposers(),
-            };
-            contents.push(block::Content::Proposer(proposer_content));
-
-            // Voters
-            let num_voter_chains = locked_blockchain.num_voter_chains;
-            for chain_num in 1..(num_voter_chains + 1) {
-                let tmp = VoterContent {
-                    votes: locked_blockchain.get_votes(chain_num),
-                    parent_hash: locked_blockchain.get_voter_tip(chain_num),
-                    chain_num: chain_num,
-                };
-                contents.push(block::Content::Voter(tmp));
-            }
-
-            //drop(locked_blockchain);
-
-            let content_mkl_tree = MerkleTree::new(&contents);
-
-            let mut rng = rand::thread_rng();
-            let header = Header {
-                nonce: rng.gen::<u32>(),
-                difficulty: get_difficulty(),
-                timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros(),
-                merkle_root: content_mkl_tree.root(),
-                miner_id: index as i32,   
-            };
-
-            let superblock = Superblock {
-                header: header,
-                content: contents,
-            };
-
-            let block_hash = superblock.hash();
-            // NOTE: Below works only for static difficulty
-            let difficulty = get_difficulty();
-
-            if block_hash < difficulty {
+                if locked_blockchain.has_new_proposer() {
+                    let  mut locked_mempool = self.mempool.lock().unwrap();
+                    println!("miner: acquired mempool lock");
+                    txs = locked_mempool.get_transactions(2);
+                    drop(locked_mempool);
+                    println!("miner: dropped mempool lock");
+                }
                 
-                // Sortition and decide the block index - proposer(0), voters(1..m)
-                let block_idx: u32 = sortition_hash(block_hash, difficulty, num_voter_chains).unwrap();
-                // println!("Mined a new block with {:?} hash", block_hash);
-                match &superblock.content[block_idx as usize] {
-                    Content::Proposer(content) => {
-                        println!("Mined a proposer with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.proposer_chain[&content.parent_hash].level+1);
-                    }
-                    Content::Voter(content) => {
-                        println!("Mined a voter with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.voter_chains[(block_idx-1) as usize][&content.parent_hash].level+1);
-                    }
-                }    
+                let mut contents: Vec<Content> = Vec::new();
 
-                // Add header, relevant content and sortition proof
-                let sortition_proof = content_mkl_tree.proof(block_idx as usize);
-                let processed_block = Block {
-                    header: superblock.header,
-                    content: superblock.content[block_idx as usize].clone(),
-                    sortition_proof: sortition_proof,
+                //proposer
+                let proposer_content = ProposerContent {
+                    parent_hash: locked_blockchain.get_proposer_tip(),
+                    transactions: txs.clone(),
+                    proposer_refs: locked_blockchain.get_unref_proposers(),
+                };
+                contents.push(block::Content::Proposer(proposer_content));
+
+                // Voters
+                let num_voter_chains = locked_blockchain.num_voter_chains;
+                for chain_num in 1..(num_voter_chains + 1) {
+                    let tmp = VoterContent {
+                        votes: locked_blockchain.get_votes(chain_num),
+                        parent_hash: locked_blockchain.get_voter_tip(chain_num),
+                        chain_num: chain_num,
+                    };
+                    contents.push(block::Content::Voter(tmp));
+                }
+
+                //drop(locked_blockchain);
+
+                let content_mkl_tree = MerkleTree::new(&contents);
+
+                let mut rng = rand::thread_rng();
+                let header = Header {
+                    nonce: rng.gen::<u32>(),
+                    difficulty: get_difficulty(),
+                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros(),
+                    merkle_root: content_mkl_tree.root(),
+                    miner_id: index as i32,   
                 };
 
-                // Insert into local blockchain
-                // let mut locked_blockchain = self.blockchain.lock().unwrap();
-                locked_blockchain.insert(&processed_block);
+                let superblock = Superblock {
+                    header: header,
+                    content: contents,
+                };
 
-                locked_blockchain.print_chains();
+                let block_hash = superblock.hash();
+                // NOTE: Below works only for static difficulty
+                let difficulty = get_difficulty();
+
+                if block_hash < difficulty {
+                    
+                    // Sortition and decide the block index - proposer(0), voters(1..m)
+                    let block_idx: u32 = sortition_hash(block_hash, difficulty, num_voter_chains).unwrap();
+                    // println!("Mined a new block with {:?} hash", block_hash);
+                    match &superblock.content[block_idx as usize] {
+                        Content::Proposer(content) => {
+                            println!("Mined a proposer with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.proposer_chain[&content.parent_hash].level+1);
+                        }
+                        Content::Voter(content) => {
+                            println!("Mined a voter with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.voter_chains[(block_idx-1) as usize][&content.parent_hash].level+1);
+                        }
+                    }    
+
+                    // Add header, relevant content and sortition proof
+                    let sortition_proof = content_mkl_tree.proof(block_idx as usize);
+                    let processed_block = Block {
+                        header: superblock.header,
+                        content: superblock.content[block_idx as usize].clone(),
+                        sortition_proof: sortition_proof,
+                    };
+
+                    // Insert into local blockchain
+                    // let mut locked_blockchain = self.blockchain.lock().unwrap();
+                    locked_blockchain.insert(&processed_block);
+                    locked_blockchain.print_chains();
+                    drop(locked_blockchain);
+
+                    // Broadcast new block hash to the network
+                    self.server.broadcast(Message::NewBlockHashes(vec![block_hash]));
+                    
+                    break;
+                }
+                
                 
 
-                // Broadcast new block hash to the network
-                self.server.broadcast(Message::NewBlockHashes(vec![block_hash]));
             }
-            
-            drop(locked_blockchain);
                 
-            }
         }
     }
+}
