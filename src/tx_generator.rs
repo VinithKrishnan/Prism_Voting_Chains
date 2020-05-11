@@ -174,6 +174,14 @@ impl Context {
             }
 
             let mut locked_mempool = self.mempool.lock().unwrap();
+            if locked_mempool.len() > 5 {
+                if time_i != 0 {
+                    drop(locked_mempool);
+                    let interval = time::Duration::from_micros(time_i);
+                    thread::sleep(interval);
+                    continue;
+                }
+            }
 
             let locked_utxostate = self.utxo_state.lock().unwrap();
             // let lastest_utxo = locked_ledger_manager.utxo_state.clone();
@@ -236,13 +244,15 @@ impl Context {
                         continue;
                     } else {
                         tx_buffer.push(signed_tx.hash());
+                        if tx_buffer.len() > 5 {
+                            break;
+                        }
                         locked_mempool.insert(signed_tx);
                     }
                 }
             }
 
             drop(locked_utxostate);
-
 
             if tx_buffer.len() > 0 {
                 self.server.broadcast(Message::NewTransactionHashes(tx_buffer));

@@ -173,19 +173,24 @@ impl LedgerManager {
     fn confirm_transactions(&mut self, tx_sequence: &Vec<SignedTransaction>) {
         let mut locked_utxostate = self.utxo_state.lock().unwrap();
         for tx in tx_sequence {
+            println!("processing {:?}", tx.hash());
             //if already processed continue
             if self.ledger_manager_state.tx_confirmed.contains(&tx.hash()) {
+                println!("{:?} already confirmed", tx.hash());
                 continue;
             }
 
             //check for validity
             //if valid, update utxo_state and add to confirmed transactions
             if locked_utxostate.is_tx_valid(tx){
+                println!("{:?} valid", tx.hash());
                 locked_utxostate.update_state(tx);
                 self.ledger_manager_state.tx_confirmed.insert(tx.hash());
                 println!("Confirmed trans hash {} at {}", tx.hash(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros());
                 // Print UTXO state
                 locked_utxostate.print();
+            } else {
+                println!("{:?} invalid", tx.hash());
             }
         }
         drop(locked_utxostate);

@@ -4,6 +4,9 @@ use log::debug;
 use log::info;
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use crate::mempool::{TransactionMempool};
+use std::sync::{Arc, Mutex};
+
 use crate::utils::{*};
 
 extern crate chrono;
@@ -25,10 +28,10 @@ pub fn remove_by_element<T>(list: &mut Vec<T>, element: T) where T: PartialEq {
 }
 
 pub enum InsertStatus {
-    // Invalid,
     Orphan,
     Valid,
 }
+
 #[derive(Debug,Clone)]
 pub struct Metablock {
     pub block: Block,
@@ -55,21 +58,24 @@ pub struct Blockchain {
 
     // Last voted level corresponding to each voter chain
     // IMP TODO: need changes to handle forking in the voter chain
-    // TODO: which size to use? u16 or u32
     pub num_voter_chains: u32,
     pub chain2level: HashMap<u32, u32>,
 
     // orphan buffer stores a mapping between missing reference and block
-    // use multimap as many blocks could wait on a single reference.
+    // use Vec<Block> as many blocks could wait on a single reference.
     pub orphan_buffer: HashMap<H256, Vec<Block>>,
 
     // This is the store of all blocks ever received / mined.
-    // Note: temporary
     pub blocksdb: HashMap<H256, Block>,
+
+    // reference to mempool
+    mempool:Arc<Mutex<TransactionMempool>>, 
+
+    new_proposer: bool,
 }
 
 impl Blockchain {
-    pub fn new(num_voter_chains: u32) -> Self {
+    pub fn new(num_voter_chains: u32, mempool: &Arc<Mutex<TransactionMempool>>) -> Self {
         // genesis for proposer and voter chains
         let mut blocksdb = HashMap::new();
 
@@ -138,6 +144,9 @@ impl Blockchain {
 
             orphan_buffer: HashMap::new(),
             blocksdb: blocksdb,
+
+            mempool: Arc::clone(mempool),
+            new_proposer: true,
         }
     }
 
@@ -149,14 +158,14 @@ impl Blockchain {
                 if (!self.proposer_chain.contains_key(&content.parent_hash)) {
                     // parent proposer not found, add to orphan buffer
                     self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block.clone());
-                    println!("Adding block with hash {} to buffer",block.hash());
+                    println!("Adding proposer block with hash {:?} to buffer", block.hash());
                     return true;
                 }
 
                 for ref_proposer in content.proposer_refs.clone() {
                     if (!self.proposer_chain.contains_key(&ref_proposer)) {
                         self.orphan_buffer.entry(ref_proposer).or_insert(Vec::new()).push(block.clone());
-                        println!("Adding block with hash {} to buffer",block.hash());
+                        println!("Adding proposer block with hash {:?} to buffer", block.hash());
                         return true;
                     }
                 }
@@ -168,16 +177,14 @@ impl Blockchain {
                 if (!self.voter_chains[(chain_num-1) as usize].contains_key(&content.parent_hash)) {
                     // parent proposer not found, add to orphan buffer
                     self.orphan_buffer.entry(content.parent_hash).or_insert(Vec::new()).push(block.clone());
-                    println!("Adding block with hash {} to buffer",block.hash());
-                    // self.orphan_buffer.insert(block.header.parenthash, block);
+                    println!("Adding voter block with hash {:?} to buffer", block.hash());
                     return true;
                 }
 
                 for vote in content.votes.clone() {
                     if (!self.proposer_chain.contains_key(&vote)) {
                         self.orphan_buffer.entry(vote).or_insert(Vec::new()).push(block.clone());
-                        println!("Adding block with hash {} to buffer",block.hash());
-                        // self.orphan_buffer.insert(vote, block);
+                        println!("Adding voter block with hash {:?} to buffer", block.hash());
                         return true;
                     }
                 }
@@ -200,16 +207,8 @@ impl Blockchain {
                 // Remove parent and referenced proposer hashes from `unref_proposers`
                 let parent_hash = content.parent_hash;
                 remove_by_element(&mut self.unref_proposers, parent_hash);
+                // TRY &content.proposer_refs
                 for ref_proposer in content.proposer_refs.clone() {
-                    // let result = self.unref_proposers.iter().position(|x| *x == ref_proposer);
-                    // match result {
-                    //     Some(index) => {
-                    //         self.unref_proposers.remove(index);
-                    //     }
-                    //     None => {
-                    //         println!("How come you trying to reference something not in `unref_proposers`?");
-                    //     }
-                    // }
                     remove_by_element(&mut self.unref_proposers, ref_proposer);
                 }
 
@@ -217,16 +216,28 @@ impl Blockchain {
                 let parent_meta = &self.proposer_chain[&content.parent_hash];
                 let block_level = parent_meta.level + 1;
                 let metablock = Metablock {
+                    // TRY block
                     block: block.clone(),
                     level: block_level,
                 };
                 self.proposer_chain.insert(block_hash, metablock.clone());
-                println!("Added {:?} to proposer chain at level {}", block_hash, block_level);
+                self.new_proposer = true;
+                println!("Added proposer {:?} at level {}", block_hash, block_level);
 
                 if metablock.level > self.proposer_depth {
                     self.proposer_depth = metablock.level;
                     self.proposer_tip = block_hash;
                 }
+
+                // remove transactions from the mempool
+                println!("trying to acquire mempool lock");
+                let mut locked_mempool = self.mempool.lock().unwrap();
+                println!("acquired mempool lock");
+
+                for tx in &content.transactions {
+                    locked_mempool.delete(&tx.hash());
+                }
+                drop(locked_mempool);
 
                 // Add selfhash to unref_proposers
                 self.unref_proposers.push(block_hash);
@@ -246,6 +257,7 @@ impl Blockchain {
                 // The below code is inaccurate: votes aren't counted from every block, 
                 // only the blocks belonging to the longest chain. So this is a major TODO.
                 // Bhavana will work on this 4/25. 
+                
 
                 // go through all votes, update proposer2votecount and chain2level
                 let mut max_vote_level: u32 = self.chain2level[&chain_num];
@@ -266,7 +278,7 @@ impl Blockchain {
                     level: parent_meta.level + 1
                 };
                 self.voter_chains[(chain_num-1) as usize].insert(block_hash, metablock.clone());
-                println!("Added {:?} to voter chain #{} at level {}", block_hash, chain_num, metablock.level);
+                println!("Added voter {:?} #{} at level {}", block_hash, chain_num, metablock.level);
                 if metablock.level > self.voter_depths[(chain_num-1) as usize] {
                     self.voter_depths[(chain_num-1) as usize] = metablock.level;
                     self.voter_tips[(chain_num-1) as usize] = block_hash;
@@ -277,15 +289,28 @@ impl Blockchain {
         let result = self.orphan_buffer.remove(&block_hash);
         match result {
             Some(orphan_blocks) => {
-                let mut count: u32 = 0;
                 for orphan_block in &orphan_blocks {
                     let status = self.insert(&orphan_block);
                     match status {
-                        InsertStatus::Valid => count += 1,
+                        InsertStatus::Valid => {
+                            // remove orphan_block from the orphan buffer list
+                            // let mut orphan_idx: usize = 0;
+                            // let mut success: bool = false;
+                            // for (list_idx, list_block) in self.orphan_buffer[&block_hash].iter().enumerate() {
+                            //     if list_block.hash() == orphan_block.hash() {
+                            //         orphan_idx = list_idx;
+                            //         success = true;
+                            //         break;
+                            //     }
+                            // }
+                            // if success {
+                                // self.orphan_buffer[&block_hash].remove(orphan_idx);
+                            println!("Orphan block {:?} processed", orphan_block.hash());
+                            // }
+                        }
                         InsertStatus::Orphan => {},
                     }
                 }
-                println!("{:?} unorphaned {} blocks, out of {} waiting on it", block_hash, count, orphan_blocks.len());
             },
             None => {
                 // println!("No orphan blocks waiting on {:?}", block_hash)
@@ -325,16 +350,22 @@ impl Blockchain {
         self.blocksdb.get(&block_hash)
     }
 
+    pub fn has_new_proposer(&mut self) -> bool {
+        let ret_val = self.new_proposer;
+        self.new_proposer = false;
+        ret_val
+    }
+
     pub fn print_chains(&self) {
         let mut chain: Vec<Vec<H256>> = Vec::new();
 
-        for level in 1..self.proposer_depth {
+        for level in 1..(self.proposer_depth+1) {
             chain.push(self.level2allproposers[&level].clone());
         }
 
         println!("proposers: {:?}", chain);
 
-        for chain_num in 1..self.num_voter_chains {
+        for chain_num in 1..(self.num_voter_chains+1) {
             let chain_idx = chain_num - 1;
             let mut voter_chain: Vec<H256> = Vec::new();
             let mut curr_key = self.voter_tips[chain_idx as usize];

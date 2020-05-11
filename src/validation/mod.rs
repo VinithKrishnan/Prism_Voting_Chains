@@ -30,7 +30,6 @@ pub fn check_pow_sortition_id(block: &Block, num_voter_chains: u32) -> BlockResu
     let correct_sortition_id = match &block.content {
         Content::Proposer(_) => PROPOSER_INDEX,
         Content::Voter(content) => content.chain_num,
-
     };
     if sortition_id.unwrap() != correct_sortition_id {
         println!("Sortition check failed: sortition hash {} content mapping {}", sortition_id.unwrap(), correct_sortition_id);

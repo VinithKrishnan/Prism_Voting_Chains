@@ -33,7 +33,7 @@ impl Hashable for Superblock {
 }
 
 pub fn get_difficulty() -> H256 {
-    (hex!("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
+    (hex!("007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
 }
 
 pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Option<u32> {
@@ -140,45 +140,19 @@ impl Context {
         }
     }
 
-    pub fn tx_pool_gen(&self,mempool:&mut TransactionMempool) -> Vec<SignedTransaction> {
-        let mut vect: Vec<SignedTransaction> = vec![];
-        //let mut merkle_init_vect: Vec<H256> = vec![];
-    
-        
-        //for k in 1..6 {
-        
-       
-        //let mut locked_mempool = self.mempool.lock().unwrap();
-        /*
-        if mempool.tx_hash_queue.len()<15 {
-            continue;
-        } else {
-            while vect.len()<10 && mempool.tx_hash_queue.len()>0 {
-                let h = mempool.tx_hash_queue.pop_front().unwrap();
-                if mempool.tx_to_process.contains_key(&h) && mempool.tx_to_process.get(&h).unwrap() == &true {
-                    vect.push(mempool.tx_map.get(&h).unwrap().clone());
-                    merkle_init_vect.push(h);
-                }
-            }
-            if vect.len()==10 {
-            break;
-            }
-        }*/
-        //println!("The len of mempool is {}",mempool.mempool_len());
-        vect = mempool.get_transactions(1);
-        //let mut merkle_tree_tx = MerkleTree::new(&merkle_init_vect);
-        //let mut merkle_root = merkle_tree_tx.root();
-        vect
-    
-    }
-
-
-
     fn miner_loop(&mut self) {
         // main mining loop
+        
+        let locked_mempool = self.mempool.lock().unwrap();
+        println!("miner: acquired mempool lock");
+        let mut txs = locked_mempool.get_transactions(2);
+        drop(locked_mempool);
+        println!("miner: dropped mempool lock");
+
         loop {
             let mut index:u64 = 0;
             let mut time_i:u64 = 0;
+
 
             // check and react to control signals
             match self.operating_state {
@@ -198,40 +172,37 @@ impl Context {
                     Err(TryRecvError::Disconnected) => panic!("Miner control channel detached"),
                 },
             }
+
             if let OperatingState::ShutDown = self.operating_state {
                 return;
             }
-            if let OperatingState::Run(i,j) = self.operating_state {
+            if let OperatingState::Run(i, j) = self.operating_state {
                 index = j;
-                time_i =i;  
+                time_i = i;  
             }
-
-
 
             if time_i != 0 {
                 let interval = time::Duration::from_micros(time_i as u64);
                 thread::sleep(interval);
             }
 
-
-                
-                    // step1: assemble a new superblock
-                    // TODO: We can optimize the assembly by using the version numbers trick
+            // step1: assemble a new superblock
+            // TODO: We can optimize the assembly by using the version numbers trick
             let mut locked_blockchain = self.blockchain.lock().unwrap();
-            let  mut locked_mempool = self.mempool.lock().unwrap();
-            let mut contents: Vec<Content> = Vec::new();
-            
-            let mut txs = vec![];
-            while txs.len() == 0 {
-                // let mut locked_mempool = self.mempool.lock().unwrap();
-                txs = self.tx_pool_gen(&mut locked_mempool);
-                // drop(locked_mempool);
+            if locked_blockchain.has_new_proposer() {
+                let  mut locked_mempool = self.mempool.lock().unwrap();
+                println!("miner: acquired mempool lock");
+                txs = locked_mempool.get_transactions(2);
+                drop(locked_mempool);
+                println!("miner: dropped mempool lock");
             }
+            
+            let mut contents: Vec<Content> = Vec::new();
 
             //proposer
             let proposer_content = ProposerContent {
                 parent_hash: locked_blockchain.get_proposer_tip(),
-                transactions: txs,
+                transactions: txs.clone(),
                 proposer_refs: locked_blockchain.get_unref_proposers(),
             };
             contents.push(block::Content::Proposer(proposer_content));
@@ -273,16 +244,15 @@ impl Context {
                 
                 // Sortition and decide the block index - proposer(0), voters(1..m)
                 let block_idx: u32 = sortition_hash(block_hash, difficulty, num_voter_chains).unwrap();
-                println!("Mined a new block with {:?} hash", block_hash);
-                // match &superblock.content[block_idx as usize] {
-                //     Content::Proposer(content) => {
-                //         println!("Mined a new block with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.proposer_chain[&content.parent_hash].level+1);
-                //     }
-                //     Content::Voter(content) => {
-                //         println!("Mined a new block with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.voter_chains[(block_idx-1) as usize][&content.parent_hash].level+1);
-                //     }
-                
-                // }    
+                // println!("Mined a new block with {:?} hash", block_hash);
+                match &superblock.content[block_idx as usize] {
+                    Content::Proposer(content) => {
+                        println!("Mined a proposer with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.proposer_chain[&content.parent_hash].level+1);
+                    }
+                    Content::Voter(content) => {
+                        println!("Mined a voter with hash {:?} at index: {} and height {}",block_hash,block_idx,locked_blockchain.voter_chains[(block_idx-1) as usize][&content.parent_hash].level+1);
+                    }
+                }    
 
                 // Add header, relevant content and sortition proof
                 let sortition_proof = content_mkl_tree.proof(block_idx as usize);
@@ -302,7 +272,7 @@ impl Context {
                 // Broadcast new block hash to the network
                 self.server.broadcast(Message::NewBlockHashes(vec![block_hash]));
             }
-            drop(locked_mempool);
+            
             drop(locked_blockchain);
                 
             }
