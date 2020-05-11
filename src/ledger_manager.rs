@@ -19,6 +19,7 @@ pub struct LedgerManagerState {
     pub leader_sequence: Vec<H256>,
     pub proposer_blocks_processed: HashSet<H256>,
     pub tx_confirmed: HashSet<H256>,
+    pub tx_count: usize,
 }
 
 //ledger-manager will periodically loop and confirm the transactions 
@@ -31,10 +32,11 @@ pub struct LedgerManager {
 impl LedgerManager {
     pub fn new(blockchain: &Arc<Mutex<Blockchain>>, utxo_state: &Arc<Mutex<UtxoState>>) -> Self {
         let ledger_manager_state = LedgerManagerState{
-            last_level_processed: 0,
+            last_level_processed: 1,
             proposer_blocks_processed: HashSet::new(),
             leader_sequence: Vec::new(),
             tx_confirmed: HashSet::new(),
+            tx_count: 0,
         };
 
         LedgerManager {
@@ -134,14 +136,14 @@ impl LedgerManager {
 
             match leader {
                 Some(leader_hash) => {  
-                    debug!("Adding leader at level {}, leader hash: {:?}", level, leader_hash);
+                    println!("Adding leader at level {}, leader hash: {:?}", level, leader_hash);
                     leader_sequence.push(leader_hash);
                     self.ledger_manager_state.last_level_processed = level;
                 }
 
                 None => {
-                    debug!("Unable to confirm leader at level {}", level);
-                    debug!("Returning from get_confirmed_leader_sequence func");
+                    println!("Unable to confirm leader at level {}", level);
+                    println!("Returning from get_confirmed_leader_sequence func");
                     break; // TODO: Will this break out of loop??
                 }
             }
@@ -303,13 +305,13 @@ impl LedgerManager {
             let mut leader_txs: Vec<SignedTransaction> = Vec::new();
             match &leader_block.content {
                 Content::Proposer(content) => {
-                    //parent and proposer_refs of leader
-                    // let parent = &content.parent_hash;
+                    // parent and proposer_refs of leader
+                    let parent = &content.parent_hash;
                     let proposer_refs = &content.proposer_refs;
                     
-                    // if !self.ledger_manager_state.proposer_blocks_processed.contains(parent) {
-                    //     proposer_refs_to_process.push(*parent);
-                    // }
+                    if !self.ledger_manager_state.proposer_blocks_processed.contains(parent) {
+                        proposer_refs_to_process.push(*parent);
+                    }
 
                     for proposer_ref in proposer_refs {
                         if !self.ledger_manager_state.proposer_blocks_processed.contains(proposer_ref) {
@@ -351,10 +353,13 @@ impl LedgerManager {
     }
 
     fn confirm_transactions(&mut self, tx_sequence: &Vec<SignedTransaction>) {
+        self.ledger_manager_state.tx_count += tx_sequence.len();
+        println!("Number of transactions considered yet {}", self.ledger_manager_state.tx_count);
         let mut locked_utxostate = self.utxo_state.lock().unwrap();
         for tx in tx_sequence {
             //if already processed continue
             if self.ledger_manager_state.tx_confirmed.contains(&tx.hash()) {
+                println!("DUPLICATE TXS! Already confirmed");
                 continue;
             }
 

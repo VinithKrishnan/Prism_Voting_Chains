@@ -174,7 +174,7 @@ impl Context {
             }
 
             let mut locked_mempool = self.mempool.lock().unwrap();
-            if locked_mempool.len() > 5 {
+            if locked_mempool.len() > 15 {
                 if time_i != 0 {
                     drop(locked_mempool);
                     let interval = time::Duration::from_micros(time_i);
@@ -244,7 +244,7 @@ impl Context {
                         continue;
                     } else {
                         tx_buffer.push(signed_tx.hash());
-                        if tx_buffer.len() > 5 {
+                        if tx_buffer.len() > 7 {
                             break;
                         }
                         locked_mempool.insert(signed_tx);
