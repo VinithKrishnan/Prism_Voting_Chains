@@ -89,7 +89,7 @@ fn main() {
     });
 
     // create blockchain
-    let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new(num_chains)));
+    let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new(num_chains, &mempool)));
 
     let utxo_state = Arc::new(Mutex::new(UtxoState::new()));
 
