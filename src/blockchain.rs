@@ -123,6 +123,9 @@ impl Blockchain {
         let mut proposer2votecount = HashMap::new();
         proposer2votecount.insert(proposer_hash, 0);
 
+        let mut proposer2voterinfo = HashMap::new();
+        proposer2voterinfo.insert(proposer_hash, Vec::new());
+
         Blockchain {
             proposer_chain: proposer_chain,
             proposer_tip: proposer_hash,
@@ -137,6 +140,7 @@ impl Blockchain {
             level2allproposers: level2allproposers,
 
             proposer2votecount: proposer2votecount,
+            proposer2voterinfo: proposer2voterinfo,
             num_voter_chains: num_voter_chains,
             chain2level: chain2level,
 
@@ -254,10 +258,15 @@ impl Blockchain {
 
                 // go through all votes, update proposer2votecount and chain2level
                 let mut max_vote_level: u32 = self.chain2level[&chain_num];
+                let voter_info = (chain_num, block_hash);
                 for vote in content.votes.clone() {
                     // update proposer2votecount
                     let counter = self.proposer2votecount.entry(vote).or_insert(0);
                     *counter += 1;
+                    
+                    let voters_info = self.proposer2voterinfo.entry(vote).or_insert(Vec::new());
+                    voters_info.push(voter_info);
+
                     // update max vote level variable
                     let block_level = self.proposer_chain[&vote].level;
                     let max_vote_level = cmp::max(max_vote_level, block_level);
