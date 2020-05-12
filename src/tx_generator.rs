@@ -14,7 +14,7 @@ use crate::mempool::TransactionMempool;
 use crate::crypto::key_pair;
 use crate::crypto::address::{self,*};
 use std::borrow::Borrow;
-use std::collections::HashMap;
+use std::collections::{HashSet, HashMap};
 use crate::utxo::{UtxoState};
 
 
@@ -145,6 +145,9 @@ impl Context {
 
         let mut index:u64 = 0;
         let mut time_i:u64 = 0;
+
+        //let mut generated_txs: HashSet<H256> = HashSet::new();
+
         loop {
             // check and react to control signals
             match self.operating_state {
@@ -187,9 +190,20 @@ impl Context {
             // let lastest_utxo = locked_ledger_manager.utxo_state.clone();
 
             let mut tx_buffer : Vec<H256> = vec![];
-
+            
+            let mut responsible_addresses:Vec<H160> = Vec::new();
+            match index {
+                0 => {responsible_addresses.push(address1);responsible_addresses.push(address2)},
+                1 => {responsible_addresses.push(address3);responsible_addresses.push(address4)},
+                2 => {responsible_addresses.push(address5);responsible_addresses.push(address6)},
+                _ => println!("Invalid index"),
+            }
             for (input, output) in locked_utxostate.state_map.iter() {
                 if (!rand::random::<bool>()) {
+                    if !responsible_addresses.iter().any(|&i| i==output.receipient_addr) {
+                        continue;
+                    }
+
                     let mut vec_input:Vec<UtxoInput> = vec![]; 
                     let mut vec_output:Vec<UtxoOutput> = vec![];
 
@@ -197,6 +211,7 @@ impl Context {
 
                     let mut new_output = output.clone();
                     let new_receipient = *address_vec.choose(&mut rand::thread_rng()).unwrap();
+                    //let new_receipient = *responsible_addresses.choose(&mut rand::thread_rng()).unwrap();
                     new_output.receipient_addr = new_receipient;
 
                     vec_output.push(new_output);
@@ -242,11 +257,14 @@ impl Context {
 
                     if locked_mempool.contains(&signed_tx.hash()){
                         continue;
+                   // } else if generated_txs.contains(&signed_tx.hash()){
+                     //   continue;
                     } else {
                         tx_buffer.push(signed_tx.hash());
                         if tx_buffer.len() > 7 {
                             break;
                         }
+                       // generated_txs.insert(signed_tx.hash());
                         locked_mempool.insert(signed_tx);
                     }
                 }
