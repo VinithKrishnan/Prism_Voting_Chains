@@ -3,6 +3,7 @@ use crate::transaction::{SignedTransaction,UtxoInput};
 use crate::crypto::hash::Hashable;
 use std::collections::VecDeque;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 
@@ -22,7 +23,8 @@ pub struct TransactionMempool{
     // if a -> b, trans hash b is consuming utxoinput a
     // input_to_hash:HashMap<UtxoInput,H256>,
     // storage_index to txhash, used for maintaining FIFO order
-    index_to_hash:BTreeMap<u32,H256>,
+    index_to_hash: BTreeMap<u32, H256>,
+    utxoinputs: HashSet<H256>
 }
 
 #[derive(Debug, Clone)]
@@ -40,15 +42,22 @@ impl TransactionMempool{
         TransactionMempool{ counter: 0,
             hash_to_txstore: HashMap::new(),
             index_to_hash: BTreeMap::new(), 
+            utxoinputs: HashSet::new(),
         }
     }
 
-    pub fn insert(&mut self,tx:SignedTransaction) {
-            println!("Size of mempool: {}", self.hash_to_txstore.len());
+    pub fn insert(&mut self, tx: SignedTransaction) {
+            // println!("Size of mempool: {}", self.hash_to_txstore.len());
             println!("Received trans hash {} at {}", tx.hash(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros());
 
             let hash = tx.hash();
-
+            for utxoinput in &tx.tx.tx_input {
+                let utxoinput_hash = utxoinput.hash();
+                if !(self.utxoinputs.insert(utxoinput_hash)) {
+                    println!("Thief! {:?} trying to insert a douple spend in mempool", hash);
+                }
+            }
+            
             let txstore = TxStore{
                 signed_tx: tx,
                 index: self.counter,
@@ -69,6 +78,10 @@ impl TransactionMempool{
 
     pub fn contains(&self, h: &H256) -> bool {
         self.hash_to_txstore.contains_key(h)
+    }
+
+    pub fn contains_utxoinput(&self, inputhash: &H256) -> bool {
+        self.utxoinputs.contains(inputhash)
     }
 
     pub fn delete(&mut self, hash: &H256) -> bool {

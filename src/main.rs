@@ -28,6 +28,8 @@ use std::sync::{Arc, Mutex};
 use crate::crypto::hash::{self, H256, Hashable};
 use crate::block::{*};
 use crate::utxo::{UtxoState};
+use std::collections::HashSet;
+
 
 
 fn main() {
@@ -40,7 +42,7 @@ fn main() {
      (@arg api_addr: --api [ADDR] default_value("127.0.0.1:7000") "Sets the IP address and the port of the API server")
      (@arg known_peer: -c --connect ... [PEER] "Sets the peers to connect to at start")
      (@arg p2p_workers: --("p2p-workers") [INT] default_value("4") "Sets the number of worker threads for P2P server")
-     (@arg voter_chains: --("voter-chains") [INT] default_value("10") "Sets the number of voter chains")
+     (@arg voter_chains: --("voter-chains") [INT] default_value("30") "Sets the number of voter chains")
     )
     .get_matches();
 
@@ -75,9 +77,6 @@ fn main() {
     let (server_ctx, server) = server::new(p2p_addr, msg_tx).unwrap();
     server_ctx.start().unwrap();
 
-    // create mempool
-    let mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
-
     //INTMOD
     let num_chains = matches
     .value_of("voter_chains")
@@ -88,10 +87,20 @@ fn main() {
         process::exit(1);
     });
 
+    let utxostate = UtxoState::new();
+    // let mut ico_utxoinputs = HashSet::new();
+    // for (input, _) in utxostate.state_map.iter() {
+    //     if !ico_utxoinputs.insert(input.hash()) {
+    //         println!("WTH, why does your initial UTXO have double spends?");
+    //     }
+    // }
+    let utxo_state = Arc::new(Mutex::new(utxostate));
+
+    // create mempool
+    let mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
+
     // create blockchain
     let blockchain = Arc::new(Mutex::new(blockchain::Blockchain::new(num_chains, &mempool)));
-
-    let utxo_state = Arc::new(Mutex::new(UtxoState::new()));
 
     //create ledger_manager
     let ledger_manager = ledger_manager::LedgerManager::new(

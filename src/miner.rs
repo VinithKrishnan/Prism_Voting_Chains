@@ -181,12 +181,23 @@ impl Context {
                     thread::sleep(interval);
                 }
 
+                let mut txs: Vec<SignedTransaction> = Vec::new();
+
                 let locked_mempool = self.mempool.lock().unwrap();
-                println!("miner: acquired mempool lock");
-                let mut txs = locked_mempool.get_transactions(5);
-                drop(locked_mempool);
-                println!("miner: dropped mempool lock");
-    
+                // println!("miner: acquired mempool lock");
+                if (locked_mempool.len() == 0) {
+                    drop(locked_mempool);
+                    // println!("miner: dropped mempool lock");
+                    // println!("Mempool is empty, see ya later, sleeping");
+                    let interval = time::Duration::from_micros(time_i as u64);
+                    thread::sleep(interval);
+                } else {
+                    txs = locked_mempool.get_transactions(5);
+                    // println!("length of txs in miner {}", txs.len());
+                    drop(locked_mempool);
+                    // println!("miner: dropped mempool lock");
+                }
+                
                 while (true) {
                     // step1: assemble a new superblock
                     // TODO: We can optimize the assembly by using the version numbers trick
@@ -201,11 +212,25 @@ impl Context {
                     }
     
                     if locked_blockchain.has_new_proposer() {
-                        let  mut locked_mempool = self.mempool.lock().unwrap();
-                        println!("miner: acquired mempool lock");
-                        txs = locked_mempool.get_transactions(5);
-                        drop(locked_mempool);
-                        println!("miner: dropped mempool lock");
+                        let locked_mempool = self.mempool.lock().unwrap();
+                        // println!("miner: acquired mempool lock");
+                        if (locked_mempool.len() == 0) {
+                            drop(locked_mempool);
+                            // println!("miner: dropped mempool lock");
+                            // println!("Mempool is empty, see ya later, sleeping");
+                            let interval = time::Duration::from_micros(time_i as u64);
+                            thread::sleep(interval);
+                        } else {
+                            txs = locked_mempool.get_transactions(5);
+                            // println!("length of txs in miner {}", txs.len());
+                            drop(locked_mempool);
+                            // println!("miner: dropped mempool lock");
+                        }
+                    }
+
+                    if (txs.len() == 0) {
+                        println!("txs is empty {}", txs.len());
+                        continue;
                     }
                     
                     let mut contents: Vec<Content> = Vec::new();
@@ -276,7 +301,7 @@ impl Context {
                         // Insert into local blockchain
                         // let mut locked_blockchain = self.blockchain.lock().unwrap();
                         locked_blockchain.insert(&processed_block);
-                        locked_blockchain.print_chains();
+                        // locked_blockchain.print_chains();
                         drop(locked_blockchain);
     
                         // Broadcast new block hash to the network

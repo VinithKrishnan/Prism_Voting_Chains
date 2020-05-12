@@ -1,0 +1,10 @@
+cargo run --release -- -vvv --p2p 127.0.0.1:6000 --api 127.0.0.1:7000 | tee p1.out
+cargo run --release -- -vvv --p2p 127.0.0.1:6001 --api 127.0.0.1:7001 -c 127.0.0.1:6000 | tee p2.out
+cargo run --release -- -vvv --p2p 127.0.0.1:6002 --api 127.0.0.1:7002 -c 127.0.0.1:6001 | tee p3.out
+
+export RUST_BACKTRACE=1
+cargo run -- -vvv --p2p 127.0.0.1:6000 --api 127.0.0.1:7000 | tee p1.out
+export RUST_BACKTRACE=1
+cargo run -- -vvv --p2p 127.0.0.1:6001 --api 127.0.0.1:7001 -c 127.0.0.1:6000 | tee p2.out
+export RUST_BACKTRACE=1
+cargo run -- -vvv --p2p 127.0.0.1:6002 --api 127.0.0.1:7002 -c 127.0.0.1:6001 | tee p3.out

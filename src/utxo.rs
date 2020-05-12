@@ -47,11 +47,14 @@ pub fn perform_ico() -> HashMap<UtxoInput, UtxoOutput> {
     let mut sam = hex!("6b787718210e0b3b608814e04e61fde06d0df794319a12162f287412df3ec920");
     let val = 100;
     for (i, address) in  address_vec.iter().enumerate() {
-        sam[0] = i as u8;
-        let mut initial_tx_hash: H256 = sam.into() ;
-        let input = UtxoInput{tx_hash: initial_tx_hash, idx: 0};
-        let output = UtxoOutput{receipient_addr: *address, value: val};
-        state_map.insert(input, output);
+        for j in 0..5 {
+            sam[0] = i as u8;
+            sam[1] = j as u8;
+            let mut initial_tx_hash: H256 = sam.into() ;
+            let input = UtxoInput{tx_hash: initial_tx_hash, idx: 0};
+            let output = UtxoOutput{receipient_addr: *address, value: val};
+            state_map.insert(input, output);
+        } 
     }
     state_map       
 }
@@ -65,12 +68,17 @@ impl  UtxoState {
     }
 
     pub fn print(&self) {
-        println!("Total entries {}", self.state_map.len());
+        println!("Balances {}", self.state_map.len());
+        let mut balance_map: HashMap<H160, u32> = HashMap::new();
         for (input, output) in self.state_map.iter() {
-            println!("input: {:?} output {:?}", input, output);
+            let balance = balance_map.entry(output.receipient_addr).or_insert(0);
+            *balance += output.value;
+        }
+
+        for (addr, amount) in balance_map.iter() {
+            println!("addr: {:?} balance: {}", addr, amount);
         }
     }
-    
     
     //TODO: Should take Vec<SignedTransaction> for more general purpose
     //As we will be giving only one tx at a time, for now it is fine

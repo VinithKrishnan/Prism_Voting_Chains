@@ -49,6 +49,13 @@ impl Hashable for SignedTransaction {
     }
 }
 
+impl Hashable for UtxoInput {
+    fn hash(&self) -> H256 {
+        let encodedtrans: Vec<u8> = bincode::serialize(&self).unwrap();
+        ring::digest::digest(&ring::digest::SHA256, &encodedtrans[..]).into()
+    }
+}
+
 
 /// Create digital signature of a transaction
 pub fn sign(t: &Transaction, key: &Ed25519KeyPair) -> Signature {

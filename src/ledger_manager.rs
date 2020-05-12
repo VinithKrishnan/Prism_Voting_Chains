@@ -75,7 +75,7 @@ impl LedgerManager {
             //Step 3
             self.confirm_transactions(&tx_sequence);
             
-            thread::sleep(Duration::from_secs(5));
+            thread::sleep(Duration::from_secs(1));
         }
     }
 
@@ -158,8 +158,12 @@ impl LedgerManager {
     fn confirm_leader(&mut self, level: u32) -> Option<H256> {
 
         //TODO: Have to define globally beta and quartile somewhere
-        let beta = 0.1;
+        let beta = 0.3;
         let quantile = 0.0001;
+
+        if level == 2 {
+            println!("beta {}, quantile {}", beta, quantile);
+        }
 
         let locked_blockchain = self.blockchain.lock().unwrap();
         
@@ -354,7 +358,7 @@ impl LedgerManager {
 
     fn confirm_transactions(&mut self, tx_sequence: &Vec<SignedTransaction>) {
         self.ledger_manager_state.tx_count += tx_sequence.len();
-        println!("Number of transactions considered yet {}", self.ledger_manager_state.tx_count);
+        // println!("Number of transactions considered yet {}", self.ledger_manager_state.tx_count);
         let mut locked_utxostate = self.utxo_state.lock().unwrap();
         for tx in tx_sequence {
             //if already processed continue
@@ -370,7 +374,7 @@ impl LedgerManager {
                 self.ledger_manager_state.tx_confirmed.insert(tx.hash());
                 println!("Confirmed trans hash {} at {}", tx.hash(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros());
                 // Print UTXO state
-                locked_utxostate.print();
+                // locked_utxostate.print();
             }
         }
         drop(locked_utxostate);

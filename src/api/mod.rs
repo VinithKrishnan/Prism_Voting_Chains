@@ -111,8 +111,8 @@ impl Server {
                                 }
                             };*/
                            
-                            txgen.start(lambda,lambda%3);
-                            let interval = time::Duration::from_micros(10000);
+                            txgen.start(lambda, lambda%3);
+                            let interval = time::Duration::from_micros(1000000);
                             thread::sleep(interval);
                             miner.start(lambda, lambda%3);
                             respond_result!(req, true, "ok");

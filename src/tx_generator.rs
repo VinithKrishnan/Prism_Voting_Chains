@@ -177,7 +177,7 @@ impl Context {
             }
 
             let mut locked_mempool = self.mempool.lock().unwrap();
-            if locked_mempool.len() > 15 {
+            if locked_mempool.len() >= 15 {
                 if time_i != 0 {
                     drop(locked_mempool);
                     let interval = time::Duration::from_micros(time_i);
@@ -187,8 +187,6 @@ impl Context {
             }
 
             let locked_utxostate = self.utxo_state.lock().unwrap();
-            // let lastest_utxo = locked_ledger_manager.utxo_state.clone();
-
             let mut tx_buffer : Vec<H256> = vec![];
             
             let mut responsible_addresses:Vec<H160> = Vec::new();
@@ -198,76 +196,82 @@ impl Context {
                 2 => {responsible_addresses.push(address5);responsible_addresses.push(address6)},
                 _ => println!("Invalid index"),
             }
+
             for (input, output) in locked_utxostate.state_map.iter() {
-                if (!rand::random::<bool>()) {
-                    if !responsible_addresses.iter().any(|&i| i==output.receipient_addr) {
-                        continue;
-                    }
-
-                    let mut vec_input:Vec<UtxoInput> = vec![]; 
-                    let mut vec_output:Vec<UtxoOutput> = vec![];
-
-                    vec_input.push(input.clone());
-
-                    let mut new_output = output.clone();
-                    let new_receipient = *address_vec.choose(&mut rand::thread_rng()).unwrap();
-                    //let new_receipient = *responsible_addresses.choose(&mut rand::thread_rng()).unwrap();
-                    new_output.receipient_addr = new_receipient;
-
-                    vec_output.push(new_output);
-
-                    let raw_tx = Transaction {
-                        tx_input: vec_input,
-                        tx_output: vec_output,
-                    };
-
-                    // assign dummy values for now, this is changed inside match scope
-                    // Rust does not allow changing the data type of a variable
-                    let mut signature = sign(&raw_tx, &key1).as_ref().to_vec();
-                    let mut public_key = key1.public_key().as_ref().to_vec();
-
-                    let old_receipient = output.receipient_addr;
-                    if (old_receipient == address1) {
-                        signature = sign(&raw_tx, &key1).as_ref().to_vec();
-                        public_key = key1.public_key().as_ref().to_vec();
-                    } else if (old_receipient == address2) {
-                        signature = sign(&raw_tx, &key2).as_ref().to_vec();
-                        public_key = key2.public_key().as_ref().to_vec();
-                    } else if (old_receipient == address3) {
-                        signature = sign(&raw_tx, &key3).as_ref().to_vec();
-                        public_key = key3.public_key().as_ref().to_vec();
-                    } else if (old_receipient == address4) {
-                        signature = sign(&raw_tx, &key4).as_ref().to_vec();
-                        public_key = key4.public_key().as_ref().to_vec();
-                    } else if (old_receipient == address5) {
-                        signature = sign(&raw_tx, &key5).as_ref().to_vec();
-                        public_key = key5.public_key().as_ref().to_vec();
-                    } else if (old_receipient == address6) {
-                        signature = sign(&raw_tx, &key6).as_ref().to_vec();
-                        public_key = key6.public_key().as_ref().to_vec();
-                    } else {
-                        println!("I am only aware of six addresses, I don't know you!!!");
-                    }
-
-                    let signed_tx = SignedTransaction {
-                        tx: raw_tx,
-                        signature: signature,
-                        public_key: public_key,
-                    };
-
-                    if locked_mempool.contains(&signed_tx.hash()){
-                        continue;
-                   // } else if generated_txs.contains(&signed_tx.hash()){
-                     //   continue;
-                    } else {
-                        tx_buffer.push(signed_tx.hash());
-                        if tx_buffer.len() > 7 {
-                            break;
-                        }
-                       // generated_txs.insert(signed_tx.hash());
-                        locked_mempool.insert(signed_tx);
-                    }
+                if (locked_mempool.contains_utxoinput(&input.hash())) {
+                    continue;
                 }
+
+                if !responsible_addresses.iter().any(|&i| i==output.receipient_addr) {
+                    continue;
+                }
+
+                let mut vec_input:Vec<UtxoInput> = vec![]; 
+                let mut vec_output:Vec<UtxoOutput> = vec![];
+
+                vec_input.push(input.clone());
+
+                let mut new_output = output.clone();
+                let new_receipient = *address_vec.choose(&mut rand::thread_rng()).unwrap();
+                new_output.receipient_addr = new_receipient;
+
+                vec_output.push(new_output);
+
+                let raw_tx = Transaction {
+                    tx_input: vec_input,
+                    tx_output: vec_output,
+                };
+
+                // assign dummy values for now, this is changed inside match scope
+                // Rust does not allow changing the data type of a variable
+                let mut signature = sign(&raw_tx, &key1).as_ref().to_vec();
+                let mut public_key = key1.public_key().as_ref().to_vec();
+
+                let old_receipient = output.receipient_addr;
+                if (old_receipient == address1) {
+                    signature = sign(&raw_tx, &key1).as_ref().to_vec();
+                    public_key = key1.public_key().as_ref().to_vec();
+                    // println!("Sending address1's coin");
+                } else if (old_receipient == address2) {
+                    signature = sign(&raw_tx, &key2).as_ref().to_vec();
+                    public_key = key2.public_key().as_ref().to_vec();
+                    // println!("Sending address2's coin");
+                } else if (old_receipient == address3) {
+                    signature = sign(&raw_tx, &key3).as_ref().to_vec();
+                    public_key = key3.public_key().as_ref().to_vec();
+                    // println!("Sending address3's coin");
+                } else if (old_receipient == address4) {
+                    signature = sign(&raw_tx, &key4).as_ref().to_vec();
+                    public_key = key4.public_key().as_ref().to_vec();
+                    // println!("Sending address4's coin");
+                } else if (old_receipient == address5) {
+                    signature = sign(&raw_tx, &key5).as_ref().to_vec();
+                    public_key = key5.public_key().as_ref().to_vec();
+                    // println!("Sending address5's coin");
+                } else if (old_receipient == address6) {
+                    signature = sign(&raw_tx, &key6).as_ref().to_vec();
+                    public_key = key6.public_key().as_ref().to_vec();
+                    // println!("Sending address6's coin");
+                } else {
+                    println!("I am only aware of six addresses, I don't know you!!!");
+                }
+
+                let signed_tx = SignedTransaction {
+                    tx: raw_tx,
+                    signature: signature,
+                    public_key: public_key,
+                };
+
+                if locked_mempool.contains(&signed_tx.hash()){
+                    continue;
+                } else {
+                    tx_buffer.push(signed_tx.hash());
+                    if tx_buffer.len() > 5 {
+                        break;
+                    }
+                    locked_mempool.insert(signed_tx);
+                }
+                
             }
 
             drop(locked_utxostate);
@@ -276,7 +280,7 @@ impl Context {
                 self.server.broadcast(Message::NewTransactionHashes(tx_buffer));
             }
 
-            std::mem::drop(locked_mempool);
+            drop(locked_mempool);
 
             if time_i != 0 {
                 let interval = time::Duration::from_micros(time_i);

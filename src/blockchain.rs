@@ -239,9 +239,9 @@ impl Blockchain {
                 }
 
                 // remove transactions from the mempool
-                println!("trying to acquire mempool lock");
+                // println!("trying to acquire mempool lock");
                 let mut locked_mempool = self.mempool.lock().unwrap();
-                println!("acquired mempool lock");
+                // println!("acquired mempool lock");
 
                 for tx in &content.transactions {
                     locked_mempool.delete(&tx.hash());
@@ -292,7 +292,7 @@ impl Blockchain {
                     level: parent_meta.level + 1
                 };
                 self.voter_chains[(chain_num-1) as usize].insert(block_hash, metablock.clone());
-                println!("Added voter {:?} #{} at level {}", block_hash, chain_num, metablock.level);
+                // println!("Added voter {:?} #{} at level {}", block_hash, chain_num, metablock.level);
                 if metablock.level > self.voter_depths[(chain_num-1) as usize] {
                     self.voter_depths[(chain_num-1) as usize] = metablock.level;
                     self.voter_tips[(chain_num-1) as usize] = block_hash;
