@@ -32,9 +32,13 @@ impl Hashable for Superblock {
     }
 }
 
-pub fn get_difficulty() -> H256 {
-    (hex!("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
+pub fn get_difficulty(num_voter_chains: u32) -> H256 {
+    let base_difficulty = (hex!("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into();
+    let difficulty = U256::from_big_endian(base_difficulty.as_ref());
+    let adjusted_difficulty = difficulty * (num_voter_chains + 1);
+    adjusted_difficulty.as_ref().into()    
 }
+
 
 pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Option<u32> {
     let hash = U256::from_big_endian(hash.as_ref());
@@ -205,11 +209,11 @@ impl Context {
                     let mut locked_blockchain = self.blockchain.lock().unwrap();
                     // println!("miner: dropped blockchain lock");
 
-                    if locked_blockchain.proposer_chain.len() == 10 {
-                        info!("[Miner] finished experiment, shutting down ...");
-                        self.operating_state = OperatingState::ShutDown;
-                        break;
-                    }
+                    // if locked_blockchain.proposer_chain.len() == 10 {
+                    //     info!("[Miner] finished experiment, shutting down ...");
+                    //     self.operating_state = OperatingState::ShutDown;
+                    //     break;
+                    // }
     
                     if locked_blockchain.has_new_proposer() {
                         let locked_mempool = self.mempool.lock().unwrap();
