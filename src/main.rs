@@ -97,7 +97,7 @@ fn main() {
         process::exit(1);
     });
 
-    let utxo_state = Arc::new(Mutex::new(UtxoState::new();));
+    let utxo_state = Arc::new(Mutex::new(UtxoState::new()));
 
     // create mempool
     let mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
