@@ -88,7 +88,7 @@ impl  UtxoState {
         }
         
         for (i, tx_output) in (&signed_tx.tx.tx_output).iter().enumerate() {
-            let tx_input = UtxoInput{tx_hash: signed_tx.tx.hash(), idx: i as u8};
+            let tx_input = UtxoInput{tx_hash: signed_tx.hash(), idx: i as u8};
             self.state_map.insert(tx_input, tx_output.clone());
         }
     }

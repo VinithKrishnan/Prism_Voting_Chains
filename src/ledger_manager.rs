@@ -115,6 +115,8 @@ impl LedgerManager {
 
             println!("Adding leader at level {}, leader hash: {:?}, max votes: {}", level, leader, max_vote_count);
             leader_sequence.push(leader);
+            self.ledger_manager_state.leader_sequence.push(leader);
+            println!("Leader sequence: {:?}", self.ledger_manager_state.leader_sequence);
             self.ledger_manager_state.last_level_processed = level;
         }
 
@@ -140,6 +142,8 @@ impl LedgerManager {
                 Some(leader_hash) => {  
                     println!("Adding leader at level {}, leader hash: {:?}", level, leader_hash);
                     leader_sequence.push(leader_hash);
+                    // self.ledger_manager_state.leader_sequence.push(leader_hash);
+                    // println!("Leader sequence: {:?}", self.ledger_manager_state.leader_sequence);
                     self.ledger_manager_state.last_level_processed = level;
                 }
 
@@ -176,6 +180,7 @@ impl LedgerManager {
                 //This is not urgent as we can **assume**, there is one block at each level
                 let voters_info = &locked_blockchain.proposer2voterinfo[block];
                 if voters_info.len() < (num_voter_chains as usize / 2) {
+                    println!("number of votes for {:?} is {}", block, voters_info.len());
                     continue;
                 }
 
@@ -185,8 +190,8 @@ impl LedgerManager {
                     let voter_block_level = locked_blockchain.voter_chains[(*voter_chain-1) as usize][voter_block].level;
                     let voter_chain_level = locked_blockchain.voter_depths[(*voter_chain-1) as usize];
                     
-                    let this_vote_depth = voter_chain_level - voter_block_level + 1;
-                    if this_vote_depth > self.voter_depth_k {
+                    let this_vote_depth = voter_chain_level - voter_block_level;
+                    if this_vote_depth >= self.voter_depth_k {
                         total_k_deep_votes += 1;
                     }
                 }
@@ -195,6 +200,7 @@ impl LedgerManager {
         }
 
         for (proposer, votes) in  num_confirmed_votes.iter() {
+            println!("proposer {:?}  votes {}", proposer, *votes);
             if *votes > (num_voter_chains / 2) {
                 new_leader = Some(*proposer);
                 break;
@@ -286,7 +292,7 @@ impl LedgerManager {
                 self.ledger_manager_state.tx_confirmed.insert(tx.hash());
                 println!("Confirmed trans hash {} at {}", tx.hash(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros());
                 // Print UTXO state
-                locked_utxostate.print();
+                // locked_utxostate.print();
             }
         }
         drop(locked_utxostate);

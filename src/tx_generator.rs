@@ -188,6 +188,9 @@ impl Context {
 
             let locked_utxostate = self.utxo_state.lock().unwrap();
             let mut tx_buffer : Vec<H256> = vec![];
+
+            println!("Current number of utxo entries {}", locked_utxostate.state_map.len());
+            println!("locked mempool size {}", locked_mempool.len());
             
             let mut responsible_addresses:Vec<H160> = Vec::new();
             match index {

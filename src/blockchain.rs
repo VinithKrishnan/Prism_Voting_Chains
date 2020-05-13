@@ -267,7 +267,6 @@ impl Blockchain {
                 // only the blocks belonging to the longest chain. So this is a major TODO.
                 // Bhavana will work on this 4/25. 
                 
-
                 // go through all votes, update proposer2votecount and chain2level
                 let mut max_vote_level: u32 = self.chain2level[&chain_num];
                 let voter_info = (chain_num, block_hash);

@@ -203,6 +203,8 @@ impl Context {
                     drop(locked_mempool);
                     // println!("miner: dropped mempool lock");
                 }
+
+                let mut empty_mempool:bool = false; 
                 
                 while (true) {
                     // step1: assemble a new superblock
@@ -217,7 +219,7 @@ impl Context {
                     //     break;
                     // }
     
-                    if locked_blockchain.has_new_proposer() {
+                    if (locked_blockchain.has_new_proposer() || empty_mempool) {
                         let locked_mempool = self.mempool.lock().unwrap();
                         // println!("miner: acquired mempool lock");
                         if (locked_mempool.len() == 0) {
@@ -235,6 +237,7 @@ impl Context {
                     }
 
                     if (txs.len() == 0) {
+                        empty_mempool = true;
                         println!("txs is empty {}", txs.len());
                         continue;
                     }
@@ -307,7 +310,7 @@ impl Context {
                         // Insert into local blockchain
                         // let mut locked_blockchain = self.blockchain.lock().unwrap();
                         locked_blockchain.insert(&processed_block);
-                        locked_blockchain.print_chains();
+                        // locked_blockchain.print_chains();
                         drop(locked_blockchain);
     
                         // Broadcast new block hash to the network
