@@ -42,7 +42,8 @@ fn main() {
      (@arg api_addr: --api [ADDR] default_value("127.0.0.1:7000") "Sets the IP address and the port of the API server")
      (@arg known_peer: -c --connect ... [PEER] "Sets the peers to connect to at start")
      (@arg p2p_workers: --("p2p-workers") [INT] default_value("4") "Sets the number of worker threads for P2P server")
-     (@arg voter_chains: --("voter-chains") [INT] default_value("30") "Sets the number of voter chains")
+     (@arg voter_chains: --("voter-chains") [INT] default_value("20") "Sets the number of voter chains")
+     (@arg voter_depth_k: --("voter-depth-k") [INT] default_value("2") "Depth of votes before ledger manager can confirm")
     )
     .get_matches();
 
@@ -87,14 +88,16 @@ fn main() {
         process::exit(1);
     });
 
-    let utxostate = UtxoState::new();
-    // let mut ico_utxoinputs = HashSet::new();
-    // for (input, _) in utxostate.state_map.iter() {
-    //     if !ico_utxoinputs.insert(input.hash()) {
-    //         println!("WTH, why does your initial UTXO have double spends?");
-    //     }
-    // }
-    let utxo_state = Arc::new(Mutex::new(utxostate));
+    let voter_depth_k = matches
+    .value_of("voter_depth_k")
+    .unwrap()
+    .parse::<u32>()
+    .unwrap_or_else(|e| {
+        error!("Error parsing voter depth k: {}", e);
+        process::exit(1);
+    });
+
+    let utxo_state = Arc::new(Mutex::new(UtxoState::new()));
 
     // create mempool
     let mempool = Arc::new(Mutex::new(mempool::TransactionMempool::new()));
@@ -106,6 +109,7 @@ fn main() {
     let ledger_manager = ledger_manager::LedgerManager::new(
         &blockchain,
         &utxo_state,
+        voter_depth_k,
     );
     ledger_manager.start();
 

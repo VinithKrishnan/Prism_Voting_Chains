@@ -32,9 +32,15 @@ impl Hashable for Superblock {
     }
 }
 
-pub fn get_difficulty() -> H256 {
-    (hex!("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into()
+pub fn get_difficulty(num_voter_chains: u32) -> H256 {
+    let base_difficulty: H256 = (hex!("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")).into();
+    let difficulty = U256::from_big_endian(base_difficulty.as_ref());
+    let adjusted_difficulty = difficulty * (num_voter_chains + 1).into();
+    let mut buffer: [u8; 32] = [0; 32];
+    adjusted_difficulty.to_big_endian(&mut buffer);
+    buffer.into()    
 }
+
 
 pub fn sortition_hash(hash: H256, difficulty: H256, num_voter_chains: u32) -> Option<u32> {
     let hash = U256::from_big_endian(hash.as_ref());
@@ -205,11 +211,11 @@ impl Context {
                     let mut locked_blockchain = self.blockchain.lock().unwrap();
                     // println!("miner: dropped blockchain lock");
 
-                    if locked_blockchain.proposer_chain.len() == 10 {
-                        info!("[Miner] finished experiment, shutting down ...");
-                        self.operating_state = OperatingState::ShutDown;
-                        break;
-                    }
+                    // if locked_blockchain.proposer_chain.len() == 10 {
+                    //     info!("[Miner] finished experiment, shutting down ...");
+                    //     self.operating_state = OperatingState::ShutDown;
+                    //     break;
+                    // }
     
                     if locked_blockchain.has_new_proposer() {
                         let locked_mempool = self.mempool.lock().unwrap();
@@ -261,7 +267,7 @@ impl Context {
                     let mut rng = rand::thread_rng();
                     let header = Header {
                         nonce: rng.gen::<u32>(),
-                        difficulty: get_difficulty(),
+                        difficulty: get_difficulty(num_voter_chains),
                         timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros(),
                         merkle_root: content_mkl_tree.root(),
                         miner_id: index as i32,   
@@ -274,7 +280,7 @@ impl Context {
     
                     let block_hash = superblock.hash();
                     // NOTE: Below works only for static difficulty
-                    let difficulty = get_difficulty();
+                    let difficulty = get_difficulty(num_voter_chains);
     
                     if block_hash < difficulty {
                         
@@ -301,7 +307,7 @@ impl Context {
                         // Insert into local blockchain
                         // let mut locked_blockchain = self.blockchain.lock().unwrap();
                         locked_blockchain.insert(&processed_block);
-                        // locked_blockchain.print_chains();
+                        locked_blockchain.print_chains();
                         drop(locked_blockchain);
     
                         // Broadcast new block hash to the network

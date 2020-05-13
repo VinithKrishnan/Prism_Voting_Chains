@@ -166,14 +166,8 @@ impl LedgerManager {
 
         let num_voter_chains: u32 = locked_blockchain.num_voter_chains;
 
-        // collect the depth of each vote on each proposer block
-        //// chain number and vote depth casted on the proposer block
-        let mut votes_depth: HashMap<H256, u32> = HashMap::new(); 
-
-        // collect the total votes on all proposer blocks, and the number of
-        // voter blocks mined after those votes are casted
-        let mut total_vote_count: u32 = 0;
-        let mut total_vote_blocks: u32 = 0;
+        // for each proposer count the number of confirmed votes i.e. votes that are k-deep (2-deep).
+        let mut num_confirmed_votes: HashMap<H256, u32> = HashMap::new(); 
 
         for block in proposer_blocks {
             if locked_blockchain.proposer2voterinfo.contains_key(block) {
@@ -185,7 +179,7 @@ impl LedgerManager {
                     continue;
                 }
 
-                let total_k_deep_votes: u32 = 0;
+                let mut total_k_deep_votes: u32 = 0;
                 for (voter_chain, voter_block) in voters_info {
 
                     let voter_block_level = locked_blockchain.voter_chains[(*voter_chain-1) as usize][voter_block].level;
@@ -196,11 +190,11 @@ impl LedgerManager {
                         total_k_deep_votes += 1;
                     }
                 }
-                votes_depth.insert(*block, total_k_deep_votes);
+                num_confirmed_votes.insert(*block, total_k_deep_votes);
             }
         }
 
-        for (proposer, votes) in  votes_depth.iter() {
+        for (proposer, votes) in  num_confirmed_votes.iter() {
             if *votes > (num_voter_chains / 2) {
                 new_leader = Some(*proposer);
                 break;
@@ -292,7 +286,7 @@ impl LedgerManager {
                 self.ledger_manager_state.tx_confirmed.insert(tx.hash());
                 println!("Confirmed trans hash {} at {}", tx.hash(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros());
                 // Print UTXO state
-                // locked_utxostate.print();
+                locked_utxostate.print();
             }
         }
         drop(locked_utxostate);
