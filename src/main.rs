@@ -42,7 +42,7 @@ fn main() {
      (@arg api_addr: --api [ADDR] default_value("127.0.0.1:7000") "Sets the IP address and the port of the API server")
      (@arg known_peer: -c --connect ... [PEER] "Sets the peers to connect to at start")
      (@arg p2p_workers: --("p2p-workers") [INT] default_value("4") "Sets the number of worker threads for P2P server")
-     (@arg voter_chains: --("voter-chains") [INT] default_value("30") "Sets the number of voter chains")
+     (@arg voter_chains: --("voter-chains") [INT] default_value("40") "Sets the number of voter chains")
      (@arg voter_depth_k: --("voter-depth-k") [INT] default_value("2") "Depth of votes before ledger manager can confirm")
     )
     .get_matches();
